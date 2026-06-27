@@ -11,11 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('websites', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+    Schema::create('websites', function (Blueprint $table) {
+        $table->id();
+
+        $table->foreignId('company_id')
+              ->constrained()
+              ->cascadeOnDelete();
+
+        $table->string('name');
+
+        $table->string('domain')->unique();
+
+        $table->string('api_key')->unique();
+
+        $table->boolean('status')->default(true);
+
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

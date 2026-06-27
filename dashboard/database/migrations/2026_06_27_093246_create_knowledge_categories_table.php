@@ -10,12 +10,25 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('knowledge_categories', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('knowledge_categories', function (Blueprint $table) {
+        $table->id();
+
+        $table->foreignId('company_id')
+              ->constrained()
+              ->cascadeOnDelete();
+
+        $table->string('name');
+
+        $table->string('slug');
+
+        $table->text('description')->nullable();
+
+        $table->boolean('status')->default(true);
+
+        $table->timestamps();
+    });
+} 
 
     /**
      * Reverse the migrations.

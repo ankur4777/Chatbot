@@ -12,31 +12,22 @@ return new class extends Migration
     public function up(): void
 {
     Schema::create('knowledge_bases', function (Blueprint $table) {
+
         $table->id();
 
-        $table->foreignId('company_id')
-              ->constrained()
-              ->cascadeOnDelete();
-
-        $table->foreignId('website_id')
-              ->constrained()
-              ->cascadeOnDelete();
-
         $table->foreignId('knowledge_category_id')
-              ->constrained('knowledge_categories')
-              ->cascadeOnDelete();
+            ->constrained()
+            ->cascadeOnDelete();
 
         $table->string('title');
-
-        $table->string('slug');
 
         $table->longText('content');
 
         $table->enum('source_type', [
             'text',
-            'faq',
-            'url',
             'pdf',
+            'url',
+            'faq',
             'docx',
             'csv',
             'json'
@@ -46,12 +37,9 @@ return new class extends Migration
 
         $table->string('source_url')->nullable();
 
-        $table->boolean('status')->default(true);
-
         $table->timestamps();
     });
 }
-
     /**
      * Reverse the migrations.
      */

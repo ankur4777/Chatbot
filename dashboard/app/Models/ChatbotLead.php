@@ -3,8 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChatbotLead extends Model
 {
-    //
+    protected $fillable = [
+        'website_id',
+        'visitor_id',
+        'conversation_id',
+        'name',
+        'email',
+        'phone',
+        'notes',
+    ];
+
+    public function website(): BelongsTo
+    {
+        return $this->belongsTo(Website::class);
+    }
+
+    public function visitor(): BelongsTo
+    {
+        return $this->belongsTo(Visitor::class);
+    }
+
+    public function conversation(): BelongsTo
+    {
+        return $this->belongsTo(ChatConversation::class);
+    }
 }

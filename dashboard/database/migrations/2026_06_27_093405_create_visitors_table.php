@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
 {
-    Schema::create('chatbot_leads', function (Blueprint $table) {
+    Schema::create('visitors', function (Blueprint $table) {
 
         $table->id();
 
@@ -19,21 +19,17 @@ return new class extends Migration
             ->constrained()
             ->cascadeOnDelete();
 
-        $table->foreignId('visitor_id')
-            ->constrained()
-            ->cascadeOnDelete();
-
-        $table->foreignId('conversation_id')
-            ->constrained('chat_conversations')
-            ->cascadeOnDelete();
-
-        $table->string('name');
+        $table->string('name')->nullable();
 
         $table->string('email')->nullable();
 
         $table->string('phone')->nullable();
 
-        $table->text('notes')->nullable();
+        $table->string('session_id')->unique();
+
+        $table->ipAddress('ip_address')->nullable();
+
+        $table->text('user_agent')->nullable();
 
         $table->timestamps();
     });
@@ -44,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chatbot_leads');
+        Schema::dropIfExists('visitors');
     }
 };

@@ -33,7 +33,12 @@ class Website extends Model
 
     public function categories(): HasMany
     {
-        return $this->hasMany(KnowledgeCategory::class);
+        return $this->hasMany(KnowledgeCategory::class);      
+    }
+
+    public function visitors(): HasMany
+    {
+    return $this->hasMany(Visitor::class);
     }
 
     public function conversations(): HasMany

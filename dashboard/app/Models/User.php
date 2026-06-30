@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'email',
     'password',
     'role',
-    'status',333
+    'status',
     'is_online',
     'last_seen_at',
 ])]
@@ -47,5 +47,9 @@ class User extends Authenticatable
 public function company()
 {
     return $this->belongsTo(Company::class);
+}
+public function assignedConversations()
+{
+    return $this->hasMany(ChatConversation::class, 'assigned_agent_id');
 }
 }

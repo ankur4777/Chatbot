@@ -15,30 +15,39 @@ class ChatConversationsTable
         return $table
             ->columns([
                 TextColumn::make('website.name')
-                    ->searchable(),
+                    ->label('Website')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('visitor.name')
-                    ->searchable(),
+                    ->label('Visitor')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('assignedAgent.name')
+                    ->label('Assigned Agent')
+                    ->placeholder('Unassigned')
                     ->searchable(),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('started_at')
-                    ->dateTime()
+                    ->label('Started')
+                    ->since()
                     ->sortable(),
                 TextColumn::make('ended_at')
-                    ->dateTime()
+                    ->label('Ended')
+                    ->since()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                
             ])
             ->recordActions([
                 EditAction::make(),

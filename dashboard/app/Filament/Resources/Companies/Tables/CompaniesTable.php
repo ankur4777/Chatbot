@@ -16,24 +16,28 @@ class CompaniesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
+                    ->label('Email')
+                    ->searchable()
+                    ->copyable(),
                 TextColumn::make('phone')
-                    ->searchable(),
-                TextColumn::make('logo')
-                    ->searchable(),
+                    ->searchable()
+                    ->copyable(),
                 IconColumn::make('status')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('slug')
+                    ->searchable()
+                    ->copyable(),
             ])
             ->filters([
                 //

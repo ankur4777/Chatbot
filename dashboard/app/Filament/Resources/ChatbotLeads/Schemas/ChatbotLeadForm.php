@@ -14,26 +14,39 @@ class ChatbotLeadForm
         return $schema
             ->components([
                 Select::make('website_id')
-                    ->relationship('website', 'name')
-                    ->required(),
+    ->label('Website')
+    ->relationship('website', 'name')
+    ->searchable()
+    ->preload()
+    ->required(),
                 Select::make('visitor_id')
-                    ->relationship('visitor', 'name')
-                    ->required(),
+    ->label('Visitor')
+    ->relationship('visitor', 'name')
+    ->searchable()
+    ->preload()
+    ->required(),
                 Select::make('conversation_id')
-                    ->relationship('conversation', 'id')
-                    ->required(),
+    ->label('Conversation')
+    ->relationship('conversation', 'id')
+    ->searchable()
+    ->preload()
+    ->required(),
                 TextInput::make('name')
-                    ->required(),
+    ->label('Full Name')
+    ->required()
+    ->maxLength(255),
                 TextInput::make('email')
-                    ->label('Email address')
-                    ->email()
-                    ->default(null),
+    ->label('Email')
+    ->email()
+    ->maxLength(255),
                 TextInput::make('phone')
-                    ->tel()
-                    ->default(null),
+    ->label('Phone')
+    ->tel()
+    ->maxLength(20),
                 Textarea::make('notes')
-                    ->default(null)
-                    ->columnSpanFull(),
+    ->label('Notes')
+    ->rows(5)
+    ->columnSpanFull(),
             ]);
     }
 }

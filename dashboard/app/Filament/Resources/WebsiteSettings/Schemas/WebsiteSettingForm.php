@@ -6,6 +6,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Textarea;
 
 class WebsiteSettingForm
 {
@@ -14,26 +15,32 @@ class WebsiteSettingForm
         return $schema
             ->components([
                 Select::make('website_id')
-                    ->relationship('website', 'name')
-                    ->required(),
+    ->label('Website')
+    ->relationship('website', 'name')
+    ->searchable()
+    ->preload()
+    ->required(),
                 TextInput::make('chatbot_name')
-                    ->required()
-                    ->default('AI Assistant'),
-                TextInput::make('welcome_message')
-                    ->default(null),
+    ->label('Chatbot Name')
+    ->required()
+    ->maxLength(100)
+    ->default('AI Assistant'),
+                Textarea::make('welcome_message')
+                    ->rows(3)
+                    ->default('Hello 👋 How can I help you today?'),
                 TextInput::make('placeholder')
-                    ->required()
-                    ->default('Type your message...'),
-                TextInput::make('language')
-                    ->required()
-                    ->default('en'),
-                TextInput::make('model')
-                    ->required()
-                    ->default('qwen'),
+    ->label('Input Placeholder')
+    ->required()
+    ->maxLength(255)
+    ->default('Type your message...'),
+
                 TextInput::make('temperature')
-                    ->required()
                     ->numeric()
-                    ->default(0.7),
+                    ->minValue(0)
+                    ->maxValue(2)
+                    ->step(0.1)
+                    ->default(0.7)
+                    ->required(),
                 TextInput::make('primary_color')
                     ->required()
                     ->default('#2563eb'),
@@ -42,11 +49,14 @@ class WebsiteSettingForm
                     ->default('right')
                     ->required(),
                 Toggle::make('enable_chatbot')
-                    ->required(),
+                    ->label('Enable Chatbot')
+                    ->default(true),
                 Toggle::make('enable_live_chat')
-                    ->required(),
+                    ->label('Enable Live Chat')
+                    ->default(true),
                 Toggle::make('show_connect_agent')
-                    ->required(),
+                    ->label('Show Connect to Agent')
+                    ->default(true),
             ]);
     }
 }

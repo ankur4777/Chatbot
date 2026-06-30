@@ -10,7 +10,7 @@ class ChatMessage extends Model
     protected $fillable = [
         'conversation_id',
         'sender_type',
-        'user_id',
+        'sender_id',
         'message',
         'attachment',
         'attachment_type',

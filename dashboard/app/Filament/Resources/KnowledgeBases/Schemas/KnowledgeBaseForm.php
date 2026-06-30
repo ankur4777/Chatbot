@@ -13,31 +13,41 @@ class KnowledgeBaseForm
     {
         return $schema
             ->components([
-                TextInput::make('knowledge_category_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('title')
+                Select::make('knowledge_category_id')
+                    ->label('Category')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
+                TextInput::make('title')
+                    ->label('Title')
+                    ->required()
+                    ->maxLength(255),
                 Textarea::make('content')
+                    ->label('Content')
+                    ->rows(10)
                     ->required()
                     ->columnSpanFull(),
                 Select::make('source_type')
+                    ->label('Source Type')
                     ->options([
-            'text' => 'Text',
-            'pdf' => 'Pdf',
-            'url' => 'Url',
-            'faq' => 'Faq',
-            'docx' => 'Docx',
-            'csv' => 'Csv',
-            'json' => 'Json',
-        ])
+                    'text' => 'Text',
+                    'pdf' => 'PDF',
+                    'url' => 'URL',
+                    'faq' => 'FAQ',
+                    'docx' => 'DOCX',
+                    'csv' => 'CSV',
+                    'json' => 'JSON',
+                    ])
                     ->default('text')
                     ->required(),
                 TextInput::make('source_file')
-                    ->default(null),
+                    ->label('Source File')
+                    ->maxLength(255),
                 TextInput::make('source_url')
+                    ->label('Source URL')
                     ->url()
-                    ->default(null),
+                    ->maxLength(500),
             ]);
     }
 }

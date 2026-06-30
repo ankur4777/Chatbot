@@ -14,23 +14,30 @@ class KnowledgeBasesTable
     {
         return $table
             ->columns([
-                TextColumn::make('knowledge_category_id')
-                    ->numeric()
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->label('Title')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('source_type')
+                    ->label('Source')
                     ->badge(),
                 TextColumn::make('source_file')
-                    ->searchable(),
+                    ->label('File')
+                    ->limit(30),
                 TextColumn::make('source_url')
-                    ->searchable(),
+                    ->label('URL')
+                    ->limit(40)
+                    ->tooltip(fn ($record) => $record->source_url),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

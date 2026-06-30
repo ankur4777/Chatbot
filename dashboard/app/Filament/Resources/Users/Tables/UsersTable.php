@@ -15,25 +15,27 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('company_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('company.name')
+    ->label('Company')
+    ->searchable()
+    ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
+    ->label('Full Name')
+    ->searchable()
+    ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+    ->label('Email')
+    ->searchable()
+    ->copyable(),
                 TextColumn::make('role')
-                    ->badge(),
+    ->badge()
+    ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('status')
@@ -41,11 +43,11 @@ class UsersTable
                 IconColumn::make('is_online')
                     ->boolean(),
                 TextColumn::make('last_seen_at')
-                    ->dateTime()
-                    ->sortable(),
+    ->since()
+    ->sortable(),
             ])
             ->filters([
-                //
+                
             ])
             ->recordActions([
                 EditAction::make(),

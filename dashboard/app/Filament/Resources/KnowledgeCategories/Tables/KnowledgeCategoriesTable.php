@@ -14,22 +14,28 @@ class KnowledgeCategoriesTable
     {
         return $table
             ->columns([
-                TextColumn::make('company_id')
-                    ->numeric()
+               TextColumn::make('company.name')
+                    ->label('Company')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Category')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('description')
+                    ->limit(50)
+                    ->tooltip(fn ($record) => $record->description),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                
             ])
             ->recordActions([
                 EditAction::make(),

@@ -14,28 +14,41 @@ class UserForm
     {
         return $schema
             ->components([
-                TextInput::make('company_id')
-                    ->numeric()
-                    ->default(null),
+                Select::make('company_id')
+    ->label('Company')
+    ->relationship('company', 'name')
+    ->searchable()
+    ->preload()
+    ->required(),
                 TextInput::make('name')
-                    ->required(),
+    ->label('Full Name')
+    ->required()
+    ->maxLength(255),
                 TextInput::make('email')
-                    ->label('Email address')
-                    ->email()
-                    ->required(),
-                DateTimePicker::make('email_verified_at'),
+    ->label('Email Address')
+    ->email()
+    ->unique(ignoreRecord: true)
+    ->required()
+    ->maxLength(255),
                 TextInput::make('password')
-                    ->password()
-                    ->required(),
+    ->label('Password')
+    ->password()
+    ->revealable()
+    ->required(fn (string $operation): bool => $operation === 'create')
+    ->dehydrated(fn ($state) => filled($state))
+    ->maxLength(255),
                 Select::make('role')
-                    ->options(['super_admin' => 'Super admin', 'owner' => 'Owner', 'agent' => 'Agent'])
-                    ->default('owner')
-                    ->required(),
+    ->label('Role')
+    ->options([
+        'super_admin' => 'Super Admin',
+        'owner' => 'Owner',
+        'agent' => 'Agent',
+    ])
+    ->default('owner')
+    ->required(),
                 Toggle::make('status')
-                    ->required(),
-                Toggle::make('is_online')
-                    ->required(),
-                DateTimePicker::make('last_seen_at'),
+    ->label('Active')
+    ->default(true),
             ]);
     }
 }

@@ -15,24 +15,32 @@ class ChatbotLeadsTable
         return $table
             ->columns([
                 TextColumn::make('website.name')
-                    ->searchable(),
+    ->label('Website')
+    ->searchable()
+    ->sortable(),
                 TextColumn::make('visitor.name')
-                    ->searchable(),
-                TextColumn::make('conversation.id')
-                    ->searchable(),
+    ->label('Visitor')
+    ->searchable()
+    ->sortable(),
+               TextColumn::make('conversation.id')
+    ->label('Conversation')
+    ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
+    ->label('Full Name')
+    ->searchable()
+    ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
+    ->label('Email')
+    ->searchable()
+    ->copyable(),
                 TextColumn::make('phone')
-                    ->searchable(),
+    ->copyable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

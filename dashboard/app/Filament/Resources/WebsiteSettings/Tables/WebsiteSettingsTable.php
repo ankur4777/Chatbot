@@ -20,15 +20,11 @@ class WebsiteSettingsTable
                 TextColumn::make('chatbot_name')
                     ->searchable(),
                 TextColumn::make('welcome_message')
-                    ->searchable(),
+                    ->limit(40)
+                    ->tooltip(fn ($record) => $record->welcome_message),
                 TextColumn::make('placeholder')
-                    ->searchable(),
-                TextColumn::make('language')
-                    ->searchable(),
-                TextColumn::make('model')
-                    ->searchable(),
+                    ->limit(30),
                 TextColumn::make('temperature')
-                    ->numeric()
                     ->sortable(),
                 TextColumn::make('primary_color')
                     ->searchable(),
@@ -41,11 +37,11 @@ class WebsiteSettingsTable
                 IconColumn::make('show_connect_agent')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

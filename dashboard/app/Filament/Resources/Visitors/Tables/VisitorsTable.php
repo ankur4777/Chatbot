@@ -15,29 +15,36 @@ class VisitorsTable
         return $table
             ->columns([
                 TextColumn::make('website.name')
-                    ->searchable(),
+                ->label('Website')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                ->label('Visitor')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
+                    ->label('Email')
+                    ->searchable()
+                    ->copyable(),
                 TextColumn::make('phone')
-                    ->searchable(),
+                    ->copyable(),
                 TextColumn::make('session_id')
-                    ->searchable(),
+                    ->label('Session ID')
+                    ->limit(20)
+                    ->tooltip(fn ($record) => $record->session_id),
                 TextColumn::make('ip_address')
-                    ->searchable(),
+                    ->label('IP Address'),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                
             ])
             ->recordActions([
                 EditAction::make(),

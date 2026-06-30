@@ -12,21 +12,22 @@ class ChatConversationForm
     {
         return $schema
             ->components([
-                Select::make('website_id')
-                    ->relationship('website', 'name')
-                    ->required(),
-                Select::make('visitor_id')
-                    ->relationship('visitor', 'name')
-                    ->required(),
                 Select::make('assigned_agent_id')
+                    ->label('Assigned Agent')
                     ->relationship('assignedAgent', 'name')
-                    ->default(null),
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
                 Select::make('status')
-                    ->options(['active' => 'Active', 'waiting' => 'Waiting', 'closed' => 'Closed'])
+                    ->label('Status')
+                    ->options([
+                        'active' => 'Active',
+                        'waiting' => 'Waiting',
+                        'closed' => 'Closed',
+                    ])
                     ->default('active')
                     ->required(),
-                DateTimePicker::make('started_at'),
-                DateTimePicker::make('ended_at'),
             ]);
     }
 }
+

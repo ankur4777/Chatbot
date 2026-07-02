@@ -34,8 +34,8 @@ class ChatMessagesTable
                 TextColumn::make('created_at')
                     ->label('Time')
                     ->since()
-                    ->sortable(),
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
             ])
             ->filters([
                 //

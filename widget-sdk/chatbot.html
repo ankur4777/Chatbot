@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Widget</title>
+
+    <link rel="stylesheet" href="chatbot.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<!-- Floating Button -->
+<div id="chatbot-toggle">
+    <i class="bi bi-chat-dots-fill"></i>
+</div>
+
+<!-- Chat Window -->
+<div id="chatbot-box">
+
+    <!-- Header -->
+    <div id="chatbot-header">
+
+        <div class="chatbot-header-info">
+
+            <div class="chatbot-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+
+            <div>
+
+                <h5 id="chatbot-title">
+                    AI Assistant
+                </h5>
+
+                <small id="chatbot-status">
+                    Online
+                </small>
+
+            </div>
+
+        </div>
+
+        <button id="chatbot-close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+
+    </div>
+
+    <!-- Messages -->
+
+    <div id="chatbot-messages">
+
+        <div id="chatbot-empty-state">
+
+            <i class="bi bi-robot"></i>
+
+            <h4>Welcome</h4>
+
+        </div>
+
+        <div id="typing-indicator" style="display:none;">
+
+    <div class="typing-bubble">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </div>
+
+</div>
+
+    </div>
+
+    <!-- Input -->
+
+    <div id="chatbot-input-area">
+
+        <input
+            type="text"
+            id="chatbot-input"
+            placeholder="Type your message..."
+            autocomplete="off"
+        >
+
+        <button id="chatbot-send">
+
+            <i class="bi bi-send-fill"></i>
+
+        </button>
+
+    </div>
+
+</div>
+
+<script src="chatbot.js"></script>
+
+</body>
+</html>

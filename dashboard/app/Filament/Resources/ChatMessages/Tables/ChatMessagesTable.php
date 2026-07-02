@@ -40,6 +40,9 @@ class ChatMessagesTable
             ->filters([
                 //
             ])
+            ->recordActions([
+    //
+])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

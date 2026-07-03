@@ -27,6 +27,7 @@ class SendMessageRequest extends FormRequest
         'visitor_id' => ['nullable', 'exists:visitors,id'],
         'conversation_id' => ['nullable', 'exists:chat_conversations,id'],
         'message' => ['required', 'string', 'max:5000'],
+        'session_id' => ['required', 'string'],
     ];
 }
 }

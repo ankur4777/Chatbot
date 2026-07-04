@@ -21,9 +21,13 @@ class ChatConversationForm
                 Select::make('status')
                     ->label('Status')
                     ->options([
-                        'active' => 'Active',
-                        'waiting' => 'Waiting',
-                        'closed' => 'Closed',
+                       [
+    'active' => 'Active',
+    'waiting_customer' => 'Waiting Customer',
+    'waiting_agent' => 'Waiting Agent',
+    'resolved' => 'Resolved',
+    'closed' => 'Closed',
+]
                     ])
                     ->default('active')
                     ->required(),

@@ -8,17 +8,25 @@ class AIService
 {
     public function generateResponse(string $message): string
     {
-        $response = Http::post(
-    config('services.python.url') . '/chat',
-    [
-        'message' => $message,
-    ]
-);
+       try {
 
-        if ($response->successful()) {
-            return $response->json('response');
-        }
+    $response = Http::timeout(10)->post(
+        config('services.python.url') . '/chat',
+        [
+            'message' => $message,
+        ]
+    );
 
-        return 'Sorry, AI service is currently unavailable.';
+    if ($response->successful()) {
+        return $response->json('response');
+    }
+
+    return 'Sorry, AI service is currently unavailable.';
+
+} catch (\Throwable $e) {
+
+    return 'Unable to connect to AI server.';
+
+}
     }
 }

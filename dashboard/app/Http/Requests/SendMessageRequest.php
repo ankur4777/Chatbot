@@ -23,7 +23,7 @@ class SendMessageRequest extends FormRequest
     public function rules(): array
 {
     return [
-        'website_id' => ['required', 'exists:websites,id'],
+        'domain' => ['required', 'string'],
         'visitor_id' => ['nullable', 'exists:visitors,id'],
         'conversation_id' => ['nullable', 'exists:chat_conversations,id'],
         'message' => ['required', 'string', 'max:5000'],

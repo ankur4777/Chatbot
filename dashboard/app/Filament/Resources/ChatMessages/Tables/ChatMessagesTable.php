@@ -14,28 +14,27 @@ class ChatMessagesTable
     {
         return $table
             ->columns([
+                
                 TextColumn::make('conversation.id')
-                    ->label('Conversation')
-                    ->sortable(),
-                TextColumn::make('sender_type')
-                    ->label('Sender')
-                    ->badge()
-                    ->sortable(),
-                TextColumn::make('message')
-                    ->label('Message')
-                    ->limit(80)
-                    ->tooltip(fn ($record) => $record->message),
-                TextColumn::make('attachment')
-                    ->label('Attachment')
-                    ->placeholder('-'),
-                TextColumn::make('attachment_type')
-                    ->label('Type')
-                    ->badge(),
-                TextColumn::make('created_at')
-                    ->label('Time')
-                    ->since()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+    ->label('Conversation')
+    ->sortable(),
+
+TextColumn::make('sender_type')
+    ->label('Sender')
+    ->badge()
+    ->sortable(),
+
+TextColumn::make('message')
+    ->label('Message')
+    ->wrap(),
+
+TextColumn::make('created_at')
+    ->label('Time')
+    ->since()
+    ->sortable(),
+                    // ->limit(80)
+                    // ->tooltip(fn ($record) => $record->message),
+                
             ])
             ->filters([
                 //

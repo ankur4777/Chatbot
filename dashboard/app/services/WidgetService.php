@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\Website;
 use Illuminate\Http\Request;
+use App\Models\Visitor;
+use Illuminate\Support\Str;
+use App\Models\ChatConversation;
 
 class WidgetService
 {
@@ -11,25 +14,14 @@ class WidgetService
 {
     $website = $this->verifyWebsite($request);
 
-    if (! $website) {
-       return response()->json([
-    'success' => true,
+   if (! $website) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Website not found.'
+    ], 404);
+}
+$visitor = $this->findOrCreateVisitor($request, $website);
 
-    'data' => [
-
-        'website' => [
-            'id'     => $website->id,
-            'name'   => $website->name,
-            'domain' => $website->domain,
-        ],
-
-        'settings' => $this->getWebsiteSettings($website),
-
-        'quick_replies' => $this->getQuickReplies($website),
-
-    ],
-]);
-    }
 
     return response()->json([
         'success' => true,
@@ -75,4 +67,21 @@ class WidgetService
     ->where('domain', $request->domain)
     ->first();
 }
+public function findOrCreateVisitor(Request $request, Website $website)
+{
+    
+$sessionId = $request->session_id ?? Str::uuid();
+$visitor = Visitor::firstOrCreate(
+    [
+        'session_id' => $sessionId,
+    ],
+    [
+        'website_id' => $website->id,
+        'ip_address' => $request->ip(),
+        'user_agent' => $request->userAgent(),
+    ]
+);
+return $visitor;
+}
+
 }

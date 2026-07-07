@@ -37,17 +37,13 @@ class WebsiteCrawler:
 
                 text = self.parser.parse(link)
 
-            except Exception as e:
-
-                print(f"Failed to parse {link}: {e}")
 
                 pages.append({
                     "url": link,
-                    "text": text,
+                    "text": text
                 })
 
             except Exception as e:
 
-                print(f"Failed: {link}")
-
+                print(f"Failed to parse {link}: {e}")
         return pages

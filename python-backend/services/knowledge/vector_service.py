@@ -1,5 +1,7 @@
 import faiss
 import numpy as np
+import os
+import json
 
 
 class VectorService:
@@ -33,6 +35,57 @@ class VectorService:
             if index == -1:
                 continue
 
-            results.append(self.chunks[index])
+            if index < len(self.chunks):
+                results.append(self.chunks[index])
 
         return results
+
+    def save_index(self, path):
+
+        os.makedirs(
+            os.path.dirname(path),
+            exist_ok=True
+        )
+
+        faiss.write_index(
+            self.index,
+            path
+        )
+
+    def load_index(self, path):
+
+        if os.path.exists(path):
+            self.index = faiss.read_index(path)
+
+    def save_metadata(self, path):
+
+        os.makedirs(
+            os.path.dirname(path),
+            exist_ok=True
+        )
+
+        with open(
+            path,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            json.dump(
+                self.chunks,
+                file,
+                ensure_ascii=False,
+                indent=4
+            )
+
+    def load_metadata(self, path):
+
+        if not os.path.exists(path):
+            return
+
+        with open(
+            path,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            self.chunks = json.load(file)

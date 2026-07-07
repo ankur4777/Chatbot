@@ -50,6 +50,10 @@ class Website extends Model
     {
         return $this->hasMany(ChatbotLead::class);
     }
+    public function knowledgeSources(): HasMany
+{
+    return $this->hasMany(KnowledgeSource::class);
+}
 
     public function quickReplies(): HasMany
 {

@@ -1,13 +1,18 @@
 class PromptService:
 
-    def build_prompt(self, message: str):
+    def build_prompt(self, message: str, context: str = ""):
 
-        system_prompt = """
+        system_prompt = f"""
 You are a helpful AI assistant.
 
-Answer professionally.
+Answer ONLY from the provided knowledge.
 
-If you don't know the answer, say you don't know.
+If the answer is not present in the knowledge, reply:
+"I don't have enough information to answer that."
+
+Knowledge:
+
+{context}
 """
 
         return [

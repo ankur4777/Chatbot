@@ -1,3 +1,4 @@
+import os
 from sentence_transformers import SentenceTransformer
 
 
@@ -6,7 +7,10 @@ class EmbeddingService:
     def __init__(self):
 
         self.model = SentenceTransformer(
-            "sentence-transformers/all-MiniLM-L6-v2"
+            os.getenv(
+                "EMBEDDING_MODEL",
+                "BAAI/bge-small-en-v1.5"
+            )
         )
 
     def embed(self, text: str):

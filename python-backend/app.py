@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 from routes.upload import router as upload_router
 import uvicorn
+from services.knowledge.startup_service import StartupService
+from routes.knowledge import router as knowledge_router
 import os
 
 from routes.health import router as health_router
@@ -26,7 +28,16 @@ def home():
 app.include_router(health_router)
 app.include_router(chat_router)
 app.include_router(upload_router)
+app.include_router(knowledge_router)
 
+app.include_router(chat_router)
+app.include_router(upload_router)
+app.include_router(knowledge_router)
+
+StartupService().load()
+
+if __name__ == "__main__":
+    uvicorn.run(...)
 
 if __name__ == "__main__":
     uvicorn.run(

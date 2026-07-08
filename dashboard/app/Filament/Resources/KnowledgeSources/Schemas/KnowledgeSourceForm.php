@@ -7,6 +7,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\FileUpload;
 
 class KnowledgeSourceForm
 {
@@ -30,33 +32,28 @@ class KnowledgeSourceForm
                         'docx' => 'DOCX',
                         'txt' => 'TXT',
                         'faq' => 'FAQ',
+                        'manual' => 'Manual',
+                        'database' => 'Database',
                     ])
+                    ->live()
                     ->required(),
-
                 TextInput::make('title')
                     ->required()
                     ->maxLength(255),
 
-                Textarea::make('source')
-                    ->rows(4),
-
-                Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'processing' => 'Processing',
-                        'completed' => 'Completed',
-                        'failed' => 'Failed',
-                    ])
-                    ->default('pending')
-                    ->disabled(),
-
-                TextInput::make('pages')
-                    ->numeric()
-                    ->disabled(),
-
-                TextInput::make('chunks')
-                    ->numeric()
-                    ->disabled(),
+                TextInput::make('source')
+                    ->label('Website URL')
+                    ->url()
+                    ->visible(fn (Get $get): bool => $get('type') === 'website')
+                    ->required(fn (Get $get): bool => $get('type') === 'website'),
+                
+                FileUpload::make('source')
+                    ->label('Upload PDF')
+                    ->disk('public')
+                    ->directory('knowledge')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->visible(fn (Get $get): bool => $get('type') === 'pdf')
+                    ->required(fn (Get $get): bool => $get('type') === 'pdf'),
 
             ]);
     }

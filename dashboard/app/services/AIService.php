@@ -8,25 +8,44 @@ class AIService
 {
     public function generateResponse(string $message): string
     {
-       try {
+        try {
 
-    $response = Http::timeout(10)->post(
-        config('services.python.url') . '/chat',
-        [
-            'message' => $message,
-        ]
-    );
+            $response = Http::timeout(10)->post(
+                config('services.python.url') . '/chat',
+                [
+                    'message' => $message,
+                ]
+            );
 
-    if ($response->successful()) {
-        return $response->json('response');
+            if ($response->successful()) {
+                return $response->json('response');
+            }
+
+            return 'Sorry, AI service is currently unavailable.';
+
+        } catch (\Throwable $e) {
+
+            return 'Unable to connect to AI server.';
+        }
     }
 
-    return 'Sorry, AI service is currently unavailable.';
+    public function importKnowledge(array $data): array
+    {
+        try {
 
-} catch (\Throwable $e) {
+            $response = Http::timeout(120)->post(
+                config('services.python.url') . '/knowledge/import',
+                $data
+            );
 
-    return 'Unable to connect to AI server.';
+            return $response->json();
 
-}
+        } catch (\Throwable $e) {
+
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
     }
 }

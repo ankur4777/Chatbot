@@ -24,6 +24,13 @@ class KnowledgeSourceForm
                     ->preload()
                     ->required(),
 
+                Select::make('knowledge_category_id')
+    ->label('Category')
+    ->relationship('knowledgeCategory', 'name')
+    ->searchable()
+    ->preload()
+    ->required(),
+
                 Select::make('type')
                     ->options([
                         'website' => 'Website',

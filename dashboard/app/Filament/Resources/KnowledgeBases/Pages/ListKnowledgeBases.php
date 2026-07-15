@@ -10,10 +10,5 @@ class ListKnowledgeBases extends ListRecords
 {
     protected static string $resource = KnowledgeBaseResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            CreateAction::make(),
-        ];
-    }
+   
 }

@@ -13,12 +13,12 @@ class KnowledgeCategoryForm
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->label('Company')
-                    ->relationship('company', 'name')
+                Select::make('website_id')
+                    ->label('Website')
+                    ->relationship('website', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                        ->required(),
 
                 TextInput::make('name')
                     ->label('Category Name')

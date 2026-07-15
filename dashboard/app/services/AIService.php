@@ -34,11 +34,11 @@ class AIService
         try {
 
             $response = Http::timeout(120)->post(
-                config('services.python.url') . '/knowledge/import',
-                $data
-            );
+    config('services.python.url') . '/knowledge/import',
+    $data
+);
 
-            return $response->json();
+return $response->json();
 
         } catch (\Throwable $e) {
 

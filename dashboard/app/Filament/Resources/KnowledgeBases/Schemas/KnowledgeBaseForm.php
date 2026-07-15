@@ -23,7 +23,7 @@ class KnowledgeBaseForm
                     ->label('Title')
                     ->required()
                     ->maxLength(255),
-                Textarea::make('content')
+                Textarea::make('content')   
                     ->label('Content')
                     ->rows(10)
                     ->required()

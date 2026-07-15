@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::create('knowledge_categories', function (Blueprint $table) {
         $table->id();
 
-        $table->foreignId('company_id')
+        $table->foreignId('website_id')
               ->constrained()
               ->cascadeOnDelete();
 

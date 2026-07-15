@@ -42,9 +42,8 @@ class KnowledgeBaseResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListKnowledgeBases::route('/'),
-            'create' => CreateKnowledgeBase::route('/create'),
-            'edit' => EditKnowledgeBase::route('/{record}/edit'),
-        ];
+        'index' => Pages\ListKnowledgeBases::route('/'),
+        'edit' => Pages\EditKnowledgeBase::route('/{record}/edit'),
+    ];
     }
 }

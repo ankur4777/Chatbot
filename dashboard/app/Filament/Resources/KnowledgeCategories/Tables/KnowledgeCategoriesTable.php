@@ -14,8 +14,8 @@ class KnowledgeCategoriesTable
     {
         return $table
             ->columns([
-               TextColumn::make('company.name')
-                    ->label('Company')
+               TextColumn::make('website.name')
+                    ->label('Website')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('name')

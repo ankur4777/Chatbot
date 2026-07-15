@@ -103,11 +103,12 @@ class KnowledgeImporter:
         self._save_knowledge()
 
         return {
-            "success": True,
-            "pages": 1,
-            "chunks": total_chunks,
-        }
-
+    "success": True,
+    "pages": 1,
+    "chunks": total_chunks,
+    "content": text,
+    "chunk_data": chunks,
+}
     def import_docx(self, file_path: str):
         pass
 

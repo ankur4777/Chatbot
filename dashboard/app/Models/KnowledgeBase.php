@@ -10,6 +10,7 @@ class KnowledgeBase extends Model
 {
     protected $fillable = [
         'knowledge_category_id',
+        'knowledge_source_id',
         'title',
         'content',
         'source_type',

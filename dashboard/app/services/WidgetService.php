@@ -24,11 +24,13 @@ $visitor = $this->findOrCreateVisitor($request, $website);
 
 
     return response()->json([
-        'success' => true,
-        'data' => [
-            'website' => $website,
-        ],
-    ]);
+    'success' => true,
+    'data' => [
+        'website'      => $website,
+        'settings'     => $this->getWebsiteSettings($website),
+        'quickReplies' => $this->getQuickReplies($website),
+    ],
+]);
 }
 
     public function getWebsiteSettings(Website $website): array

@@ -19,6 +19,11 @@ class KnowledgeChunksTable
                 TextColumn::make('chunk_order')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('chunk_text')
+    ->label('Chunk')
+    ->limit(100)
+    ->searchable()
+    ->wrap(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

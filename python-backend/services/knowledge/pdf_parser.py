@@ -1,19 +1,18 @@
-from pypdf import PdfReader
+import fitz
 
 
 class PDFParser:
 
     def parse(self, file_path: str):
 
-        reader = PdfReader(file_path)
+        doc = fitz.open(file_path)
 
         text = ""
 
-        for page in reader.pages:
+        for page in doc:
 
-            page_text = page.extract_text()
+            text += page.get_text()
 
-            if page_text:
-                text += page_text + "\n"
+        doc.close()
 
         return text

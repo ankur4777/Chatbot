@@ -18,6 +18,7 @@ class AIService
             );
 
             if ($response->successful()) {
+                dd($response->json());
                 return $response->json('response');
             }
 

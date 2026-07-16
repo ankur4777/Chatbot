@@ -24,10 +24,13 @@ public function __construct(
     $this->widgetService = $widgetService;
 }
 
-public function sendMessage(Request $request)
-{
+public function sendMessage(Request $request){
     $website = $this->widgetService->verifyWebsite($request);
 
+return response()->json([
+    'success' => true,
+    'response' => 'Website Verified',
+]);
 if (! $website) {
     return response()->json([
         'success' => false,

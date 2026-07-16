@@ -11,9 +11,7 @@ class ListKnowledgeChunks extends ListRecords
     protected static string $resource = KnowledgeChunkResource::class;
 
     protected function getHeaderActions(): array
-    {
-        return [
-            CreateAction::make(),
-        ];
-    }
+{
+    return [];
+}
 }

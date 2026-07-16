@@ -24,14 +24,42 @@ class KnowledgeSourceService
 
 if ($response['success'] ?? false) {
 
-    KnowledgeBase::create([
+    $knowledgeBase = KnowledgeBase::updateOrCreate(
+
+    [
+        'knowledge_source_id' => $knowledgeSource->id,
+    ],
+
+    [
         'knowledge_category_id' => $knowledgeSource->knowledge_category_id,
-        'knowledge_source_id'   => $knowledgeSource->id,
         'title'                 => $knowledgeSource->title,
         'content'               => $response['content'] ?? '',
         'source_type'           => 'pdf',
         'source_file'           => $knowledgeSource->source,
+    ]
+
+);
+$knowledgeBase->chunks()->delete();
+
+foreach ($response['chunk_data'] ?? [] as $chunk) {
+
+    KnowledgeChunk::create([
+        'knowledge_base_id' => $knowledgeBase->id,
+        'chunk_text'        => $chunk['text'],
+        'chunk_order'       => $chunk['chunk_index'],
     ]);
+
+}
+
+foreach ($response['chunk_data'] ?? [] as $chunk) {
+
+    KnowledgeChunk::create([
+        'knowledge_base_id' => $knowledgeBase->id,
+        'chunk_text'        => $chunk['text'],
+        'chunk_order'       => $chunk['chunk_index'],
+    ]);
+
+}
 
     $knowledgeSource->update([
         'status'         => 'completed',

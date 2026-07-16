@@ -155,17 +155,14 @@ async init() {
 
         const data = await response.json();
 
-        this.hideTyping();
+this.hideTyping();
 
-        if (!data.success) {
+if (!data.success) {
+    this.addBotMessage("Something went wrong.");
+    return;
+}
 
-            this.addBotMessage("Something went wrong.");
-
-            return;
-
-        }
-
-        this.addBotMessage(data.response);
+this.addBotMessage(data.response);
 
     } catch (error) {
 
@@ -254,10 +251,6 @@ hideTyping() {
     }
 
 }
-
-    hideTyping() {
-
-    }
 
     scrollBottom() {
 

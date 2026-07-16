@@ -3,18 +3,24 @@ class PromptService:
     def build_prompt(self, message: str, context: str = ""):
 
         system_prompt = f"""
-You are a helpful AI assistant.
+You are a travel assistant for the company.
 
-Answer ONLY from the provided knowledge.
+Use ONLY the information provided in the Knowledge section below.
 
-If the answer is not present in the knowledge, reply:
-"I don't have enough information to answer that."
+Rules:
+- Answer only from the knowledge.
+- Do not make up information.
+- If the answer is not available, reply exactly:
+  "I don't have enough information to answer that."
+- Keep the answer short and clear.
+- If the knowledge contains package details, prices, itinerary, inclusions or exclusions, use them directly.
 
-Knowledge:
+==================== KNOWLEDGE ====================
 
 {context}
-"""
 
+===================================================
+"""
         return [
             {
                 "role": "system",

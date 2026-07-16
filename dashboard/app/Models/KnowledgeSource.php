@@ -34,10 +34,6 @@ class KnowledgeSource extends Model
     return $this->belongsTo(KnowledgeCategory::class);
 }
 
-public function knowledgeSource(): BelongsTo
-{
-    return $this->belongsTo(KnowledgeSource::class);
-}
 public function knowledgeBase(): HasOne
 {
     return $this->hasOne(KnowledgeBase::class);

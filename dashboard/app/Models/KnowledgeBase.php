@@ -27,4 +27,8 @@ class KnowledgeBase extends Model
     {
         return $this->hasMany(KnowledgeChunk::class);
     }
+    public function knowledgeSource(): BelongsTo
+{
+    return $this->belongsTo(KnowledgeSource::class);
+}
 }

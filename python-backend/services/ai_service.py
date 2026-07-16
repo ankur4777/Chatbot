@@ -1,4 +1,7 @@
 import os
+from pyexpat.errors import messages
+from urllib import response
+from xml.parsers.expat import model
 import ollama
 
 from services.prompt_service import PromptService
@@ -23,7 +26,9 @@ class AIService:
         results = self.vector_service.search(
             embedding,
             k=5
+            
         )
+        print("TOTAL RESULTS:", len(results))
         print("\n========== SEARCH RESULTS ==========\n")
 
         for i, chunk in enumerate(results):
@@ -39,16 +44,23 @@ class AIService:
                 chunk["text"]
                 for chunk in results
             )
+        messages = self.prompt_service.build_prompt(
+            message,
+            context
+        )
 
+        print("\n========== PROMPT ==========\n")
+        print(messages)
+        print("\n============================\n")
 
         response = ollama.chat(
             model=model,
-            messages=self.prompt_service.build_prompt(
-                message,
-                context
-            ),
+            messages=messages,
         )
 
+        print("RAW RESPONSE:", response)
+        print("CONTENT:", response.message.content)
+
         return {
-            "response": response["message"]["content"]
+            "response": response.message.content
         }

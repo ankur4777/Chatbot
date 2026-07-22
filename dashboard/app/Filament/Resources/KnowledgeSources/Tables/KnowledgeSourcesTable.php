@@ -28,9 +28,9 @@ class KnowledgeSourcesTable
                     ->searchable(),
                 
                 TextColumn::make('knowledgeCategory.name')
-    ->label('Category')
-    ->badge()
-    ->searchable(),
+                    ->label('Category')
+                    ->badge()
+                    ->searchable(),
 
                 BadgeColumn::make('type'),
 
@@ -43,10 +43,10 @@ class KnowledgeSourcesTable
                     ]),
 
                 BadgeColumn::make('pages')
-    ->color('info'),
+                    ->color('info'),
 
-BadgeColumn::make('chunks')
-    ->color('success'),
+                BadgeColumn::make('chunks')
+                    ->color('success'),
 
                 TextColumn::make('last_synced_at')
                     ->since(),
@@ -58,11 +58,11 @@ BadgeColumn::make('chunks')
             ->recordActions([
                 ViewAction::make(),
                 Action::make('sync')
-    ->label('Sync')
-    ->icon('heroicon-o-arrow-path')
-    ->color('success')
-    ->requiresConfirmation()
-    ->action(function ($record) {
+            ->label('Sync')
+            ->icon('heroicon-o-arrow-path')
+            ->color('success')
+            ->requiresConfirmation()
+            ->action(function ($record) {
 
         app(KnowledgeSourceService::class)
             ->import($record);
@@ -73,6 +73,7 @@ BadgeColumn::make('chunks')
             ->send();
 
     }),
+    
                 EditAction::make(),
             ])
             ->toolbarActions([

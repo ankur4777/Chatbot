@@ -7,7 +7,7 @@ class Chatbot {
        this.domain = "localhost";
 
         this.sessionId = this.getSessionId();
-
+        this.conversationId = null;
         console.log(this.sessionId);
         this.toggle = document.getElementById("chatbot-toggle");
         this.box = document.getElementById("chatbot-box");
@@ -143,13 +143,15 @@ async init() {
 
             body: JSON.stringify({
 
-                domain: this.domain,
+    domain: this.domain,
 
-                session_id: this.sessionId,
+    session_id: this.sessionId,
 
-                message: message,
+    conversation_id: this.conversationId,
 
-            }),
+    message: message,
+
+}),
 
         });
 
@@ -161,7 +163,7 @@ if (!data.success) {
     this.addBotMessage("Something went wrong.");
     return;
 }
-
+this.conversationId = data.conversation_id;
 this.addBotMessage(data.response);
 
     } catch (error) {

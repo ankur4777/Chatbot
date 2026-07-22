@@ -24,39 +24,60 @@ public function __construct(
     $this->widgetService = $widgetService;
 }
 
-public function sendMessage(Request $request){
+public function sendMessage(Request $request)
+{
     $website = $this->widgetService->verifyWebsite($request);
 
-return response()->json([
+    if (! $website) {
+        return response()->json([
     'success' => true,
-    'response' => 'Website Verified',
+    'conversation_id' => $conversation->id,
+    'response' => $response,
 ]);
-if (! $website) {
-    return response()->json([
-        'success' => false,
-        'message' => 'Website not found.',
-    ], 404);
-}
-    $chat = $this->initializeConversation(
-    $request,
-    $website
-);
+    }
+
+    $data = $this->initializeConversation($request, $website);
+    $conversation = $data['conversation'];
 
     $this->saveUserMessage(
-        $chat['conversation'],
+        $conversation,
         $request->message
     );
-$aiResponse = $this->generateAIResponse($request->message);
+$history = ChatMessage::where(
+    'conversation_id',
+    $conversation->id
+)
+->orderBy('id')
+->get();
 
-$this->saveBotMessage(
-    $chat['conversation'],
-    $aiResponse
+$messages = [];
+
+foreach ($history as $chat) {
+
+    $messages[] = [
+        'role' => $chat->sender_type === 'visitor'
+            ? 'user'
+            : 'assistant',
+
+        'content' => $chat->message,
+    ];
+}
+\Log::info('History being sent to Python', $messages);
+    $response = $this->generateAIResponse(
+    $request->message,
+    $messages
 );
 
-return response()->json([
-    'success' => true,
-    'response' => $aiResponse,
-]);
+    $this->saveBotMessage(
+        $conversation,
+        $response
+    );
+
+    return response()->json([
+        'success' => true,
+        'conversation_id' => $conversation->id,
+        'response' => $response,
+    ]);
 }
    public function initializeConversation(
     Request $request,
@@ -74,16 +95,30 @@ return response()->json([
         ]
     );
 
-    $conversation = ChatConversation::firstOrCreate(
-        [
+    if ($request->conversation_id) {
+
+    $conversation = ChatConversation::where('id', $request->conversation_id)
+        ->where('visitor_id', $visitor->id)
+        ->first();
+
+if (!$conversation) {
+            $conversation = ChatConversation::create([
+                'website_id' => $website->id,
+                'visitor_id' => $visitor->id,
+                'status' => 'active',
+                'started_at' => now(),
+            ]);
+        }
+
+    } else {
+
+        $conversation = ChatConversation::create([
             'website_id' => $website->id,
             'visitor_id' => $visitor->id,
             'status' => 'active',
-        ],
-        [
             'started_at' => now(),
-        ]
-    );
+        ]);
+    }
 
     
 
@@ -102,9 +137,15 @@ public function saveUserMessage(ChatConversation $conversation, string $message)
     ]);
 }
 
-public function generateAIResponse(string $message): string
+public function generateAIResponse(
+    string $message,
+    array $history
+): string
 {
-    return $this->aiService->generateResponse($message);
+    return $this->aiService->generateResponse(
+        $message,
+        $history
+    );
 }
 
 public function saveBotMessage(

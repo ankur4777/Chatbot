@@ -17,17 +17,20 @@ class AIService:
 
         self.vector_service = vector_store
 
-    def generate_response(self, message: str):
-
+    def generate_response(
+    self,
+    message: str,
+    history: list
+):
         model = os.getenv("OLLAMA_MODEL")
-
+        print("MESSAGE:", message)
         embedding = self.embedding_service.embed(message)
 
         results = self.vector_service.search(
             embedding,
             k=5
-            
         )
+        print("RESULTS:", results)
         print("TOTAL RESULTS:", len(results))
         print("\n========== SEARCH RESULTS ==========\n")
 
@@ -46,13 +49,14 @@ class AIService:
             )
         messages = self.prompt_service.build_prompt(
             message,
-            context
+            context,
+            history
         )
 
         print("\n========== PROMPT ==========\n")
         print(messages)
         print("\n============================\n")
-
+        
         response = ollama.chat(
             model=model,
             messages=messages,

@@ -42,6 +42,12 @@ class KnowledgeSourcesTable
                         'danger' => 'failed',
                     ]),
 
+                TextColumn::make('error')
+    ->label('Error')
+    ->limit(60)
+    ->tooltip(fn ($record) => $record->error)
+    ->color('danger')
+    ->wrap(),
                 BadgeColumn::make('pages')
                     ->color('info'),
 

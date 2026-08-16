@@ -3,6 +3,8 @@ import numpy as np
 import os
 import json
 
+from torch import embedding
+
 
 class VectorService:
 
@@ -10,8 +12,7 @@ class VectorService:
 
         self.dimension = 384
 
-        self.index = faiss.IndexFlatL2(self.dimension)
-
+        self.index = faiss.IndexFlatIP(self.dimension)
         self.chunks = []
 
     def add(self, embedding, metadata):
@@ -29,7 +30,6 @@ class VectorService:
         distances, indices = self.index.search(vector, k)
 
         results = []
-
         for index in indices[0]:
 
             if index == -1:
@@ -89,3 +89,48 @@ class VectorService:
         ) as file:
 
             self.chunks = json.load(file)
+
+    def reset(self):
+
+        self.index = faiss.IndexFlatIP(self.dimension)
+
+        self.chunks = []
+
+    def get_storage_paths(self, website_id):
+
+        base_path = f"storage/faiss/website_{website_id}"
+
+        return {
+            "index": f"{base_path}/index.faiss",
+            "metadata": f"{base_path}/chunks.json"
+        }
+    
+    def load_website(self, website_id):
+
+        self.reset()
+
+        paths = self.get_storage_paths(website_id)
+
+        self.load_index(paths["index"])
+
+        self.load_metadata(paths["metadata"])
+
+    def save_website(self, website_id):
+
+        paths = self.get_storage_paths(website_id)
+
+        self.save_index(paths["index"])
+
+        self.save_metadata(paths["metadata"])
+
+    def clear_website(self, website_id):
+
+        paths = self.get_storage_paths(website_id)
+
+        if os.path.exists(paths["index"]):
+            os.remove(paths["index"])
+
+        if os.path.exists(paths["metadata"]):
+            os.remove(paths["metadata"])
+
+        self.reset()

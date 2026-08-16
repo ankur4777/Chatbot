@@ -5,14 +5,31 @@ class PDFParser:
 
     def parse(self, file_path: str):
 
-        doc = fitz.open(file_path)
+        try:
 
-        text = ""
+            doc = fitz.open(file_path)
 
-        for page in doc:
+            text = ""
 
-            text += page.get_text()
+            for page in doc:
+                text += page.get_text()
 
-        doc.close()
+            doc.close()
 
-        return text
+            text = text.strip()
+
+            if not text:
+                raise ValueError(
+                    "No readable content found in this PDF."
+                )
+
+            return text
+
+        except ValueError:
+            raise
+
+        except Exception as e:
+
+            raise RuntimeError(
+                f"Failed to read PDF: {str(e)}"
+            )

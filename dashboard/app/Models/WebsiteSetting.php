@@ -10,7 +10,7 @@ class WebsiteSetting extends Model
     protected $fillable = [
 
         'website_id',
-
+        'system_prompt',
         'chatbot_name',
         'welcome_message',
         'placeholder',

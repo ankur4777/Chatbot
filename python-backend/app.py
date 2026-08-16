@@ -30,15 +30,6 @@ app.include_router(chat_router)
 app.include_router(upload_router)
 app.include_router(knowledge_router)
 
-app.include_router(chat_router)
-app.include_router(upload_router)
-app.include_router(knowledge_router)
-
-StartupService().load()
-
-if __name__ == "__main__":
-    uvicorn.run(...)
-
 if __name__ == "__main__":
     uvicorn.run(
         "app:app",

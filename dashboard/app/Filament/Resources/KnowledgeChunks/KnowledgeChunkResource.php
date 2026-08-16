@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\KnowledgeChunks;
 
-use App\Filament\Resources\KnowledgeChunks\Pages\CreateKnowledgeChunk;
-use App\Filament\Resources\KnowledgeChunks\Pages\EditKnowledgeChunk;
 use App\Filament\Resources\KnowledgeChunks\Pages\ListKnowledgeChunks;
 use App\Filament\Resources\KnowledgeChunks\Schemas\KnowledgeChunkForm;
 use App\Filament\Resources\KnowledgeChunks\Tables\KnowledgeChunksTable;
@@ -43,8 +41,6 @@ class KnowledgeChunkResource extends Resource
     {
         return [
             'index' => ListKnowledgeChunks::route('/'),
-            'create' => CreateKnowledgeChunk::route('/create'),
-            'edit' => EditKnowledgeChunk::route('/{record}/edit'),
         ];
     }
 }

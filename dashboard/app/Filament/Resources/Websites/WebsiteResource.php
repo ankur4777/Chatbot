@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class WebsiteResource extends Resource
 {
@@ -21,6 +22,26 @@ class WebsiteResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getEloquentQuery(): Builder
+{
+    $query = parent::getEloquentQuery();
+
+    $user = auth()->user();
+
+    // Super Admin can see all websites
+    if ($user && $user->role === 'super_admin') {
+        return $query;
+    }
+
+    // Owner can only see websites belonging to their company
+    if ($user && $user->company_id) {
+        return $query->where('company_id', $user->company_id);
+    }
+
+    // No company = no websites
+    return $query->whereRaw('1 = 0');
+}
 
     public static function form(Schema $schema): Schema
     {

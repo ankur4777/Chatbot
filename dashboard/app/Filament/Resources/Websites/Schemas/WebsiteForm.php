@@ -13,29 +13,31 @@ class WebsiteForm
     {
         return $schema
             ->components([
-    Select::make('company_id')
-        ->label('Company')
-        ->relationship('company', 'name')
-        ->searchable()
-        ->preload()
-        ->required(),
 
-    TextInput::make('name')
-        ->label('Website Name')
-        ->required()
-        ->maxLength(255),
+                Select::make('company_id')
+                    ->label('Company')
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->visible(fn () => auth()->user()?->role === 'super_admin'),
 
-    TextInput::make('domain')
-        ->label('Domain')
-        ->placeholder('example.com')
-        ->helperText('Enter only the domain, e.g. example.com')
-        ->required()
-        ->unique(ignoreRecord: true)
-        ->maxLength(255),
+                TextInput::make('name')
+                    ->label('Website Name')
+                    ->required()
+                    ->maxLength(255),
 
-    Toggle::make('status')
-        ->label('Active')
-        ->default(true),
-]);
+                TextInput::make('domain')
+                    ->label('Domain')
+                    ->placeholder('example.com')
+                    ->helperText('Enter only the domain, e.g. example.com')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+
+                Toggle::make('status')
+                    ->label('Active')
+                    ->default(true),
+            ]);
     }
 }

@@ -14,12 +14,23 @@ class WebsiteSettingForm
     {
         return $schema
             ->components([
-                Select::make('website_id')
+               Select::make('website_id')
     ->label('Website')
-    ->relationship('website', 'name')
+    ->relationship(
+        name: 'website',
+        titleAttribute: 'name',
+        modifyQueryUsing: function ($query) {
+            $user = auth()->user();
+
+            if ($user && $user->role === 'owner') {
+                $query->where('company_id', $user->company_id);
+            }
+        }
+    )
     ->searchable()
     ->preload()
-    ->required(),
+    ->required()
+    ->visible(fn () => auth()->user()?->role === 'super_admin'),
                 TextInput::make('chatbot_name')
     ->label('Chatbot Name')
     ->required()

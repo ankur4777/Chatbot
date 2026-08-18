@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Panel;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Filament\Models\Contracts\FilamentUser;
 
 #[Fillable([
     'company_id',
@@ -23,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -51,5 +53,17 @@ public function company()
 public function assignedConversations()
 {
     return $this->hasMany(ChatConversation::class, 'assigned_agent_id');
+}
+public function canAccessPanel(Panel $panel): bool
+{
+    if ($panel->getId() === 'admin') {
+        return $this->role === 'super_admin';
+    }
+
+   if ($panel->getId() === 'client') {
+    return $this->role === 'owner';
+}
+
+    return false;
 }
 }

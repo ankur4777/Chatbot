@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\WebsiteSettings;
+namespace App\Filament\Client\Resources\WebsiteSettings;
 
-use App\Filament\Resources\WebsiteSettings\Pages\CreateWebsiteSetting;
+
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\WebsiteSettings\Pages\EditWebsiteSetting;
-use App\Filament\Resources\WebsiteSettings\Pages\ListWebsiteSettings;
-use App\Filament\Resources\WebsiteSettings\Schemas\WebsiteSettingForm;
-use App\Filament\Resources\WebsiteSettings\Tables\WebsiteSettingsTable;
+use App\Filament\Client\Resources\WebsiteSettings\Pages\CreateWebsiteSetting;
+use App\Filament\Client\Resources\WebsiteSettings\Pages\EditWebsiteSetting;
+use App\Filament\Client\Resources\WebsiteSettings\Pages\ListWebsiteSettings;
+use App\Filament\Client\Resources\WebsiteSettings\Schemas\WebsiteSettingForm;
+use App\Filament\Client\Resources\WebsiteSettings\Tables\WebsiteSettingsTable;
 use App\Models\WebsiteSetting;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -23,6 +24,23 @@ class WebsiteSettingResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'website_id';
 
+    public static function getEloquentQuery(): Builder
+{
+    $query = parent::getEloquentQuery();
+
+    $user = auth()->user();
+
+    // Owner can only see settings for websites
+    // belonging to their company.
+    if ($user && $user->role === 'owner' && $user->company_id) {
+        return $query->whereHas('website', function ($websiteQuery) use ($user) {
+            $websiteQuery->where('company_id', $user->company_id);
+        });
+    }
+
+    // No company = no settings
+    return $query->whereRaw('1 = 0');
+}
     public static function form(Schema $schema): Schema
     {
         return WebsiteSettingForm::configure($schema);
@@ -48,26 +66,4 @@ class WebsiteSettingResource extends Resource
             'edit' => EditWebsiteSetting::route('/{record}/edit'),
         ];
     }
-    public static function getEloquentQuery(): Builder
-{
-    $query = parent::getEloquentQuery();
-
-    $user = auth()->user();
-
-    // Super Admin can see all website settings
-    if ($user && $user->role === 'super_admin') {
-        return $query;
-    }
-
-    // Owner can only see settings for websites
-    // belonging to their company
-    if ($user && $user->company_id) {
-        return $query->whereHas('website', function ($websiteQuery) use ($user) {
-            $websiteQuery->where('company_id', $user->company_id);
-        });
-    }
-
-    // No company = no settings
-    return $query->whereRaw('1 = 0');
-}
 }

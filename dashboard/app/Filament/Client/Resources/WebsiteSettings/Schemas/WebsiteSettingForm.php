@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\WebsiteSettings\Schemas;
+namespace App\Filament\Client\Resources\WebsiteSettings\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Schema;
 
 class WebsiteSettingForm
 {
@@ -14,36 +14,39 @@ class WebsiteSettingForm
     {
         return $schema
             ->components([
-             Select::make('website_id')
-    ->label('Website')
-    ->relationship(
-        name: 'website',
-        titleAttribute: 'name',
-        modifyQueryUsing: function ($query) {
-            $user = auth()->user();
+                Select::make('website_id')
+                    ->label('Website')
+                    ->relationship(
+                        name: 'website',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: function ($query) {
+                            $user = auth()->user();
 
-            if ($user && $user->role === 'owner') {
-                $query->where('company_id', $user->company_id);
-            }
-        }
-    )
-    ->searchable()
-    ->preload()
-    ->required(),
+                            if ($user && $user->role === 'owner') {
+                                $query->where('company_id', $user->company_id);
+                            }
+                        }
+                    )
+                    ->searchable()
+                    ->preload()
+                    ->required(),
 
-TextInput::make('chatbot_name')
-    ->label('Chatbot Name')
-    ->required()
-    ->maxLength(100)
-    ->default('AI Assistant'),
+                TextInput::make('chatbot_name')
+                    ->label('Chatbot Name')
+                    ->required()
+                    ->maxLength(100)
+                    ->default('AI Assistant'),
+
                 Textarea::make('welcome_message')
+                    ->label('Welcome Message')
                     ->rows(3)
                     ->default('Hello 👋 How can I help you today?'),
+
                 TextInput::make('placeholder')
-    ->label('Input Placeholder')
-    ->required()
-    ->maxLength(255)
-    ->default('Type your message...'),
+                    ->label('Input Placeholder')
+                    ->required()
+                    ->maxLength(255)
+                    ->default('Type your message...'),
 
                 TextInput::make('temperature')
                     ->numeric()
@@ -52,23 +55,33 @@ TextInput::make('chatbot_name')
                     ->step(0.1)
                     ->default(0.7)
                     ->required(),
+
                 TextInput::make('primary_color')
+                    ->label('Primary Color')
                     ->required()
                     ->default('#2563eb'),
+
                 Textarea::make('system_prompt')
                     ->label('System Prompt')
                     ->rows(10)
-                    ->columnSpanFull(), 
+                    ->columnSpanFull(),
+
                 Select::make('position')
-                    ->options(['left' => 'Left', 'right' => 'Right'])
+                    ->options([
+                        'left' => 'Left',
+                        'right' => 'Right',
+                    ])
                     ->default('right')
                     ->required(),
+
                 Toggle::make('enable_chatbot')
                     ->label('Enable Chatbot')
                     ->default(true),
+
                 Toggle::make('enable_live_chat')
                     ->label('Enable Live Chat')
                     ->default(true),
+
                 Toggle::make('show_connect_agent')
                     ->label('Show Connect to Agent')
                     ->default(true),

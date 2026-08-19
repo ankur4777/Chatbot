@@ -21,6 +21,7 @@ class ChatRequest(BaseModel):
     website_id: int
     history: List[ChatMessage] = []
     summary: str | None = None
+    summary_messages: List[ChatMessage] = []
 
 class SearchRequest(BaseModel):
     website_id: int
@@ -36,13 +37,17 @@ def chat(request: ChatRequest):
     website_id=request.website_id,
     message=request.message,
     history=request.history,
-    summary=request.summary
+    summary=request.summary,
 )
-    if len(request.history) >= 10:
-        print("SUMMARY GENERATION STARTED")
-        print("HISTORY COUNT:", len(request.history))
+    if request.summary_messages:
 
-        new_summary = ai_service.generate_summary(request.history)
+        print("SUMMARY GENERATION STARTED")
+        print("SUMMARY MESSAGES COUNT:", len(request.summary_messages))
+
+        new_summary = ai_service.generate_summary(
+        request.summary_messages,
+        request.summary
+    )
 
         print("NEW SUMMARY:", new_summary)
 

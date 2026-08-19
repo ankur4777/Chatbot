@@ -15,6 +15,7 @@ return [
     */
     'python' => [
     'url' => env('PYTHON_API_URL'),
+    'key' => env('PYTHON_API_KEY'),
     ],
 
     'postmark' => [

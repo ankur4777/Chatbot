@@ -58,9 +58,9 @@
 
     position: fixed;
 
-    right: 20px;
+    right: 35px;
 
-    bottom: 95px;
+    bottom: 35px;
 
     width: 380px;
 
@@ -494,26 +494,459 @@
 
 /* Responsive */
 
-@media (max-width:467px){
+/* =========================
+   Responsive Chatbot
+   ========================= */
 
-    #chatbot-box{
+/* Tablet */
+@media (min-width: 468px) and (max-width: 991px) {
 
-        width: calc(100vw - 20px);
-
-        height: 85vh;
-
-        right: 10px;
-
-        bottom: 80px;
-
-    }
-
-    #chatbot-toggle{
-
+    #chatbot-box {
+        width: min(420px, calc(100vw - 30px));
+        height: min(650px, calc(100vh - 100px));
         right: 15px;
-
-        bottom: 15px;
-
+        bottom: 80px;
     }
 
+    #chatbot-messages {
+        padding: 14px;
+    }
+
+    .user-message,
+    .bot-message {
+        max-width: 82%;
+    }
+}
+
+
+/* Mobile */
+@media (max-width: 467px) {
+
+    #chatbot-box {
+        width: calc(100vw - 20px);
+        height: calc(100dvh - 100px);
+        max-height: none;
+        right: 10px;
+        bottom: 80px;
+        border-radius: 15px;
+    }
+
+    #chatbot-header {
+        height: 56px;
+        padding: 8px 10px;
+    }
+
+    .chatbot-header-info {
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .chatbot-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    #chatbot-title {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #chatbot-status {
+        font-size: 11px;
+    }
+
+    .chatbot-header-actions {
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    #chatbot-new-chat {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    #chatbot-new-chat i {
+        font-size: 12px;
+    }
+
+    #chatbot-close {
+        width: 28px;
+        height: 28px;
+    }
+
+    #chatbot-close i {
+        font-size: 18px;
+    }
+
+
+    /* Messages */
+
+    #chatbot-messages {
+        padding: 12px;
+        gap: 8px;
+        min-height: 0;
+    }
+
+    .user-message,
+    .bot-message {
+        max-width: 88%;
+        padding: 10px 13px;
+        font-size: 13px;
+        line-height: 1.5;
+        border-radius: 14px;
+    }
+
+
+    /* Hero */
+
+    #chatbot-hero {
+        padding: 5px 5px 0;
+    }
+
+    .chatbot-hero-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .chatbot-hero-icon i {
+        font-size: 45px;
+    }
+
+    #chatbot-hero-title {
+        font-size: 18px;
+    }
+
+    #chatbot-hero-message {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+
+    /* Options */
+
+    .chatbot-options {
+        gap: 7px;
+        margin-bottom: 12px;
+    }
+
+    .chatbot-option {
+        padding: 8px 13px;
+        font-size: 12px;
+        max-width: 100%;
+        word-break: break-word;
+    }
+
+
+    /* Input */
+
+    #chatbot-input-area {
+        padding: 8px;
+    }
+
+    #chatbot-input {
+        min-width: 0;
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    #chatbot-send {
+        width: 46px;
+        height: 42px;
+        flex-shrink: 0;
+    }
+
+
+    /* Lead Form */
+
+    .chatbot-lead-form {
+        padding: 13px;
+    }
+
+    .lead-form-title {
+        font-size: 14px;
+    }
+
+    .chatbot-lead-form input {
+        height: 40px;
+        font-size: 13px;
+    }
+
+    #lead-submit {
+        height: 40px;
+        font-size: 13px;
+    }
+
+
+    /* Lead Confirmation */
+
+    .lead-confirmation {
+        max-width: 90%;
+        min-width: 0;
+        padding: 12px 13px;
+    }
+
+    .lead-detail {
+        font-size: 13px;
+        gap: 8px;
+    }
+
+
+    /* End Chat Options */
+
+    .end-chat-options {
+        gap: 6px;
+    }
+
+    .end-chat-option {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+
+    /* Floating Button */
+
+    #chatbot-toggle {
+        width: 54px;
+        height: 54px;
+        right: 15px;
+        bottom: 15px;
+        font-size: 21px;
+    }
+}
+
+
+/* Very Small Mobile */
+@media (max-width: 360px) {
+
+    #chatbot-box {
+        width: calc(100vw - 12px);
+        right: 6px;
+        bottom: 72px;
+        height: calc(100dvh - 88px);
+    }
+
+    #chatbot-header {
+        padding: 7px 8px;
+    }
+
+    #chatbot-new-chat {
+        padding: 5px 6px;
+        font-size: 10px;
+    }
+
+    #chatbot-new-chat span {
+        display: none;
+    }
+
+    #chatbot-messages {
+        padding: 10px;
+    }
+
+    .user-message,
+    .bot-message {
+        max-width: 92%;
+        font-size: 12px;
+    }
+
+    .chatbot-option {
+        padding: 7px 11px;
+        font-size: 11px;
+    }
+}
+
+/* Lead Form */
+
+.chatbot-lead-form {
+    width: 100%;
+    max-width: 100%;
+    background: #fff;
+    padding: 16px;
+    margin-top: 5px;
+    border-radius: 14px;
+    border: 1px solid #eeeeee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.lead-form-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 14px;
+}
+
+.chatbot-lead-form input {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    padding: 0 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    outline: none;
+    font-family: "Inter", sans-serif;
+    transition: 0.2s;
+}
+
+.chatbot-lead-form input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 90, 79, 0.1);
+}
+
+.chatbot-lead-form input::placeholder {
+    color: #999;
+}
+
+#lead-submit {
+    width: 100%;
+    height: 42px;
+    border: none;
+    border-radius: 9px;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#lead-submit:hover {
+    opacity: 0.9;
+}
+
+#lead-submit:active {
+    transform: scale(0.98);
+}
+
+#lead-error {
+    color: #e53935;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Lead Confirmation */
+
+.lead-confirmation {
+    align-self: flex-end;
+    width: fit-content;
+    max-width: 82%;
+    min-width: 230px;
+    background: #eef6ff;
+    border: 1px solid #d7e7fa;
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    color: #1f2937;
+}
+
+.lead-confirmation-header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #1677d2;
+    font-size: 15px;
+}
+
+.lead-confirmation-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1677d2;
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+}
+
+.lead-confirmation-divider {
+    height: 1px;
+    background: #cfe0f3;
+    margin: 11px 0;
+}
+
+.lead-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 9px 0;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.lead-detail i {
+    width: 20px;
+    color: #1677d2;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* End Chat Question */
+
+.end-chat-question {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.end-chat-question .bot-message {
+    margin-bottom: 8px;
+}
+
+.end-chat-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: 0;
+}
+
+.end-chat-option {
+    border: 1px solid var(--primary-color);
+    background: #fff;
+    color: var(--primary-color);
+    border-radius: 50px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.end-chat-option:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.end-chat-option:active {
+    transform: scale(0.96);
+}
+
+
+/* Conversation Ended Divider */
+
+.conversation-divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0;
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.conversation-divider::before,
+.conversation-divider::after {
+    content: "";
+    height: 1px;
+    background: #e5e7eb;
+    flex: 1;
+}
+
+.conversation-divider span {
+    white-space: nowrap;
 }

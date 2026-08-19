@@ -91,10 +91,11 @@ Rules:
 
         if history:
             for chat in history:
-                messages.append({
-                    "role": chat.role,
-                    "content": chat.content,
-                })
+                if chat.role == "user":
+                    messages.append({
+                        "role": "user",
+                        "content": chat.content,
+                    })
 
         messages.append({
             "role": "user",

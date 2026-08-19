@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Http;
 class EmbeddingService
 {
     public function sync(KnowledgeBase $knowledgeBase): bool
-    {
-        \Log::info('EmbeddingService sync called', [
-    'website_id' => $knowledgeBase->website_id,
-    'knowledge_base_id' => $knowledgeBase->id,
-]);
-       $chunks = KnowledgeChunk::where(
+{
+    \Log::info('EmbeddingService sync called', [
+        'website_id' => $knowledgeBase->website_id,
+        'knowledge_base_id' => $knowledgeBase->id,
+    ]);
+
+    $chunks = KnowledgeChunk::where(
         'website_id',
         $knowledgeBase->website_id
     )
@@ -21,56 +22,81 @@ class EmbeddingService
     ->orderBy('chunk_order')
     ->get();
 
-        if ($chunks->isEmpty()) {
-            return false;
-        }
+    if ($chunks->isEmpty()) {
+        return false;
+    }
 
-        $payload = [
-            'knowledge_base_id' => $knowledgeBase->id,
-            'website_id' => $knowledgeBase->website_id,
-            'chunks' => $chunks->map(function ($chunk) {
+    $payload = [
+        'knowledge_base_id' => $knowledgeBase->id,
+        'website_id' => $knowledgeBase->website_id,
+        'chunks' => $chunks->map(function ($chunk) {
 
-    return [
+            return [
+                'id' => $chunk->id,
+                'website_id' => $chunk->website_id,
+                'knowledge_base_id' => $chunk->knowledge_base_id,
+                'chunk_order' => $chunk->chunk_order,
+                'text' => $chunk->chunk_text,
+                'title' => optional($chunk->knowledgeBase)->title,
+                'source' => optional($chunk->knowledgeBase)->source_file,
+                'source_type' => optional($chunk->knowledgeBase)->source_type,
+            ];
 
-        'id' => $chunk->id,
-
-        'website_id' => $chunk->website_id,
-
-        'knowledge_base_id' => $chunk->knowledge_base_id,
-
-        'chunk_order' => $chunk->chunk_order,
-
-        'text' => $chunk->chunk_text,
-
-        'title' => optional($chunk->knowledgeBase)->title,
-
-        'source' => optional($chunk->knowledgeBase)->source_file,
-
-        'source_type' => optional($chunk->knowledgeBase)->source_type,
-
+        })->values()->toArray(),
     ];
 
-})->values()->toArray(),
-        ];
+    try {
 
-        $response = Http::timeout(300)
-            ->post(
-                config('services.python.url') . '/knowledge/sync',
-                $payload
-            );
+    $response = Http::withToken(config('services.python.key'))
+        ->asJson()
+        ->timeout(300)
+        ->post(
+            config('services.python.url') . '/knowledge/sync',
+            $payload
+        );
 
-        if (! $response->successful()) {
-            return false;
-        }
+    if (! $response->successful()) {
 
-        foreach ($chunks as $chunk) {
-            $chunk->update([
-                'embedding_model'        => 'BAAI/bge-small-en-v1.5',
-                'embedding_generated'    => true,
-                'embedding_generated_at' => now(),
-            ]);
-        }
+        \Log::error('Python Knowledge Sync Error', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'website_id' => $knowledgeBase->website_id,
+            'knowledge_base_id' => $knowledgeBase->id,
+        ]);
 
-        return true;
+        return false;
     }
+
+} catch (\Illuminate\Http\Client\ConnectionException $e) {
+
+    \Log::error('Python Knowledge Sync Connection Error', [
+        'message' => $e->getMessage(),
+        'website_id' => $knowledgeBase->website_id,
+        'knowledge_base_id' => $knowledgeBase->id,
+    ]);
+
+    return false;
+
+} catch (\Throwable $e) {
+
+    \Log::error('Python Knowledge Sync Exception', [
+        'message' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+        'website_id' => $knowledgeBase->website_id,
+        'knowledge_base_id' => $knowledgeBase->id,
+    ]);
+
+    return false;
+}
+
+    foreach ($chunks as $chunk) {
+        $chunk->update([
+            'embedding_model'        => 'BAAI/bge-small-en-v1.5',
+            'embedding_generated'    => true,
+            'embedding_generated_at' => now(),
+        ]);
+    }
+
+    return true;
+}
 }

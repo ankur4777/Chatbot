@@ -42,70 +42,137 @@ public function sendMessage(Request $request)
     $conversation = $data['conversation'];
     $visitor = $data['visitor'];
 
-
-$history = ChatMessage::where(
-    'conversation_id',
-    $conversation->id
-)
-->latest('id')
-->take(10)
-->get()
-->reverse()
-->values();
-
-$messages = [];
-
-foreach ($history as $chat) {
-
-    $messages[] = [
-        'role' => $chat->sender_type === 'visitor'
-            ? 'user'
-            : 'assistant',
-
-        'content' => $chat->message,
-    ];
-}
-
-$this->saveUserMessage(
+    // Save current user message first
+    $this->saveUserMessage(
         $conversation,
         $request->message
     );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Latest 10 messages = AI history
+    |--------------------------------------------------------------------------
+    */
+
+    $history = ChatMessage::where(
+        'conversation_id',
+        $conversation->id
+    )
+        ->latest('id')
+        ->take(10)
+        ->get()
+        ->reverse()
+        ->values();
+
+    $messages = [];
+
+    foreach ($history as $chat) {
+
+        $messages[] = [
+            'role' => $chat->sender_type === 'visitor'
+                ? 'user'
+                : 'assistant',
+
+            'content' => $chat->message,
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messages older than latest 10 = Summary source
+    |--------------------------------------------------------------------------
+    */
+
+    $olderMessages = ChatMessage::where(
+        'conversation_id',
+        $conversation->id
+    )
+        ->orderBy('id', 'asc')
+        ->get();
+
+    // Remove latest 10 messages from summary source
+    if ($olderMessages->count() > 10) {
+        $olderMessages = $olderMessages
+            ->slice(0, $olderMessages->count() - 10)
+            ->values();
+    } else {
+        $olderMessages = collect();
+    }
+
+    $summaryMessages = [];
+
+    foreach ($olderMessages as $chat) {
+
+        // Summary should contain only user information
+        if ($chat->sender_type !== 'visitor') {
+            continue;
+        }
+
+        $summaryMessages[] = [
+            'role' => 'user',
+            'content' => $chat->message,
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI Response
+    |--------------------------------------------------------------------------
+    */
 
     $aiResponse = $this->generateAIResponse(
         $website->id,
         $request->message,
         $messages,
-        $conversation->summary
+        $conversation->summary,
+        $summaryMessages
     );
+
     $response = $aiResponse['response'] ?? '';
 
     $this->saveBotMessage(
         $conversation,
         $response
+    );
 
-    );if (!empty($aiResponse['summary'])) {
-    $conversation->update([
-        'summary' => $aiResponse['summary'],
-    ]);
-}
+    /*
+    |--------------------------------------------------------------------------
+    | Update conversation summary
+    |--------------------------------------------------------------------------
+    */
+
+    if (! empty($aiResponse['summary'])) {
+
+        $conversation->update([
+            'summary' => $aiResponse['summary'],
+        ]);
+
+        $conversation->refresh();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lead
+    |--------------------------------------------------------------------------
+    */
 
     if (
-    $request->filled('name') ||
-    $request->filled('email') ||
-    $request->filled('phone')
-) {
-    $this->saveLead(
-        $website,
-        $visitor,
-        $conversation,
-        $request->only([
-            'name',
-            'email',
-            'phone',
-            'notes',
-        ])
-    );
-}
+        $request->filled('name') ||
+        $request->filled('email') ||
+        $request->filled('phone')
+    ) {
+        $this->saveLead(
+            $website,
+            $visitor,
+            $conversation,
+            $request->only([
+                'name',
+                'email',
+                'phone',
+                'notes',
+            ])
+        );
+    }
 
     return response()->json([
         'success' => true,
@@ -177,14 +244,16 @@ public function generateAIResponse(
     int $websiteId,
     string $message,
     array $history,
-    ?string $summary = null
+    ?string $summary = null,
+    array $summaryMessages = []
 ): array
 {
     return $this->aiService->generateResponse(
         $websiteId,
-    $message,
-    $history,
-     $summary,
+        $message,
+        $history,
+        $summary,
+        $summaryMessages
     );
 }
 

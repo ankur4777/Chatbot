@@ -58,15 +58,11 @@ class KnowledgeImporter:
         pass
 
     def import_pdf(self, file_path: str, website_id: int):
-
         try:
-
-            self.vector_service.load_website(website_id)
-
-        # Step 1: Extract PDF text
+            # Step 1: Extract PDF text
             text = self.pdf_parser.parse(file_path)
 
-        # Step 2: Create chunks
+            # Step 2: Create chunks
             chunks = self.chunk_service.chunk(
                 text=text,
                 source=file_path
@@ -77,29 +73,7 @@ class KnowledgeImporter:
                     "No readable content found in this PDF."
                 )
 
-            total_chunks = 0
-
-        # Step 3: Create embeddings and add to vector store
-            for chunk in chunks:
-
-                embedding = self.embedding_service.embed(
-                    chunk["text"]
-                )
-
-                if embedding is None:
-                    raise RuntimeError(
-                        "Failed to create embedding for PDF content."
-                    )
-
-                self.vector_service.add(
-                    embedding,
-                    chunk
-                )
-
-                total_chunks += 1
-
-        # Step 4: Save FAISS/vector data
-            self._save_knowledge(website_id)
+            total_chunks = len(chunks)
 
             return {
                 "success": True,
@@ -110,14 +84,12 @@ class KnowledgeImporter:
             }
 
         except ValueError as e:
-
             return {
                 "success": False,
                 "message": str(e),
             }
 
         except Exception as e:
-
             return {
                 "success": False,
                 "message": f"Knowledge processing failed: {str(e)}",

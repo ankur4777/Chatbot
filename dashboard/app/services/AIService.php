@@ -183,7 +183,7 @@ class AIService
 
         $response = $this->pythonRequest()
             ->asJson()
-            ->timeout(120)
+            ->timeout(300)
             ->post(
                 config('services.python.url') . '/knowledge/import',
                 $data

@@ -37,11 +37,18 @@ class ImportRequest(BaseModel):
 @router.post("/knowledge/import")
 def import_knowledge(request: ImportRequest):
 
-   if request.type == "pdf":
-    return knowledge_importer.import_pdf(
-        file_path=request.source,
-        website_id=request.website_id
-    )
+    print("KNOWLEDGE IMPORT REQUEST:", request)
+
+    if request.type == "pdf":
+        result = knowledge_importer.import_pdf(
+            file_path=request.source,
+            website_id=request.website_id
+        )
+
+        print("KNOWLEDGE IMPORT RESULT:", result)
+
+        return result
+
     return {
         "success": False,
         "message": f"Unsupported source type: {request.type}"
@@ -51,23 +58,28 @@ def sync(request: SyncRequest):
 
     vector_store.reset()
 
-    for chunk in request.chunks:
+    texts = [
+        chunk.text
+        for chunk in request.chunks
+    ]
 
-        embedding = embedding_service.embed(chunk.text)
+    embeddings = embedding_service.embed_batch(texts)
+
+    for chunk, embedding in zip(request.chunks, embeddings):
 
         vector_store.add(
-    embedding,
-    {
-        "id": chunk.id,
-        "website_id": chunk.website_id,
-        "knowledge_base_id": chunk.knowledge_base_id,
-        "chunk_order": chunk.chunk_order,
-        "title": chunk.title,
-        "source": chunk.source,
-        "source_type": chunk.source_type,
-        "text": chunk.text,
-    }
-)
+            embedding,
+            {
+                "id": chunk.id,
+                "website_id": chunk.website_id,
+                "knowledge_base_id": chunk.knowledge_base_id,
+                "chunk_order": chunk.chunk_order,
+                "title": chunk.title,
+                "source": chunk.source,
+                "source_type": chunk.source_type,
+                "text": chunk.text,
+            }
+        )
 
     vector_store.save_website(request.website_id)
 

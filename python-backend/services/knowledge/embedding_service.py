@@ -15,6 +15,20 @@ class EmbeddingService:
 
     def embed(self, text: str):
 
-        embedding = self.model.encode(text, normalize_embeddings=True)
+        embedding = self.model.encode(
+            text,
+            normalize_embeddings=True
+        )
 
         return embedding.tolist()
+
+    def embed_batch(self, texts: list[str]):
+
+        embeddings = self.model.encode(
+            texts,
+            normalize_embeddings=True,
+            batch_size=32,
+            show_progress_bar=False
+        )
+
+        return embeddings.tolist()

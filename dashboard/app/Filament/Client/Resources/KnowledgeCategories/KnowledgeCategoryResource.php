@@ -6,6 +6,7 @@ use App\Filament\Client\Resources\KnowledgeCategories\Pages\CreateKnowledgeCateg
 use App\Filament\Client\Resources\KnowledgeCategories\Pages\EditKnowledgeCategory;
 use App\Filament\Client\Resources\KnowledgeCategories\Pages\ListKnowledgeCategories;
 use App\Filament\Client\Resources\KnowledgeCategories\Schemas\KnowledgeCategoryForm;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Client\Resources\KnowledgeCategories\Tables\KnowledgeCategoriesTable;
 use App\Models\KnowledgeCategory;
 use BackedEnum;
@@ -21,6 +22,20 @@ class KnowledgeCategoryResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
+    public static function getEloquentQuery(): Builder
+{
+    $query = parent::getEloquentQuery();
+
+    $user = auth()->user();
+
+    if ($user && $user->role === 'owner' && $user->company_id) {
+        return $query->whereHas('website', function ($websiteQuery) use ($user) {
+            $websiteQuery->where('company_id', $user->company_id);
+        });
+    }
+
+    return $query->whereRaw('1 = 0');
+}
 
     public static function form(Schema $schema): Schema
     {

@@ -19,18 +19,18 @@ class ChatbotLeadForm
     ->searchable()
     ->preload()
     ->required(),
-                Select::make('visitor_id')
-    ->label('Visitor')
-    ->relationship('visitor', 'name')
-    ->searchable()
-    ->preload()
-    ->required(),
-                Select::make('conversation_id')
-    ->label('Conversation')
-    ->relationship('conversation', 'id')
-    ->searchable()
-    ->preload()
-    ->required(),
+      //          Select::make('visitor_id')
+    //->label('Visitor')
+    //->relationship('visitor', 'name')
+    //->searchable()
+    //->preload()
+    //->required(),
+      //          Select::make('conversation_id')
+    //->label('Conversation')
+    //->relationship('conversation', 'id')
+    //->searchable()
+    //->preload()
+    //->required(),
                 TextInput::make('name')
     ->label('Full Name')
     ->required()

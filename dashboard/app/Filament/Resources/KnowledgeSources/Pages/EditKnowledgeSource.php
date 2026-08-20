@@ -7,6 +7,9 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Actions\Action;
+use App\Services\AIService;
+use App\Services\EmbeddingService;
+use App\Models\KnowledgeBase;
 use App\Services\KnowledgeSourceService;
 use Filament\Notifications\Notification;
 
@@ -39,7 +42,10 @@ class EditKnowledgeSource extends EditRecord
 
         DeleteAction::make()
     ->requiresConfirmation()
+
     ->before(function () {
+
+        $websiteId = $this->record->website_id;
 
         $knowledgeBase = $this->record->knowledgeBase;
 
@@ -51,6 +57,26 @@ class EditKnowledgeSource extends EditRecord
 
         }
 
+    })
+
+    ->after(function () {
+
+        $knowledgeBase = KnowledgeBase::where(
+    'website_id',
+    $this->record->website_id
+)->latest()->first();
+
+if ($knowledgeBase) {
+
+    app(EmbeddingService::class)->sync($knowledgeBase);
+
+} else {
+
+    app(AIService::class)->clearKnowledge(
+        $this->record->website_id
+    );
+
+}
     }),
 
     ];

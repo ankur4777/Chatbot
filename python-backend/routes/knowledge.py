@@ -1,35 +1,87 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-
+from typing import List
 from services.knowledge.knowledge_importer import KnowledgeImporter
+from services.knowledge.embedding_service import EmbeddingService
+from services.knowledge.vector_store import vector_store
 
-router = APIRouter(
-    prefix="/knowledge",
-    tags=["Knowledge"]
-)
+router = APIRouter()
 
-importer = KnowledgeImporter()
+embedding_service = EmbeddingService()
+knowledge_importer = KnowledgeImporter()
+
+class ClearRequest(BaseModel):
+    website_id: int
+
+class Chunk(BaseModel):
+    id: int
+    website_id: int
+    knowledge_base_id: int
+    chunk_order: int
+    text: str
+    title: str | None = None
+    source: str | None = None
+    source_type: str | None = None
 
 
+class SyncRequest(BaseModel):
+    knowledge_base_id: int
+    chunks: List[Chunk]
+    website_id: int
 class ImportRequest(BaseModel):
     type: str
     source: str
+    website_id: int
+    
 
-
-@router.post("/import")
+@router.post("/knowledge/import")
 def import_knowledge(request: ImportRequest):
 
-    if request.type == "website":
-        return importer.import_website(
-            request.source
-        )
-
-    elif request.type == "pdf":
-        return importer.import_pdf(
-            request.source
-        )
-
+   if request.type == "pdf":
+    return knowledge_importer.import_pdf(
+        file_path=request.source,
+        website_id=request.website_id
+    )
     return {
         "success": False,
-        "message": "Unsupported knowledge source."
+        "message": f"Unsupported source type: {request.type}"
+    }
+@router.post("/knowledge/sync")
+def sync(request: SyncRequest):
+
+    vector_store.reset()
+
+    for chunk in request.chunks:
+
+        embedding = embedding_service.embed(chunk.text)
+
+        vector_store.add(
+    embedding,
+    {
+        "id": chunk.id,
+        "website_id": chunk.website_id,
+        "knowledge_base_id": chunk.knowledge_base_id,
+        "chunk_order": chunk.chunk_order,
+        "title": chunk.title,
+        "source": chunk.source,
+        "source_type": chunk.source_type,
+        "text": chunk.text,
+    }
+)
+
+    vector_store.save_website(request.website_id)
+
+    return {
+        "success": True,
+        "chunks": len(request.chunks)
+    }
+@router.post("/knowledge/clear")
+def clear(request: ClearRequest):
+
+    vector_store.clear_website(
+        request.website_id
+    )
+
+    return {
+        "success": True
     }

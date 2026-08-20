@@ -7,17 +7,24 @@ use Illuminate\Support\Facades\Http;
 class AIService
 {
    public function generateResponse(
+    int $websiteId,
     string $message,
-    array $history
-): string
+    array $history,
+    ?string $summary = null,
+    array $summaryMessages = []
+): array
 {
     try {
-
         $response = Http::timeout(120)->post(
             config('services.python.url') . '/chat',
-            [
-                'message' => $message,
-                'history' => $history,
+            
+                [
+    'website_id' => $websiteId,
+    'message' => $message,
+    'history' => $history,
+    'summary' => $summary,
+    'summary_messages' => $summaryMessages,
+
             ]
         );
 
@@ -29,10 +36,11 @@ class AIService
         'json'   => $response->json(),
     ]);
 
-    return $response->json('response');
+    return $response->json();
 }
-        return 'Sorry, AI service is currently unavailable.';
-
+return [
+    'response' => 'Sorry, AI service is currently unavailable.',
+];
     } catch (\Throwable $e) {
 
     \Log::error('Python Exception', [
@@ -40,7 +48,9 @@ class AIService
         'trace'   => $e->getTraceAsString(),
     ]);
 
-    return 'Unable to connect to AI server.';
+return [
+    'response' => 'Unable to connect to AI server.',
+];
 }
 }
 
@@ -63,4 +73,47 @@ return $response->json();
             ];
         }
     }
+
+    public function rebuildKnowledge(int $websiteId): array
+{
+    try {
+
+        $response = Http::timeout(300)->post(
+            config('services.python.url') . '/knowledge/rebuild',
+            [
+                'website_id' => $websiteId,
+            ]
+        );
+
+        return $response->json();
+
+    } catch (\Throwable $e) {
+
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+        ];
+    }
+}
+public function clearKnowledge(int $websiteId): array
+{
+    try {
+
+        $response = Http::timeout(60)->post(
+            config('services.python.url') . '/knowledge/clear',
+            [
+                'website_id' => $websiteId,
+            ]
+        );
+
+        return $response->json();
+
+    } catch (\Throwable $e) {
+
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+        ];
+    }
+}
 }

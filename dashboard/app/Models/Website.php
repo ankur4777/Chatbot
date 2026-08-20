@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,9 +12,27 @@ class Website extends Model
     protected $fillable = [
         'company_id',
         'name',
+        'widget_key',
         'domain',
         'status',
     ];
+
+    protected static function booted(): void
+{
+    static::creating(function ($website) {
+
+        if (empty($website->widget_key)) {
+
+            do {
+                $key = 'WGT_' . Str::upper(Str::random(16));
+            } while (
+                self::where('widget_key', $key)->exists()
+            );
+
+            $website->widget_key = $key;
+        }
+    });
+}
 
     public function company(): BelongsTo
     {
@@ -58,5 +76,10 @@ class Website extends Model
     public function quickReplies(): HasMany
 {
     return $this->hasMany(ChatbotQuickReply::class);
+}
+
+public function chatbotFlows(): HasMany
+{
+    return $this->hasMany(ChatbotFlow::class);
 }
 }

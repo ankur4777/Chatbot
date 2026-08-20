@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\KnowledgeBases\Pages;
 
 use App\Filament\Resources\KnowledgeBases\KnowledgeBaseResource;
+use App\Services\KnowledgeChunkService;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -15,5 +16,11 @@ class EditKnowledgeBase extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    protected function afterSave(): void
+    {
+        app(KnowledgeChunkService::class)
+            ->generate($this->record);
     }
 }

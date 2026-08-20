@@ -61,7 +61,13 @@ class KnowledgeSourceForm
                     ->acceptedFileTypes(['application/pdf'])
                     ->visible(fn (Get $get): bool => $get('type') === 'pdf')
                     ->required(fn (Get $get): bool => $get('type') === 'pdf'),
-
+                
+                Textarea::make('error')
+    ->label('Error Message')
+    ->disabled()
+    ->rows(3)
+    ->visible(fn ($record): bool => $record?->status === 'failed')
+    ->columnSpanFull(),
             ]);
     }
 }

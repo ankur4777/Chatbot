@@ -15,11 +15,15 @@ class ChatConversation extends Model
         'status',
         'started_at',
         'ended_at',
+        'summary',
+        'lead_step',
+        'lead_completed',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        'lead_completed' => 'boolean',
     ];
 
     public function website(): BelongsTo
@@ -46,4 +50,8 @@ class ChatConversation extends Model
     {
         return $this->hasOne(ChatbotLead::class, 'conversation_id');
     }
+    public function flowAnswers(): HasMany
+{
+    return $this->hasMany(ChatbotFlowAnswer::class, 'conversation_id');
+}
 }

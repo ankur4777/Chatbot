@@ -44,6 +44,10 @@ class WebsiteSettingForm
                 TextInput::make('primary_color')
                     ->required()
                     ->default('#2563eb'),
+                Textarea::make('system_prompt')
+                    ->label('System Prompt')
+                    ->rows(10)
+                    ->columnSpanFull(), 
                 Select::make('position')
                     ->options(['left' => 'Left', 'right' => 'Right'])
                     ->default('right')

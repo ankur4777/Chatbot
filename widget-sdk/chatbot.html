@@ -6,6 +6,9 @@
     <title>Chatbot Widget</title>
 
     <link rel="stylesheet" href="chatbot.css">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet"
@@ -45,24 +48,28 @@
         </div>
 
         <button id="chatbot-close">
-            <i class="bi bi-x-lg"></i>
+            <i class="bi bi-x"></i>
         </button>
 
     </div>
 
     <!-- Messages -->
 
-    <div id="chatbot-messages">
+   <div id="chatbot-messages">
 
-        <div id="chatbot-empty-state">
+    <div id="chatbot-hero">
 
+        <div class="chatbot-hero-icon">
             <i class="bi bi-robot"></i>
-
-            <h4>Welcome</h4>
-
         </div>
 
+        <h2 id="chatbot-hero-title"></h2>
+
+        <div id="chatbot-hero-message"></div>
+
     </div>
+
+</div>
 
     <!-- Input -->
 

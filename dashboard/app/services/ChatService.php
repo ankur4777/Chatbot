@@ -121,12 +121,12 @@ public function sendMessage(Request $request)
     */
 
     $aiResponse = $this->generateAIResponse(
-        $website->id,
-        $request->message,
-        $messages,
-        $conversation->summary,
-        $summaryMessages
-    );
+    $website->id,
+    $request->message,
+    $messages,
+    $conversation->summary,
+    $summaryMessages
+);
 
     $response = $aiResponse['response'] ?? '';
 

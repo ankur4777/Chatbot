@@ -135,13 +135,13 @@
 
 #chatbot-title{
 
-    font-size:17px;
-    margin-bottom:0px;
+    font-size:15px;
+    margin-bottom:3px;
 }
 
 #chatbot-status{
 
-    font-size:13px;
+    font-size:12px;
     opacity:.9;
 }
 
@@ -178,8 +178,8 @@
     background: transparent;
     color: #fff;
     border-radius: 8px;
-    padding: 7px 10px;
-    font-size: 14px;
+    padding: 7px 12px;
+    font-size: 13px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -255,7 +255,7 @@
 
     color:#555;
 
-    font-size:17px;
+    font-size:16px;
 
     line-height:1.6;
 
@@ -447,7 +447,7 @@
 
     padding:10px 18px;
 
-    font-size:16px;
+    font-size:14px;
 
     font-weight:600;
 
@@ -472,198 +472,6 @@
 
 .chatbot-option:active {
     transform: scale(0.96);
-}
-
-/* Lead Form */
-
-.chatbot-lead-form {
-    width: 100%;
-    max-width: 100%;
-    background: #fff;
-    padding: 16px;
-    margin-top: 5px;
-    border-radius: 14px;
-    border: 1px solid #eeeeee;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.lead-form-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 14px;
-}
-
-.chatbot-lead-form input {
-    width: 100%;
-    height: 42px;
-    border: 1px solid #ddd;
-    border-radius: 9px;
-    padding: 0 12px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    outline: none;
-    font-family: "Inter", sans-serif;
-    transition: 0.2s;
-}
-
-.chatbot-lead-form input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(255, 90, 79, 0.1);
-}
-
-.chatbot-lead-form input::placeholder {
-    color: #999;
-}
-
-#lead-submit {
-    width: 100%;
-    height: 42px;
-    border: none;
-    border-radius: 9px;
-    background: var(--primary-color);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-#lead-submit:hover {
-    opacity: 0.9;
-}
-
-#lead-submit:active {
-    transform: scale(0.98);
-}
-
-#lead-error {
-    color: #e53935;
-    font-size: 12px;
-    margin-top: 8px;
-}
-
-/* Lead Confirmation */
-
-.lead-confirmation {
-    align-self: flex-end;
-    width: fit-content;
-    max-width: 82%;
-    min-width: 230px;
-    background: #eef6ff;
-    border: 1px solid #d7e7fa;
-    border-radius: 16px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    color: #1f2937;
-}
-
-.lead-confirmation-header {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    color: #1677d2;
-    font-size: 15px;
-}
-
-.lead-confirmation-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #1677d2;
-    color: #fff;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 14px;
-}
-
-.lead-confirmation-divider {
-    height: 1px;
-    background: #cfe0f3;
-    margin: 11px 0;
-}
-
-.lead-detail {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 9px 0;
-    font-size: 14px;
-    word-break: break-word;
-}
-
-.lead-detail i {
-    width: 20px;
-    color: #1677d2;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-/* End Chat Question */
-
-.end-chat-question {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.end-chat-question .bot-message {
-    margin-bottom: 8px;
-}
-
-.end-chat-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-left: 0;
-}
-
-.end-chat-option {
-    border: 1px solid var(--primary-color);
-    background: #fff;
-    color: var(--primary-color);
-    border-radius: 50px;
-    padding: 9px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.end-chat-option:hover {
-    background: var(--primary-color);
-    color: #fff;
-}
-
-.end-chat-option:active {
-    transform: scale(0.96);
-}
-
-
-/* Conversation Ended Divider */
-
-.conversation-divider {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 18px 0;
-    color: #9ca3af;
-    font-size: 11px;
-}
-
-.conversation-divider::before,
-.conversation-divider::after {
-    content: "";
-    height: 1px;
-    background: #e5e7eb;
-    flex: 1;
-}
-
-.conversation-divider span {
-    white-space: nowrap;
 }
 
 @keyframes typing{

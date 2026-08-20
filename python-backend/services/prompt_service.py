@@ -1,3 +1,6 @@
+from pyexpat.errors import messages
+
+
 class PromptService:
 
     def build_prompt(
@@ -9,77 +12,61 @@ class PromptService:
     ):
 
         system_prompt = f"""
-You are an AI assistant.
+You are an AI assistant for a website.
 
 Previous Conversation Summary:
 {summary or "No previous conversation summary."}
 
 The Knowledge Base below is your ONLY source of factual information.
 
-==================== KNOWLEDGE ====================
+==================== KNOWLEDGE BASE ====================
 
 {context}
 
-=====================================================
+==========================================================
 
-Rules:
+STRICT RULES:
 
-1. Use the Knowledge Base as the only source of factual information.
+1. Use ONLY the Knowledge Base for factual information about the website,
+   its products, services, destinations, packages, prices, policies,
+   features, or any other business information.
 
-2. You MAY reason, summarize, compare, categorize, prioritize, or draw conclusions
-   from the information contained in the Knowledge Base.
+2. Do NOT use your general knowledge.
 
-3. When the user asks for the "most important", "best", "which one",
-   "why", "difference", or similar questions, analyze the available
-   Knowledge Base information and give the most reasonable answer
-   based ONLY on that information.
+3. Do NOT use internet knowledge or outside information.
 
-4. You MUST NOT introduce facts, examples, recommendations, or details
-   that are not supported by the Knowledge Base.
+4. Do NOT invent, assume, or guess any information.
 
-5. Do not use your general knowledge or outside information.
+5. You MAY use the conversation summary to understand facts explicitly
+   provided by the user, such as their destination, budget, travel dates,
+   number of travelers, or preferences.
 
-6. Do not invent or assume missing information.
+6. The conversation summary is NOT a source for website facts.
 
-7. If the Knowledge Base contains related information but does not
-   explicitly answer the question, you may make a reasonable conclusion
-   from that information, but do not add information from outside the
-   Knowledge Base.
+7. Previous assistant messages are NOT a source of factual information.
 
-8. If the Knowledge Base does not contain enough information to answer
-   the question, reply exactly:
-   "I couldn't find this information in the uploaded knowledge base."
+8. If the user's question requires factual information that is not
+   available in the Knowledge Base, reply exactly:
 
-9. Keep the answer very short, clear, natural and direct. Prefer 2-4 short sentences.
+I couldn't find this information in the uploaded knowledge base.
 
-10. Summarize and rephrase the relevant information from the
-    Knowledge Base instead of copying large portions of the source text.
+9. You MAY summarize, compare, categorize, or reason from information
+   contained in the Knowledge Base.
 
-11. Combine information from multiple relevant Knowledge Base chunks
-    when necessary to answer the question completely.
+10. Do not add information that is not supported by the Knowledge Base.
 
-12. For normal questions, prefer a short answer of approximately
-    2-4 sentences.
+11. Answer only what the user asked.
 
-13. Do not include information from retrieved chunks that is not
-    relevant to the user's question.
+12. Keep the answer short, clear, natural, and direct.
 
-14. If the user explicitly asks for a detailed explanation, provide
-    more detail while still using ONLY the Knowledge Base.
+13. Prefer 2-4 short sentences unless the user explicitly asks for details.
 
-15. Keep the answer very short and direct. Prefer 2-4 short sentences.
+14. Do not use Markdown formatting.
 
-16. Do not repeat information from the Knowledge Base.
+15. Do not use asterisks (*), bullet points, numbered lists,
+    headings, or special formatting.
 
-17. Do not provide long explanations unless the user explicitly asks for details.
-
-18. Do not use Markdown formatting.
-
-19. Do not use asterisks (*), bullet points, numbered lists, headings, or special formatting.
-
-20. Return plain text only.
-
-21. Answer only what the user asked. Do not add additional information, benefits, recommendations, examples, or explanations unless they are directly supported by the Knowledge Base and necessary to answer the question.
+16. Return plain text only.
 """
 
         messages = [
@@ -93,14 +80,84 @@ Rules:
             for chat in history:
                 if chat.role == "user":
                     messages.append({
-                        "role": "user",
-                        "content": chat.content,
-                    })
+                "role": "user",
+                "content": chat.content,
+            })
 
         messages.append({
             "role": "user",
             "content": message,
         })
+
+        return messages
+
+    def build_conversation_prompt(
+        self,
+        message: str,
+        history: list = None,
+        summary: str = None
+    ):
+
+        user_history = []
+
+        if history:
+            for chat in history:
+                if chat.role == "user":
+                    user_history.append(chat.content)
+
+        system_prompt = f"""
+You are an AI assistant having a conversation with the user.
+
+Previous Conversation Summary:
+{summary or "No previous conversation summary."}
+
+Recent information explicitly provided by the user:
+{chr(10).join(user_history)}
+
+STRICT RULES:
+
+1. You may use ONLY information explicitly provided by the user.
+
+2. The conversation summary may be used to remember information
+   explicitly provided by the user.
+
+3. Previous assistant responses are NOT factual sources.
+
+4. Do NOT use general knowledge.
+
+5. Do NOT use internet knowledge or outside information.
+
+6. Do NOT invent, assume, or guess information.
+
+7. If the user's information does not contain the answer, reply exactly:
+
+I couldn't find this information in the uploaded knowledge base.
+
+8. Keep the answer very short, clear, natural, and direct.
+
+9. Prefer 1-2 short sentences.
+
+10. Do not use Markdown formatting.
+
+11. Do not use asterisks (*), bullet points, numbered lists,
+    headings, or special formatting.
+
+12. Return plain text only.
+
+13. Answer only what the user asked.
+"""
+
+        messages = [
+        {
+            "role": "system",
+            "content": system_prompt,
+        }
+    ]
+
+        messages.append({
+        "role": "user",
+        "content": message,
+    })
 
         return messages
 

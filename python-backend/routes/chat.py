@@ -33,26 +33,29 @@ class SearchRequest(BaseModel):
 def chat(request: ChatRequest):
     print("HISTORY COUNT BEFORE AI:", len(request.history))
     print("HISTORY:", request.history)
+
     response = ai_service.generate_response(
-    website_id=request.website_id,
-    message=request.message,
-    history=request.history,
-    summary=request.summary,
-)
+        website_id=request.website_id,
+        message=request.message,
+        history=request.history,
+        summary=request.summary,
+    )
+
     if request.summary_messages:
 
         print("SUMMARY GENERATION STARTED")
         print("SUMMARY MESSAGES COUNT:", len(request.summary_messages))
 
         new_summary = ai_service.generate_summary(
-        request.summary_messages,
-        request.summary
+            request.summary_messages,
+            request.summary
     )
 
         print("NEW SUMMARY:", new_summary)
 
         response["summary"] = new_summary
     return response
+
 @router.post("/search")
 def search(request: SearchRequest):
 

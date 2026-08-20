@@ -1,4 +1,5 @@
 import os
+from pyexpat import model
 import ollama
 
 from services.context_builder import ContextBuilder
@@ -16,35 +17,85 @@ class AIService:
 
         self.retrieval_service = RetrievalService()
 
-    def generate_summary(self, history: list) -> str:
+    def generate_summary(
+        self,
+        history: list,
+        previous_summary: str = None
+    ) -> str:
 
         if not history:
-            return ""
+            return previous_summary or ""
 
         model = os.getenv("OLLAMA_MODEL")
 
+        user_messages = []
+
+        for chat in history:
+            if chat.role == "user":
+                user_messages.append(chat.content)
+
+        if not user_messages:
+            return previous_summary or ""
+
         summary_prompt = [
             {
-                "role": "system",
-                "content": (
-                   "Summarize the conversation briefly. "
-                   "Keep only important user preferences, requirements, "
-                   "destinations, decisions, and context needed for future "
-                   "questions. Do not invent information. "
-                    "Return plain text only."
-                ),
-            },
+            "role": "system",
+            "content": """
+You are a conversation memory manager.
+
+Your job is to maintain a SHORT running summary of the user's
+important information.
+
+ONLY store information explicitly provided by the USER.
+
+Store things such as:
+- destination
+- travel dates or month
+- number of travelers
+- adults and children
+- budget
+- travel preferences
+- hotel preferences
+- departure city
+- flight status
+- requirements
+- decisions
+
+DO NOT store:
+- assistant responses
+- assistant recommendations
+- general knowledge
+- assumptions
+- invented information
+- explanations
+- unnecessary conversation
+
+If new information updates an older value, replace the old value.
+
+Keep the summary concise and factual.
+
+Return plain text only.
+Do not use Markdown.
+Do not use bullets or numbering.
+"""
+                },
             {
-               "content": "\n".join(
-    f"{chat['role']}: {chat['content']}"
-    for chat in history
-),
-        },
+            "role": "user",
+            "content": f"""
+Previous summary:
+{previous_summary or "None"}
+
+New information explicitly provided by the user:
+{chr(10).join(user_messages)}
+
+Create the updated running summary.
+"""
+        }
     ]
 
         response = ollama.chat(
             model=model,
-           messages=summary_prompt,
+            messages=summary_prompt,
     )
 
         return response.message.content.strip()

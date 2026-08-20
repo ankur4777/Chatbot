@@ -3,6 +3,8 @@ import numpy as np
 import os
 import json
 
+from torch import embedding
+
 
 class VectorService:
 

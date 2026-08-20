@@ -15,10 +15,7 @@ class EmbeddingService:
 
     def embed(self, text: str):
 
-        embedding = self.model.encode(
-            text,
-            normalize_embeddings=True
-        )
+        embedding = self.model.encode(text, normalize_embeddings=True)
 
         return embedding.tolist()
 

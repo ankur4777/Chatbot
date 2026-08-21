@@ -112,7 +112,14 @@ this.conversationEnded = false;
 
         this.initialized = false;
 
-        this.bindEvents();
+// Hide widget until website is verified
+this.toggle.style.display = "none";
+this.box.style.display = "none";
+
+this.bindEvents();
+
+// Check website status immediately
+this.init();
 
         window.addEventListener("beforeunload", () => {
     if (!this.conversationId) {
@@ -275,6 +282,53 @@ document.getElementById("chatbot-hero-message").textContent =
     }
 }
 
+applyPosition(position) {
+
+    if (!position) {
+        return;
+    }
+
+    const horizontal =
+        position.horizontal || "right";
+
+    const horizontalValue =
+        Number(position.horizontal_value ?? 25);
+
+    const vertical =
+        position.vertical || "bottom";
+
+    const verticalValue =
+        Number(position.vertical_value ?? 25);
+
+
+    // Reset all positions
+    this.toggle.style.left = "";
+    this.toggle.style.right = "";
+    this.toggle.style.top = "";
+    this.toggle.style.bottom = "";
+
+    this.box.style.left = "";
+    this.box.style.right = "";
+    this.box.style.top = "";
+    this.box.style.bottom = "";
+
+
+    // Horizontal position
+    this.toggle.style[horizontal] =
+        `${horizontalValue}px`;
+
+    this.box.style[horizontal] =
+        `${horizontalValue + 10}px`;
+
+
+    // Vertical position
+    this.toggle.style[vertical] =
+        `${verticalValue}px`;
+
+    this.box.style[vertical] =
+        `${verticalValue + 10}px`;
+}
+
 async init() {
     try {
     const response = await fetch(
@@ -285,16 +339,20 @@ async init() {
 
         if (!data.success) {
 
-            this.addBotMessage("Unable to initialize chatbot.");
-            return;
+    // Website inactive / unavailable
+    this.toggle.style.display = "none";
+    this.box.style.display = "none";
 
-        }
+    return;
+}
 
         this.initialized = true;
+        this.toggle.style.display = "flex";
 
         this.settings = data.data.settings ?? {};
 
 const settings = this.settings;
+this.applyPosition(settings.position);
 
         // Hero Section
         document.getElementById("chatbot-title").textContent =
@@ -310,20 +368,29 @@ document.getElementById("chatbot-input").placeholder =
     settings.placeholder || "Type your message...";
 
     if (settings.primary_color) {
-    document.getElementById("chatbot-header").style.background = settings.primary_color;
-    document.getElementById("chatbot-send").style.background = settings.primary_color;
-    document.getElementById("chatbot-toggle").style.background = settings.primary_color;
+
+    document.documentElement.style.setProperty(
+        "--primary-color",
+        settings.primary_color
+    );
+
+    document.documentElement.style.setProperty(
+        "--user-bg",
+        settings.primary_color
+    );
+
 }
 
         await this.loadFlow();
 
     } catch (error) {
 
-        console.error(error);
+    console.error(error);
 
-        this.addBotMessage("Unable to connect to server.");
+    this.toggle.style.display = "none";
+    this.box.style.display = "none";
 
-    }
+}
 
 }
 async loadFlow() {

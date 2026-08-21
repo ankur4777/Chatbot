@@ -27,6 +27,13 @@ class WebsiteSetting extends Model
         'show_connect_agent',
 
     ];
+    protected $casts = [
+    'position' => 'array',
+    'temperature' => 'float',
+    'enable_chatbot' => 'boolean',
+    'enable_live_chat' => 'boolean',
+    'show_connect_agent' => 'boolean',
+];
 
     public function website(): BelongsTo
     {

@@ -73,7 +73,10 @@ public function verifyWebsite(Request $request){
     if (! $website) {
         return null;
     }
-
+ // Website must be active
+    if (! $website->status) {
+        return null;
+    }
     // Verify domain only if it is sent
     if ($request->filled('domain') && $website->domain !== $request->domain) {
         return null;

@@ -40,11 +40,6 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('status')
                     ->boolean(),
-                IconColumn::make('is_online')
-                    ->boolean(),
-                TextColumn::make('last_seen_at')
-    ->since()
-    ->sortable(),
             ])
             ->filters([
                 

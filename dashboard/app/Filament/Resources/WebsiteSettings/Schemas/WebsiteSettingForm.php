@@ -6,6 +6,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 
 class WebsiteSettingForm
@@ -59,10 +60,51 @@ TextInput::make('chatbot_name')
                     ->label('System Prompt')
                     ->rows(10)
                     ->columnSpanFull(), 
-                Select::make('position')
-                    ->options(['left' => 'Left', 'right' => 'Right'])
-                    ->default('right')
-                    ->required(),
+                Hidden::make('position')
+    ->default([
+        'horizontal' => 'right',
+        'horizontal_value' => 25,
+        'vertical' => 'bottom',
+        'vertical_value' => 25,
+    ])
+    ->dehydrated(true),
+
+Select::make('position_horizontal')
+    ->label('Horizontal Position')
+    ->options([
+        'left' => 'Left',
+        'right' => 'Right',
+    ])
+    ->default('right')
+    ->required(),
+
+TextInput::make('position_horizontal_value')
+    ->label('Horizontal Distance')
+    ->numeric()
+    ->minValue(0)
+    ->maxValue(500)
+    ->suffix('px')
+    ->default(25)
+    ->required(),
+
+Select::make('position_vertical')
+    ->label('Vertical Position')
+    ->options([
+        'top' => 'Top',
+        'bottom' => 'Bottom',
+    ])
+    ->default('bottom')
+    ->required(),
+
+TextInput::make('position_vertical_value')
+    ->label('Vertical Distance')
+    ->numeric()
+    ->minValue(0)
+    ->maxValue(500)
+    ->suffix('px')
+    ->default(25)
+    ->required(),
+                   
                 Toggle::make('enable_chatbot')
                     ->label('Enable Chatbot')
                     ->default(true),

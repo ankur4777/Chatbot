@@ -8,6 +8,10 @@ use App\Filament\Resources\Companies\Pages\ListCompanies;
 use App\Filament\Resources\Companies\Schemas\CompanyForm;
 use App\Filament\Resources\Companies\Tables\CompaniesTable;
 use App\Models\Company;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\IconEntry;
+use App\Filament\Resources\Companies\Pages\ViewCompany;
 use BackedEnum;
 use UnitEnum;
 use Filament\Resources\Resource;
@@ -30,6 +34,51 @@ class CompanyResource extends Resource
         return CompanyForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+{
+    return $schema
+        ->components([
+            TextEntry::make('name')
+                ->label('Company Name'),
+
+            TextEntry::make('email')
+                ->label('Email Address'),
+
+            TextEntry::make('phone')
+                ->label('Phone Number'),
+
+            IconEntry::make('status')
+                ->label('Status')
+                ->boolean(),
+
+            RepeatableEntry::make('websites')
+                ->label('Websites')
+                ->state(function (Company $record) {
+                    return $record->websites
+                        ->map(function ($website) {
+                            return [
+                                'name' => $website->name,
+                                'domain' => $website->domain,
+                                'status' => $website->status,
+                            ];
+                        })
+                        ->toArray();
+                })
+                ->schema([
+                    TextEntry::make('name')
+                        ->label('Website'),
+
+                    TextEntry::make('domain')
+                        ->label('Domain'),
+
+                    IconEntry::make('status')
+                        ->label('Status')
+                        ->boolean(),
+                ])
+                ->columnSpanFull(),
+        ]);
+}
+
     public static function table(Table $table): Table
     {
         return CompaniesTable::configure($table);
@@ -46,6 +95,7 @@ class CompanyResource extends Resource
     {
         return [
             'index' => ListCompanies::route('/'),
+             'view' => ViewCompany::route('/{record}'),
             'create' => CreateCompany::route('/create'),
             'edit' => EditCompany::route('/{record}/edit'),
         ];

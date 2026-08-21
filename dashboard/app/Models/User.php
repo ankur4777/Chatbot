@@ -20,8 +20,6 @@ use Filament\Models\Contracts\FilamentUser;
     'password',
     'role',
     'status',
-    'is_online',
-    'last_seen_at',
 ])]
 
 #[Hidden(['password', 'remember_token'])]
@@ -42,8 +40,6 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
 
         'status' => 'boolean',
-        'is_online' => 'boolean',
-        'last_seen_at' => 'datetime',
     ];
 }
 public function company()
@@ -56,13 +52,25 @@ public function assignedConversations()
 }
 public function canAccessPanel(Panel $panel): bool
 {
+    // Inactive user cannot access any dashboard
+    if (! $this->status) {
+        return false;
+    }
+
+    // Owner's company must also be active
+    if ($this->role === 'owner') {
+        if (! $this->company || ! $this->company->status) {
+            return false;
+        }
+    }
+
     if ($panel->getId() === 'admin') {
         return $this->role === 'super_admin';
     }
 
-   if ($panel->getId() === 'client') {
-    return $this->role === 'owner';
-}
+    if ($panel->getId() === 'client') {
+        return $this->role === 'owner';
+    }
 
     return false;
 }

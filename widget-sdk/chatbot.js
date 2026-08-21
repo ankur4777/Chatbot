@@ -96,7 +96,9 @@ class Chatbot {
         this.widgetKey = window.ChatbotConfig?.widgetKey || null;
 
         this.sessionId = this.getSessionId();
-        this.conversationId = null;
+
+this.conversationId = null;
+this.conversationEnded = false;
 
         this.toggle = document.getElementById("chatbot-toggle");
         this.box = document.getElementById("chatbot-box");
@@ -139,6 +141,14 @@ class Chatbot {
     this.toggle.addEventListener("click", () => this.open());
 
     this.close.addEventListener("click", () => this.closeWidget());
+
+    this.newChatButton =
+    document.getElementById("chatbot-new-chat");
+
+this.newChatButton.addEventListener(
+    "click",
+    () => this.newChat()
+);
 
     this.send.addEventListener("click", (e) => {
     e.preventDefault();
@@ -190,6 +200,81 @@ class Chatbot {
     this.toggle.style.display = "flex";
 
 }
+async newChat() {
+
+    try {
+
+        if (this.conversationId) {
+
+            await fetch(`${this.apiUrl}/end-chat`, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+
+                body: JSON.stringify({
+
+                    widget_key: this.widgetKey,
+
+                    domain: this.domain,
+
+                    session_id: this.sessionId,
+
+                    conversation_id: this.conversationId,
+
+                }),
+
+            });
+
+        }
+
+        // Clear current conversation
+        this.conversationId = null;
+        this.conversationEnded = false;
+
+        localStorage.removeItem("chatbot_conversation");
+
+        // Clear messages
+        this.messages.innerHTML = `
+            <div id="chatbot-hero">
+
+                <div class="chatbot-hero-icon">
+                    <i class="bi bi-robot"></i>
+                </div>
+
+                <h2 id="chatbot-hero-title"></h2>
+
+                <div id="chatbot-hero-message"></div>
+
+            </div>
+        `;
+        const settings = this.settings ?? {};
+
+document.getElementById("chatbot-hero-title").textContent =
+    settings.chatbot_name || "AI Assistant";
+
+document.getElementById("chatbot-hero-message").textContent =
+    settings.welcome_message || "Hey! 👋, how may I help you?";
+
+        // Reset flow
+        this.currentStep = 0;
+
+        if (this.flow) {
+            this.showCurrentStep();
+        }
+
+        this.input.value = "";
+
+    } catch (error) {
+
+        console.error("New chat error:", error);
+
+    }
+}
+
 async init() {
     try {
     const response = await fetch(
@@ -207,7 +292,9 @@ async init() {
 
         this.initialized = true;
 
-        const settings = data.data.settings ?? {};
+        this.settings = data.data.settings ?? {};
+
+const settings = this.settings;
 
         // Hero Section
         document.getElementById("chatbot-title").textContent =
@@ -281,7 +368,6 @@ async loadFlow() {
         this.conversationId;
 
     this.input.value = "";
-    
 
     /*
      * If current conversation is still active,
@@ -311,8 +397,7 @@ async loadFlow() {
 
                 body: JSON.stringify({
 
-            body: JSON.stringify({
-    widget_key: this.widgetKey,
+                    widget_key: this.widgetKey,
 
                     domain: this.domain,
 
@@ -323,12 +408,9 @@ async loadFlow() {
 
                     message: message,
 
-    name: "Ananya",
-    email: "ananya@test.com",
-    phone: "9876543210",
-    notes: "Testing Lead",
-}),
-        });
+                }),
+            }
+        );
 
         const data = await response.json();
 
@@ -391,12 +473,23 @@ showCurrentStep() {
 
     const step = this.flow.steps[this.currentStep];
 
-    if (!step) return;
+    if (!step) {
+
+        // Flow finished
+        this.addBotMessage(
+            "Great! I have all the trip details I need."
+        );
+
+        this.showLeadForm();
+
+        return;
+    }
 
     this.addBotMessage(step.question);
-    this.addOptionButtons(step.options);
 
+    this.addOptionButtons(step.options);
 }
+
    addUserMessage(message) {
 
     const div = document.createElement("div");
@@ -466,7 +559,7 @@ hideTyping() {
     this.messages.scrollTop = this.messages.scrollHeight;
 
 }
-addOptionButtons(options) {
+async addOptionButtons(options) {
 
     if (!options || options.length === 0) {
         return;
@@ -475,16 +568,100 @@ addOptionButtons(options) {
     const container = document.createElement("div");
     container.className = "chatbot-options";
 
+    const currentStep =
+        this.flow?.steps?.[this.currentStep];
+
+    if (!currentStep) {
+        return;
+    }
+
     options.forEach(option => {
+
         const button = document.createElement("button");
 
         button.type = "button";
         button.className = "chatbot-option";
-        button.textContent = option.value ?? option.label;
 
-         button.addEventListener("click", () => {
-            this.addUserMessage(option.value ?? option.label);
+        const answer =
+            option.value ?? option.label;
+
+        button.textContent = answer;
+
+        button.addEventListener("click", async () => {
+
+            // Show selected answer in chat
+            this.addUserMessage(answer);
+
+            // Remove option buttons
             container.remove();
+
+            try {
+
+                const response = await fetch(
+                    `${this.apiUrl}/flow-answer`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                        },
+
+                        body: JSON.stringify({
+
+                            widget_key: this.widgetKey,
+
+                            domain: this.domain,
+
+                            session_id: this.sessionId,
+
+                            conversation_id:
+                                this.conversationId,
+
+                            chatbot_flow_step_id:
+                                currentStep.id,
+
+                            answer: answer,
+
+                        }),
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!data.success) {
+
+                    console.error(
+                        "Flow answer failed:",
+                        data
+                    );
+
+                    return;
+                }
+
+                // Save conversation ID
+                this.conversationId =
+                    data.conversation_id;
+
+                localStorage.setItem(
+                    "chatbot_conversation",
+                    this.conversationId
+                );
+
+                // Move to next flow step
+                this.currentStep++;
+
+                this.showCurrentStep();
+
+            } catch (error) {
+
+                console.error(
+                    "Flow answer error:",
+                    error
+                );
+
+            }
+
         });
 
         container.appendChild(button);
@@ -494,7 +671,363 @@ addOptionButtons(options) {
     this.messages.appendChild(container);
 
     this.scrollBottom();
+}
 
+showLeadForm() {
+
+    const container = document.createElement("div");
+
+    container.className = "chatbot-lead-form";
+
+    container.innerHTML = `
+        <div class="lead-form-title">
+            Before we finish, please share your details.
+        </div>
+
+        <input
+            type="text"
+            id="lead-name"
+            placeholder="Your name"
+        >
+
+        <input
+            type="email"
+            id="lead-email"
+            placeholder="Your email"
+        >
+
+        <input
+            type="tel"
+            id="lead-phone"
+            placeholder="Your phone number"
+        >
+
+        <button type="button" id="lead-submit">
+            Submit
+        </button>
+
+        <div id="lead-error"></div>
+    `;
+
+    this.messages.appendChild(container);
+
+    this.scrollBottom();
+
+    document
+        .getElementById("lead-submit")
+        .addEventListener("click", () => {
+            this.submitLead();
+        });
+}
+
+async submitLead() {
+
+    const name =
+        document.getElementById("lead-name").value.trim();
+
+    const email =
+        document.getElementById("lead-email").value.trim();
+
+    const phone =
+        document.getElementById("lead-phone").value.trim();
+
+    const error =
+        document.getElementById("lead-error");
+
+    error.textContent = "";
+
+    if (!name) {
+        error.textContent = "Please enter your name.";
+        return;
+    }
+
+    if (!email) {
+        error.textContent = "Please enter your email.";
+        return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        error.textContent = "Please enter a valid email.";
+        return;
+    }
+
+    if (!phone) {
+        error.textContent = "Please enter your phone number.";
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${this.apiUrl}/save-lead`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+
+                body: JSON.stringify({
+
+                    widget_key: this.widgetKey,
+
+                    domain: this.domain,
+
+                    session_id: this.sessionId,
+
+                    conversation_id: this.conversationId,
+
+                    name: name,
+
+                    email: email,
+
+                    phone: phone,
+
+                    notes: null,
+
+                }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            error.textContent =
+                data.message || "Unable to save your details.";
+            return;
+        }
+
+        this.addLeadConfirmation(
+    name,
+    email,
+    phone
+);
+
+        const form =
+            document.querySelector(".chatbot-lead-form");
+
+        if (form) {
+            form.remove();
+        }
+
+        this.addBotMessage(
+            "Thanks! Your details have been saved. 😊"
+        );
+        this.showEndChatQuestion();
+
+    } catch (e) {
+
+        console.error(e);
+
+        error.textContent =
+            "Unable to connect to server.";
+
+    }
+}
+
+addLeadConfirmation(name, email, phone) {
+
+    const div = document.createElement("div");
+
+    div.className = "lead-confirmation";
+
+    div.innerHTML = `
+        <div class="lead-confirmation-header">
+            <div class="lead-confirmation-icon">
+                <i class="bi bi-person-fill"></i>
+            </div>
+
+            <strong>My Details</strong>
+        </div>
+
+        <div class="lead-confirmation-divider"></div>
+
+        <div class="lead-detail">
+            <i class="bi bi-person"></i>
+            <span>${this.escapeHtml(name)}</span>
+        </div>
+
+        <div class="lead-detail">
+            <i class="bi bi-envelope-fill"></i>
+            <span>${this.escapeHtml(email)}</span>
+        </div>
+
+        <div class="lead-detail">
+            <i class="bi bi-telephone-fill"></i>
+            <span>${this.escapeHtml(phone)}</span>
+        </div>
+    `;
+
+    this.messages.appendChild(div);
+
+    this.scrollBottom();
+}
+escapeHtml(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent = value;
+
+    return div.innerHTML;
+}
+
+showEndChatQuestion() {
+
+    const div = document.createElement("div");
+
+    div.className = "end-chat-question";
+
+    div.innerHTML = `
+        <div class="bot-message">
+            Would you like to end this chat?
+        </div>
+
+        <div class="end-chat-options">
+
+            <button
+                type="button"
+                class="end-chat-option"
+                data-action="yes"
+            >
+                Yes, end chat
+            </button>
+
+            <button
+                type="button"
+                class="end-chat-option"
+                data-action="no"
+            >
+                No, continue
+            </button>
+
+        </div>
+    `;
+
+    this.messages.appendChild(div);
+
+    this.scrollBottom();
+
+    const buttons =
+        div.querySelectorAll(".end-chat-option");
+
+    buttons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const action =
+                button.dataset.action;
+
+            const selectedText = button.textContent.trim();
+
+            // Don't remove the question.
+            // Just remove the option buttons.
+            const options =
+                div.querySelector(".end-chat-options");
+
+            if (options) {
+                options.remove();
+            }
+
+            // Show selected option as visitor message
+            this.addUserMessage(selectedText);
+
+            if (action === "yes") {
+                this.confirmEndChat();
+            } else {
+                this.continueChat();
+            }
+
+        });
+
+    });
+}
+
+continueChat() {
+
+    this.addBotMessage(
+        "Sure! 😊 What else can I help you with?"
+    );
+
+    this.conversationEnded = false;
+
+    this.scrollBottom();
+}
+
+async confirmEndChat() {
+
+    if (!this.conversationId) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${this.apiUrl}/end-chat`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+
+                body: JSON.stringify({
+
+                    widget_key: this.widgetKey,
+
+                    domain: this.domain,
+
+                    session_id: this.sessionId,
+
+                    conversation_id: this.conversationId,
+
+                }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+
+            this.addBotMessage(
+                "Sorry, I couldn't end the conversation."
+            );
+
+            return;
+        }
+
+        this.conversationEnded = true;
+
+        this.addBotMessage(
+            "Your conversation has ended. Thank you for chatting with us! 😊"
+        );
+
+        this.addConversationDivider();
+
+    } catch (error) {
+
+        console.error("End chat error:", error);
+
+        this.addBotMessage(
+            "Unable to end the conversation."
+        );
+    }
+}
+
+addConversationDivider() {
+
+    const divider = document.createElement("div");
+
+    divider.className = "conversation-divider";
+
+    divider.innerHTML = `
+        <span>Conversation ended</span>
+    `;
+
+    this.messages.appendChild(divider);
+
+    this.scrollBottom();
 }
 
 }

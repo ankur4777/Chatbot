@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories\Tables;
+namespace App\Filament\Client\Resources\ChatbotLeads\Tables;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class KnowledgeCategoriesTable
+class ChatbotLeadsTable
 {
     public static function configure(Table $table): Table
     {
@@ -18,27 +18,34 @@ class KnowledgeCategoriesTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('visitor.name')
+                    ->label('Visitor')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('Unknown'),
+
+                TextColumn::make('conversation.id')
+                    ->label('Conversation')
+                    ->sortable(),
+
                 TextColumn::make('name')
-                    ->label('Category')
+                    ->label('Full Name')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('description')
-                    ->label('Description')
-                    ->limit(50)
-                    ->tooltip(fn ($record) => $record->description)
-                    ->wrap(),
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->copyable(),
+
+                TextColumn::make('phone')
+                    ->label('Phone')
+                    ->copyable(),
 
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->since()
                     ->sortable(),
-
-                TextColumn::make('updated_at')
-                    ->label('Updated')
-                    ->since()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

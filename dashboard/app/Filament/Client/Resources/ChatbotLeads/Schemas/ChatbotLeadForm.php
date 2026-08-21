@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories\Schemas;
+namespace App\Filament\Client\Resources\ChatbotLeads\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
-class KnowledgeCategoryForm
+class ChatbotLeadForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -34,14 +34,23 @@ class KnowledgeCategoryForm
                     ->required(),
 
                 TextInput::make('name')
-                    ->label('Category Name')
+                    ->label('Full Name')
                     ->required()
                     ->maxLength(255),
 
-                Textarea::make('description')
-                    ->label('Description')
-                    ->rows(4)
-                    ->maxLength(1000)
+                TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->maxLength(255),
+
+                TextInput::make('phone')
+                    ->label('Phone')
+                    ->tel()
+                    ->maxLength(20),
+
+                Textarea::make('notes')
+                    ->label('Notes')
+                    ->rows(5)
                     ->columnSpanFull(),
             ]);
     }

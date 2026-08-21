@@ -10,7 +10,6 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-
 class KnowledgeSourcesTable
 {
     public static function configure(Table $table): Table
@@ -36,7 +35,7 @@ class KnowledgeSourcesTable
 
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'completed' => 'success',
                         'processing' => 'warning',
                         'failed' => 'danger',
@@ -56,45 +55,15 @@ class KnowledgeSourcesTable
                 TextColumn::make('error')
                     ->label('Error')
                     ->limit(60)
-                    ->tooltip(fn($record) => $record->error)
+                    ->tooltip(fn ($record) => $record->error)
                     ->color('danger')
                     ->wrap(),
             ])
+
             ->filters([
                 //
             ])
-            ->recordActions([
-                Action::make('sync')
-                    ->label('Sync')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('success')
-                    ->action(function ($record) {
 
-                        set_time_limit(300);
-
-                        $result = app(KnowledgeSourceService::class)
-                            ->import($record);
-
-                        if ($result['success'] ?? false) {
-
-                            Notification::make()
-                                ->title('Knowledge synced successfully.')
-                                ->success()
-                                ->send();
-
-                            return;
-                        }
-
-                        Notification::make()
-                            ->title('Knowledge sync failed.')
-                            ->body($result['message'] ?? 'Unable to sync knowledge.')
-                            ->danger()
-                            ->send();
-                    }),
-
-                ViewAction::make(),
-                EditAction::make(),
-            ])
             ->recordActions([
                 ViewAction::make(),
 
@@ -109,6 +78,8 @@ class KnowledgeSourcesTable
                     )
                     ->action(function ($record) {
 
+                        set_time_limit(300);
+
                         $result = app(KnowledgeSourceService::class)
                             ->import($record);
 
@@ -123,7 +94,10 @@ class KnowledgeSourcesTable
 
                         Notification::make()
                             ->title('Knowledge sync failed.')
-                            ->body($result['message'] ?? 'Unable to sync the knowledge source.')
+                            ->body(
+                                $result['message']
+                                ?? 'Unable to sync the knowledge source.'
+                            )
                             ->danger()
                             ->send();
                     }),

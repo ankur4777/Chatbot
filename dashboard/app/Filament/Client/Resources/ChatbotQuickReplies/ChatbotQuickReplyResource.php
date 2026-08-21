@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories;
+namespace App\Filament\Client\Resources\ChatbotQuickReplies;
 
-use App\Filament\Client\Resources\KnowledgeCategories\Pages\CreateKnowledgeCategory;
-use App\Filament\Client\Resources\KnowledgeCategories\Pages\EditKnowledgeCategory;
-use App\Filament\Client\Resources\KnowledgeCategories\Pages\ListKnowledgeCategories;
-use App\Filament\Client\Resources\KnowledgeCategories\Schemas\KnowledgeCategoryForm;
-use App\Filament\Client\Resources\KnowledgeCategories\Tables\KnowledgeCategoriesTable;
-use App\Models\KnowledgeCategory;
+use App\Filament\Client\Resources\ChatbotQuickReplies\Pages\CreateChatbotQuickReply;
+use App\Filament\Client\Resources\ChatbotQuickReplies\Pages\EditChatbotQuickReply;
+use App\Filament\Client\Resources\ChatbotQuickReplies\Pages\ListChatbotQuickReplies;
+use App\Filament\Client\Resources\ChatbotQuickReplies\Schemas\ChatbotQuickReplyForm;
+use App\Filament\Client\Resources\ChatbotQuickReplies\Tables\ChatbotQuickRepliesTable;
+use App\Models\ChatbotQuickReply;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -15,14 +15,14 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class KnowledgeCategoryResource extends Resource
+class ChatbotQuickReplyResource extends Resource
 {
-    protected static ?string $model = KnowledgeCategory::class;
+    protected static ?string $model = ChatbotQuickReply::class;
 
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'label';
 
     public static function getEloquentQuery(): Builder
     {
@@ -44,12 +44,12 @@ class KnowledgeCategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return KnowledgeCategoryForm::configure($schema);
+        return ChatbotQuickReplyForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return KnowledgeCategoriesTable::configure($table);
+        return ChatbotQuickRepliesTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -60,9 +60,9 @@ class KnowledgeCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListKnowledgeCategories::route('/'),
-            'create' => CreateKnowledgeCategory::route('/create'),
-            'edit' => EditKnowledgeCategory::route('/{record}/edit'),
+            'index' => ListChatbotQuickReplies::route('/'),
+            'create' => CreateChatbotQuickReply::route('/create'),
+            'edit' => EditChatbotQuickReply::route('/{record}/edit'),
         ];
     }
 }

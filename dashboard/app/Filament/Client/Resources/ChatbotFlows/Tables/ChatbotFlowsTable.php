@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories\Tables;
+namespace App\Filament\Client\Resources\ChatbotFlows\Tables;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class KnowledgeCategoriesTable
+class ChatbotFlowsTable
 {
     public static function configure(Table $table): Table
     {
@@ -19,26 +20,18 @@ class KnowledgeCategoriesTable
                     ->sortable(),
 
                 TextColumn::make('name')
-                    ->label('Category')
+                    ->label('Flow Name')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('description')
-                    ->label('Description')
-                    ->limit(50)
-                    ->tooltip(fn ($record) => $record->description)
-                    ->wrap(),
+                IconColumn::make('is_active')
+                    ->label('Status')
+                    ->boolean(),
 
                 TextColumn::make('created_at')
-                    ->label('Created')
-                    ->since()
+                    ->label('Created At')
+                    ->dateTime('d M Y')
                     ->sortable(),
-
-                TextColumn::make('updated_at')
-                    ->label('Updated')
-                    ->since()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

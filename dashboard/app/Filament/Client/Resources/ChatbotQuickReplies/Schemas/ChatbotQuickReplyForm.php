@@ -1,18 +1,19 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories\Schemas;
+namespace App\Filament\Client\Resources\ChatbotQuickReplies\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
-class KnowledgeCategoryForm
+class ChatbotQuickReplyForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
             ->components([
+
                 Select::make('website_id')
                     ->label('Website')
                     ->relationship(
@@ -33,16 +34,30 @@ class KnowledgeCategoryForm
                     ->preload()
                     ->required(),
 
-                TextInput::make('name')
-                    ->label('Category Name')
+                TextInput::make('label')
+                    ->label('Label')
                     ->required()
                     ->maxLength(255),
 
-                Textarea::make('description')
-                    ->label('Description')
-                    ->rows(4)
-                    ->maxLength(1000)
-                    ->columnSpanFull(),
+                TextInput::make('value')
+                    ->label('Value')
+                    ->required()
+                    ->maxLength(255),
+
+                TextInput::make('icon')
+                    ->label('Icon')
+                    ->placeholder('bi-airplane, bi-calendar, etc.')
+                    ->maxLength(100),
+
+                TextInput::make('sort_order')
+                    ->label('Sort Order')
+                    ->numeric()
+                    ->default(0)
+                    ->required(),
+
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true),
             ]);
     }
 }

@@ -1,33 +1,31 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories\Tables;
+namespace App\Filament\Client\Resources\Websites\Tables;
 
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class KnowledgeCategoriesTable
+class WebsitesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('website.name')
+                TextColumn::make('name')
                     ->label('Website')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('name')
-                    ->label('Category')
+                TextColumn::make('domain')
+                    ->label('Domain')
                     ->searchable()
-                    ->sortable(),
+                    ->copyable(),
 
-                TextColumn::make('description')
-                    ->label('Description')
-                    ->limit(50)
-                    ->tooltip(fn ($record) => $record->description)
-                    ->wrap(),
+                IconColumn::make('status')
+                    ->label('Active')
+                    ->boolean(),
 
                 TextColumn::make('created_at')
                     ->label('Created')
@@ -45,7 +43,6 @@ class KnowledgeCategoriesTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
             ]);
     }
 }

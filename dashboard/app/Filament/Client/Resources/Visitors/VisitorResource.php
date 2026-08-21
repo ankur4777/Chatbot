@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories;
+namespace App\Filament\Client\Resources\Visitors;
 
-use App\Filament\Client\Resources\KnowledgeCategories\Pages\CreateKnowledgeCategory;
-use App\Filament\Client\Resources\KnowledgeCategories\Pages\EditKnowledgeCategory;
-use App\Filament\Client\Resources\KnowledgeCategories\Pages\ListKnowledgeCategories;
-use App\Filament\Client\Resources\KnowledgeCategories\Schemas\KnowledgeCategoryForm;
-use App\Filament\Client\Resources\KnowledgeCategories\Tables\KnowledgeCategoriesTable;
-use App\Models\KnowledgeCategory;
+use App\Filament\Client\Resources\Visitors\Pages\ListVisitors;
+use App\Filament\Client\Resources\Visitors\Tables\VisitorsTable;
+use App\Models\Visitor;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -15,9 +12,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class KnowledgeCategoryResource extends Resource
+class VisitorResource extends Resource
 {
-    protected static ?string $model = KnowledgeCategory::class;
+    protected static ?string $model = Visitor::class;
 
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
@@ -42,14 +39,11 @@ class KnowledgeCategoryResource extends Resource
         return $query->whereRaw('1 = 0');
     }
 
-    public static function form(Schema $schema): Schema
-    {
-        return KnowledgeCategoryForm::configure($schema);
-    }
+ 
 
     public static function table(Table $table): Table
     {
-        return KnowledgeCategoriesTable::configure($table);
+        return VisitorsTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -60,9 +54,7 @@ class KnowledgeCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListKnowledgeCategories::route('/'),
-            'create' => CreateKnowledgeCategory::route('/create'),
-            'edit' => EditKnowledgeCategory::route('/{record}/edit'),
+            'index' => ListVisitors::route('/'),
         ];
     }
 }

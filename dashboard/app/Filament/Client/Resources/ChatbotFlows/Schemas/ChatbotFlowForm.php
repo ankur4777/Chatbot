@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Filament\Client\Resources\KnowledgeCategories\Schemas;
+namespace App\Filament\Client\Resources\ChatbotFlows\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
-class KnowledgeCategoryForm
+class ChatbotFlowForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -34,15 +35,17 @@ class KnowledgeCategoryForm
                     ->required(),
 
                 TextInput::make('name')
-                    ->label('Category Name')
+                    ->label('Flow Name')
                     ->required()
                     ->maxLength(255),
 
                 Textarea::make('description')
-                    ->label('Description')
-                    ->rows(4)
-                    ->maxLength(1000)
+                    ->rows(3)
                     ->columnSpanFull(),
+
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true),
             ]);
     }
 }

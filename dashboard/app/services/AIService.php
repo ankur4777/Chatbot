@@ -73,10 +73,16 @@ class AIService
     {
         try {
 
-            $response = Http::timeout(120)->post(
-                config('services.python.url') . '/knowledge/import',
-                $data
-            );
+          $response = Http::withHeaders([
+    'Authorization' => 'Bearer ' . env('PYTHON_API_KEY'),
+    'Accept' => 'application/json',
+])
+    ->asJson()
+    ->timeout(120)
+    ->post(
+        config('services.python.url') . '/knowledge/import',
+        $data
+    );
 
             return $response->json();
 
@@ -94,13 +100,18 @@ class AIService
     {
         try {
 
-            $response = Http::timeout(300)->post(
-                config('services.python.url') . '/knowledge/rebuild',
-                [
-                    'website_id' => $websiteId,
-                ]
-            );
-
+          $response = Http::withHeaders([
+    'Authorization' => 'Bearer ' . env('PYTHON_API_KEY'),
+    'Accept' => 'application/json',
+])
+    ->asJson()
+    ->timeout(300)
+    ->post(
+        config('services.python.url') . '/knowledge/rebuild',
+        [
+            'website_id' => $websiteId,
+        ]
+    );
             return $response->json();
 
         } catch (\Throwable $e) {
@@ -117,12 +128,18 @@ class AIService
     {
         try {
 
-            $response = Http::timeout(60)->post(
-                config('services.python.url') . '/knowledge/clear',
-                [
-                    'website_id' => $websiteId,
-                ]
-            );
+            $response = Http::withHeaders([
+    'Authorization' => 'Bearer ' . env('PYTHON_API_KEY'),
+    'Accept' => 'application/json',
+])
+    ->asJson()
+    ->timeout(60)
+    ->post(
+        config('services.python.url') . '/knowledge/clear',
+        [
+            'website_id' => $websiteId,
+        ]
+    );
 
             return $response->json();
 

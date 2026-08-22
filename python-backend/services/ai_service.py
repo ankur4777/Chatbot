@@ -1,5 +1,6 @@
 import os
 from pyexpat import model
+from numpy import rint
 import ollama
 
 from services.context_builder import ContextBuilder
@@ -111,6 +112,7 @@ Create the updated running summary.
         model = os.getenv("OLLAMA_MODEL")
 
         print("MESSAGE:", message)
+        print("WEBSITE ID:", website_id)
         print("SUMMARY:", summary)
 
         results = self.retrieval_service.retrieve(
@@ -161,3 +163,4 @@ Create the updated running summary.
         return {
             "response": response.message.content
         }
+        

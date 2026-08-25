@@ -1,4 +1,3 @@
-
 class Chatbot {
 
     createWidget() {
@@ -18,38 +17,38 @@ class Chatbot {
 
     <div id="chatbot-header">
 
-    <div class="chatbot-header-info">
+        <div class="chatbot-header-info">
 
-        <div class="chatbot-avatar">
-            <i class="bi bi-robot"></i>
+            <div class="chatbot-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+
+            <div>
+                <h5 id="chatbot-title">
+                    AI Assistant
+                </h5>
+
+                <small id="chatbot-status">
+                    Online
+                </small>
+            </div>
+
         </div>
 
-        <div>
-            <h5 id="chatbot-title">
-                AI Assistant
-            </h5>
+        <div class="chatbot-header-actions">
 
-            <small id="chatbot-status">
-                Online
-            </small>
+            <button type="button" id="chatbot-new-chat">
+                <i class="bi bi-plus-lg"></i>
+                New Chat
+            </button>
+
+            <button type="button" id="chatbot-close">
+                <i class="bi bi-x"></i>
+            </button>
+
         </div>
 
     </div>
-
-    <div class="chatbot-header-actions">
-
-        <button type="button" id="chatbot-new-chat">
-            <i class="bi bi-plus-lg"></i>
-            New Chat
-        </button>
-
-        <button type="button" id="chatbot-close">
-            <i class="bi bi-x"></i>
-        </button>
-
-    </div>
-
-</div>
 
     <div id="chatbot-messages">
 
@@ -77,39 +76,53 @@ class Chatbot {
         >
 
         <button type="button" id="chatbot-send">
+            <i class="bi bi-send-fill"></i>
+        </button>
 
-    <i class="bi bi-send-fill"></i>
-
-</button>
+    </div>
 
 </div>
-        `
+            `
         );
-
     }
 
     constructor() {
+
         this.createWidget();
 
         this.apiUrl = "http://127.0.0.1:8000/api/widget";
-        this.domain = window.location.hostname;
-        this.widgetKey = window.ChatbotConfig?.widgetKey || null;
 
-        this.visitorId = this.getVisitorId();
+        this.domain = window.location.hostname;
+
+        this.widgetKey =
+            window.ChatbotConfig?.widgetKey || null;
+
+        this.visitorId =
+            this.getVisitorId();
+
         this.sessionId = null;
 
         this.conversationId = null;
+
         this.conversationEnded = false;
 
-        this.toggle = document.getElementById("chatbot-toggle");
-        this.box = document.getElementById("chatbot-box");
-        this.close = document.getElementById("chatbot-close");
+        this.toggle =
+            document.getElementById("chatbot-toggle");
 
-        this.messages = document.getElementById("chatbot-messages");
+        this.box =
+            document.getElementById("chatbot-box");
 
-        this.input = document.getElementById("chatbot-input");
+        this.close =
+            document.getElementById("chatbot-close");
 
-        this.send = document.getElementById("chatbot-send");
+        this.messages =
+            document.getElementById("chatbot-messages");
+
+        this.input =
+            document.getElementById("chatbot-input");
+
+        this.send =
+            document.getElementById("chatbot-send");
 
         this.initialized = false;
 
@@ -119,74 +132,140 @@ class Chatbot {
 
         this.bindEvents();
 
-        // Check website status immediately
+        // Check website immediately
         this.init();
 
-        window.addEventListener("beforeunload", () => {
-            if (!this.conversationId) {
-                return;
+        /*
+         * Best-effort conversation ending.
+         *
+         * pagehide is generally better for navigation,
+         * refresh, tab close and mobile browser lifecycle.
+         *
+         * beforeunload is kept as an additional fallback.
+         */
+        window.addEventListener(
+            "pagehide",
+            () => {
+                this.endChatBeacon();
             }
+        );
 
-            const data = JSON.stringify({
-                widget_key: this.widgetKey,
-                domain: this.domain,
-                visitor_uuid: this.visitorId,
-                session_id: this.sessionId,
-                conversation_id: this.conversationId,
-            });
-
-            navigator.sendBeacon(
-                `${this.apiUrl}/end-chat`,
-                new Blob([data], {
-                    type: "application/json"
-                })
-            );
-        });
-
+        window.addEventListener(
+            "beforeunload",
+            () => {
+                this.endChatBeacon();
+            }
+        );
     }
 
     bindEvents() {
 
-        this.toggle.addEventListener("click", () => this.open());
+        this.toggle.addEventListener(
+            "click",
+            () => this.open()
+        );
 
-        this.close.addEventListener("click", () => this.closeWidget());
+        this.close.addEventListener(
+            "click",
+            () => this.closeWidget()
+        );
 
         this.newChatButton =
-            document.getElementById("chatbot-new-chat");
+            document.getElementById(
+                "chatbot-new-chat"
+            );
 
         this.newChatButton.addEventListener(
             "click",
             () => this.newChat()
         );
 
-        this.send.addEventListener("click", (e) => {
-            e.preventDefault();
-            this.sendMessage();
-        });
+        this.send.addEventListener(
+            "click",
+            (e) => {
 
-        this.input.addEventListener("keypress", (e) => {
-
-            if (e.key === "Enter") {
                 e.preventDefault();
+
                 this.sendMessage();
             }
+        );
 
+        this.input.addEventListener(
+            "keypress",
+            (e) => {
+
+                if (e.key === "Enter") {
+
+                    e.preventDefault();
+
+                    this.sendMessage();
+                }
+            }
+        );
+    }
+
+    /*
+     * Send end-chat request while the page is closing.
+     *
+     * Do not send if:
+     * - there is no conversation
+     * - conversation has already ended
+     */
+    endChatBeacon() {
+
+        if (
+            !this.conversationId ||
+            this.conversationEnded
+        ) {
+            return;
+        }
+
+        const data = JSON.stringify({
+
+            widget_key: this.widgetKey,
+
+            domain: this.domain,
+
+            visitor_uuid: this.visitorId,
+
+            session_id: this.sessionId,
+
+            conversation_id:
+                this.conversationId,
         });
 
+        navigator.sendBeacon(
+            `${this.apiUrl}/end-chat`,
+            new Blob(
+                [data],
+                {
+                    type: "application/json",
+                }
+            )
+        );
     }
+
     getVisitorId() {
 
         if (!this.widgetKey) {
-            console.error("Chatbot widget key is missing.");
+
+            console.error(
+                "Chatbot widget key is missing."
+            );
+
             return null;
         }
 
-        const storageKey = `chatbot_visitor_uuid_${this.widgetKey}`;
+        const storageKey =
+            `chatbot_visitor_uuid_${this.widgetKey}`;
 
-        let visitorId = localStorage.getItem(storageKey);
+        let visitorId =
+            localStorage.getItem(storageKey);
 
         if (!visitorId) {
-            visitorId = crypto.randomUUID();
+
+            visitorId =
+                crypto.randomUUID();
 
             localStorage.setItem(
                 storageKey,
@@ -198,12 +277,16 @@ class Chatbot {
     }
 
     getSessionId() {
+
         return crypto.randomUUID();
     }
 
     ensureSessionId() {
+
         if (!this.sessionId) {
-            this.sessionId = this.getSessionId();
+
+            this.sessionId =
+                this.getSessionId();
         }
 
         return this.sessionId;
@@ -216,9 +299,9 @@ class Chatbot {
         this.box.style.display = "flex";
 
         if (!this.initialized) {
+
             this.init();
         }
-
     }
 
     closeWidget() {
@@ -226,73 +309,98 @@ class Chatbot {
         this.box.style.display = "none";
 
         this.toggle.style.display = "flex";
-
     }
+
     async newChat() {
 
         try {
 
-            if (this.conversationId) {
+            if (
+                this.conversationId &&
+                !this.conversationEnded
+            ) {
 
-                await fetch(`${this.apiUrl}/end-chat`, {
+                await fetch(
+                    `${this.apiUrl}/end-chat`,
+                    {
+                        method: "POST",
 
-                    method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json",
 
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                    },
+                            "Accept":
+                                "application/json",
+                        },
 
-                    body: JSON.stringify({
+                        body: JSON.stringify({
 
-                        widget_key: this.widgetKey,
+                            widget_key:
+                                this.widgetKey,
 
-                        domain: this.domain,
+                            domain:
+                                this.domain,
 
-                        session_id: this.sessionId,
+                            session_id:
+                                this.sessionId,
 
-                        visitor_uuid: this.visitorId,
+                            visitor_uuid:
+                                this.visitorId,
 
-                        conversation_id: this.conversationId,
-
-                    }),
-
-                });
-
+                            conversation_id:
+                                this.conversationId,
+                        }),
+                    }
+                );
             }
 
-            // Clear current conversation
             this.conversationId = null;
+
             this.conversationEnded = false;
 
-            localStorage.removeItem("chatbot_conversation");
+            this.sessionId = null;
 
-            // Clear messages
+            localStorage.removeItem(
+                "chatbot_conversation"
+            );
+
             this.messages.innerHTML = `
-            <div id="chatbot-hero">
+                <div id="chatbot-hero">
 
-                <div class="chatbot-hero-icon">
-                    <i class="bi bi-robot"></i>
+                    <div class="chatbot-hero-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+
+                    <h2 id="chatbot-hero-title"></h2>
+
+                    <div id="chatbot-hero-message"></div>
+
                 </div>
+            `;
 
-                <h2 id="chatbot-hero-title"></h2>
+            const settings =
+                this.settings ?? {};
 
-                <div id="chatbot-hero-message"></div>
+            document
+                .getElementById(
+                    "chatbot-hero-title"
+                )
+                .textContent =
+                    settings.chatbot_name ||
+                    "AI Assistant";
 
-            </div>
-        `;
-            const settings = this.settings ?? {};
+            document
+                .getElementById(
+                    "chatbot-hero-message"
+                )
+                .textContent =
+                    settings.welcome_message ||
+                    "Hey! 👋, how may I help you?";
 
-            document.getElementById("chatbot-hero-title").textContent =
-                settings.chatbot_name || "AI Assistant";
-
-            document.getElementById("chatbot-hero-message").textContent =
-                settings.welcome_message || "Hey! 👋, how may I help you?";
-
-            // Reset flow
             this.currentStep = 0;
 
             if (this.flow) {
+
                 this.showCurrentStep();
             }
 
@@ -300,8 +408,10 @@ class Chatbot {
 
         } catch (error) {
 
-            console.error("New chat error:", error);
-
+            console.error(
+                "New chat error:",
+                error
+            );
         }
     }
 
@@ -315,16 +425,18 @@ class Chatbot {
             position.horizontal || "right";
 
         const horizontalValue =
-            Number(position.horizontal_value ?? 25);
+            Number(
+                position.horizontal_value ?? 25
+            );
 
         const vertical =
             position.vertical || "bottom";
 
         const verticalValue =
-            Number(position.vertical_value ?? 25);
+            Number(
+                position.vertical_value ?? 25
+            );
 
-
-        // Reset all positions
         this.toggle.style.left = "";
         this.toggle.style.right = "";
         this.toggle.style.top = "";
@@ -335,16 +447,12 @@ class Chatbot {
         this.box.style.top = "";
         this.box.style.bottom = "";
 
-
-        // Horizontal position
         this.toggle.style[horizontal] =
             `${horizontalValue}px`;
 
         this.box.style[horizontal] =
             `${horizontalValue + 10}px`;
 
-
-        // Vertical position
         this.toggle.style[vertical] =
             `${verticalValue}px`;
 
@@ -353,55 +461,93 @@ class Chatbot {
     }
 
     async init() {
+
         try {
+
             const response = await fetch(
-                `${this.apiUrl}/init?domain=${encodeURIComponent(this.domain)}&widget_key=${encodeURIComponent(this.widgetKey)}&visitor_uuid=${encodeURIComponent(this.visitorId)}&session_id=${encodeURIComponent(this.sessionId)}`
+                `${this.apiUrl}/init` +
+                `?domain=${encodeURIComponent(this.domain)}` +
+                `&widget_key=${encodeURIComponent(this.widgetKey)}` +
+                `&visitor_uuid=${encodeURIComponent(this.visitorId)}` +
+                `&session_id=${encodeURIComponent(this.sessionId)}`
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (!data.success) {
 
-                // Website inactive / unavailable
-                this.toggle.style.display = "none";
-                this.box.style.display = "none";
+                this.toggle.style.display =
+                    "none";
+
+                this.box.style.display =
+                    "none";
 
                 return;
             }
 
             this.initialized = true;
-            this.toggle.style.display = "flex";
 
-            this.settings = data.data.settings ?? {};
+            this.toggle.style.display =
+                "flex";
 
-            const settings = this.settings;
-            this.applyPosition(settings.position);
+            this.settings =
+                data.data.settings ?? {};
 
-            // Hero Section
-            document.getElementById("chatbot-title").textContent =
-                settings.chatbot_name || "AI Assistant";
+            const settings =
+                this.settings;
 
-            document.getElementById("chatbot-hero-title").textContent =
-                settings.chatbot_name || "AI Assistant";
+            this.applyPosition(
+                settings.position
+            );
 
-            document.getElementById("chatbot-hero-message").textContent =
-                settings.welcome_message || "Hey! 👋, how may I help you?";
+            document
+                .getElementById(
+                    "chatbot-title"
+                )
+                .textContent =
+                    settings.chatbot_name ||
+                    "AI Assistant";
 
-            document.getElementById("chatbot-input").placeholder =
-                settings.placeholder || "Type your message...";
+            document
+                .getElementById(
+                    "chatbot-hero-title"
+                )
+                .textContent =
+                    settings.chatbot_name ||
+                    "AI Assistant";
+
+            document
+                .getElementById(
+                    "chatbot-hero-message"
+                )
+                .textContent =
+                    settings.welcome_message ||
+                    "Hey! 👋, how may I help you?";
+
+            document
+                .getElementById(
+                    "chatbot-input"
+                )
+                .placeholder =
+                    settings.placeholder ||
+                    "Type your message...";
 
             if (settings.primary_color) {
 
-                document.documentElement.style.setProperty(
-                    "--primary-color",
-                    settings.primary_color
-                );
+                document.documentElement
+                    .style
+                    .setProperty(
+                        "--primary-color",
+                        settings.primary_color
+                    );
 
-                document.documentElement.style.setProperty(
-                    "--user-bg",
-                    settings.primary_color
-                );
-
+                document.documentElement
+                    .style
+                    .setProperty(
+                        "--user-bg",
+                        settings.primary_color
+                    );
             }
 
             await this.loadFlow();
@@ -410,27 +556,34 @@ class Chatbot {
 
             console.error(error);
 
-            this.toggle.style.display = "none";
-            this.box.style.display = "none";
+            this.toggle.style.display =
+                "none";
 
+            this.box.style.display =
+                "none";
         }
-
     }
+
     async loadFlow() {
 
         try {
 
             const response = await fetch(
-                `${this.apiUrl}/flow?domain=${encodeURIComponent(this.domain)}&widget_key=${encodeURIComponent(this.widgetKey)}`
+                `${this.apiUrl}/flow` +
+                `?domain=${encodeURIComponent(this.domain)}` +
+                `&widget_key=${encodeURIComponent(this.widgetKey)}`
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (!data.success) {
                 return;
             }
 
-            this.flow = data.flow;
+            this.flow =
+                data.flow;
+
             this.currentStep = 0;
 
             this.showCurrentStep();
@@ -438,18 +591,18 @@ class Chatbot {
         } catch (error) {
 
             console.error(error);
-
         }
-
     }
 
     async sendMessage() {
 
-        const message = this.input.value.trim();
+        const message =
+            this.input.value.trim();
 
         if (!message) {
             return;
         }
+
         this.ensureSessionId();
 
         const wasConversationEnded =
@@ -460,16 +613,11 @@ class Chatbot {
 
         this.input.value = "";
 
-        /*
-         * If current conversation is still active,
-         * show visitor message immediately.
-         *
-         * If conversation was ended, wait until backend
-         * creates the new conversation before displaying
-         * the message.
-         */
         if (!wasConversationEnded) {
-            this.addUserMessage(message);
+
+            this.addUserMessage(
+                message
+            );
         }
 
         this.showTyping();
@@ -482,30 +630,39 @@ class Chatbot {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json",
                     },
 
                     body: JSON.stringify({
-                   
-                        widget_key: this.widgetKey,
 
-                        domain: this.domain,
+                        widget_key:
+                            this.widgetKey,
 
-                        visitor_uuid: this.visitorId,
+                        domain:
+                            this.domain,
 
-                        session_id: this.sessionId,
+                        visitor_uuid:
+                            this.visitorId,
+
+                        session_id:
+                            this.sessionId,
 
                         conversation_id:
                             this.conversationId,
 
-                        message: message,
-
+                        message:
+                            message,
                     }),
                 }
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             this.hideTyping();
 
@@ -518,22 +675,21 @@ class Chatbot {
                 return;
             }
 
-            /*
-             * Backend creates a NEW conversation
-             * when old conversation is already ended.
-             */
             const newConversationId =
                 data.conversation_id;
 
             if (
                 wasConversationEnded &&
-                newConversationId !== oldConversationId
+                newConversationId !==
+                    oldConversationId
             ) {
 
+                this.addUserMessage(
+                    message
+                );
 
-                this.addUserMessage(message);
-
-                this.conversationEnded = false;
+                this.conversationEnded =
+                    false;
             }
 
             this.conversationId =
@@ -558,17 +714,21 @@ class Chatbot {
                 "Unable to connect to server."
             );
         }
-
     }
+
     showCurrentStep() {
 
-        if (!this.flow) return;
+        if (!this.flow) {
+            return;
+        }
 
-        const step = this.flow.steps[this.currentStep];
+        const step =
+            this.flow.steps[
+                this.currentStep
+            ];
 
         if (!step) {
 
-            // Flow finished
             this.addBotMessage(
                 "Great! I have all the trip details I need."
             );
@@ -578,91 +738,123 @@ class Chatbot {
             return;
         }
 
-        this.addBotMessage(step.question);
+        this.addBotMessage(
+            step.question
+        );
 
-        this.addOptionButtons(step.options);
+        this.addOptionButtons(
+            step.options
+        );
     }
 
     addUserMessage(message) {
 
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
-        div.className = "user-message";
+        div.className =
+            "user-message";
 
-        div.textContent = message;
+        div.textContent =
+            message;
 
-        this.messages.appendChild(div);
+        this.messages.appendChild(
+            div
+        );
 
         this.scrollBottom();
-
     }
 
     addBotMessage(message) {
 
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
-        div.className = "bot-message";
+        div.className =
+            "bot-message";
 
-        div.textContent = message;
+        div.textContent =
+            message;
 
-        this.messages.appendChild(div);
+        this.messages.appendChild(
+            div
+        );
 
         this.scrollBottom();
-
     }
 
     showTyping() {
 
-        if (document.getElementById("typing-indicator")) {
+        if (
+            document.getElementById(
+                "typing-indicator"
+            )
+        ) {
             return;
         }
 
-        const typing = document.createElement("div");
+        const typing =
+            document.createElement("div");
 
-        typing.id = "typing-indicator";
+        typing.id =
+            "typing-indicator";
 
-        typing.className = "bot-message";
+        typing.className =
+            "bot-message";
 
         typing.innerHTML = `
-        <div class="typing-bubble">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    `;
+            <div class="typing-bubble">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
 
-        this.messages.appendChild(typing);
+        this.messages.appendChild(
+            typing
+        );
 
         this.scrollBottom();
-
     }
 
     hideTyping() {
 
-        const typing = document.getElementById("typing-indicator");
+        const typing =
+            document.getElementById(
+                "typing-indicator"
+            );
 
         if (typing) {
+
             typing.remove();
         }
-
     }
 
     scrollBottom() {
 
-        this.messages.scrollTop = this.messages.scrollHeight;
-
+        this.messages.scrollTop =
+            this.messages.scrollHeight;
     }
+
     async addOptionButtons(options) {
 
-        if (!options || options.length === 0) {
+        if (
+            !options ||
+            options.length === 0
+        ) {
             return;
         }
 
-        const container = document.createElement("div");
-        container.className = "chatbot-options";
+        const container =
+            document.createElement("div");
+
+        container.className =
+            "chatbot-options";
 
         const currentStep =
-            this.flow?.steps?.[this.currentStep];
+            this.flow?.steps?.[
+                this.currentStep
+            ];
 
         if (!currentStep) {
             return;
@@ -670,188 +862,263 @@ class Chatbot {
 
         options.forEach(option => {
 
-            const button = document.createElement("button");
+            const button =
+                document.createElement(
+                    "button"
+                );
 
-            button.type = "button";
-            button.className = "chatbot-option";
+            button.type =
+                "button";
+
+            button.className =
+                "chatbot-option";
 
             const answer =
-                option.value ?? option.label;
+                option.value ??
+                option.label;
 
-            button.textContent = answer;
+            button.textContent =
+                answer;
 
-            button.addEventListener("click", async () => {
+            button.addEventListener(
+                "click",
+                async () => {
 
-                this.ensureSessionId();
+                    this.ensureSessionId();
 
-                // Show selected answer in chat
-                this.addUserMessage(answer);
-
-                // Remove option buttons
-                container.remove();
-
-                try {
-
-                    const response = await fetch(
-                        `${this.apiUrl}/flow-answer`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Accept": "application/json",
-                            },
-
-                            body: JSON.stringify({
-
-                                widget_key: this.widgetKey,
-
-                                domain: this.domain,
-
-                                session_id: this.sessionId,
-
-                                visitor_uuid: this.visitorId,
-
-                                conversation_id:
-                                    this.conversationId,
-
-                                chatbot_flow_step_id:
-                                    currentStep.id,
-
-                                answer: answer,
-
-                            }),
-                        }
+                    this.addUserMessage(
+                        answer
                     );
 
-                    const data = await response.json();
+                    container.remove();
 
-                    if (!data.success) {
+                    try {
 
-                        console.error(
-                            "Flow answer failed:",
-                            data
+                        const response =
+                            await fetch(
+                                `${this.apiUrl}/flow-answer`,
+                                {
+                                    method:
+                                        "POST",
+
+                                    headers: {
+
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Accept":
+                                            "application/json",
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+
+                                            widget_key:
+                                                this.widgetKey,
+
+                                            domain:
+                                                this.domain,
+
+                                            session_id:
+                                                this.sessionId,
+
+                                            visitor_uuid:
+                                                this.visitorId,
+
+                                            conversation_id:
+                                                this.conversationId,
+
+                                            chatbot_flow_step_id:
+                                                currentStep.id,
+
+                                            answer:
+                                                answer,
+                                        }),
+                                }
+                            );
+
+                        const data =
+                            await response.json();
+
+                        if (!data.success) {
+
+                            console.error(
+                                "Flow answer failed:",
+                                data
+                            );
+
+                            return;
+                        }
+
+                        this.conversationId =
+                            data.conversation_id;
+
+                        this.conversationEnded =
+                            false;
+
+                        localStorage.setItem(
+                            "chatbot_conversation",
+                            this.conversationId
                         );
 
-                        return;
+                        this.currentStep++;
+
+                        this.showCurrentStep();
+
+                    } catch (error) {
+
+                        console.error(
+                            "Flow answer error:",
+                            error
+                        );
                     }
-
-                    // Save conversation ID
-                    this.conversationId =
-                        data.conversation_id;
-
-                    localStorage.setItem(
-                        "chatbot_conversation",
-                        this.conversationId
-                    );
-
-                    // Move to next flow step
-                    this.currentStep++;
-
-                    this.showCurrentStep();
-
-                } catch (error) {
-
-                    console.error(
-                        "Flow answer error:",
-                        error
-                    );
-
                 }
+            );
 
-            });
-
-            container.appendChild(button);
-
+            container.appendChild(
+                button
+            );
         });
 
-        this.messages.appendChild(container);
+        this.messages.appendChild(
+            container
+        );
 
         this.scrollBottom();
     }
 
     showLeadForm() {
 
-        const container = document.createElement("div");
+        const container =
+            document.createElement("div");
 
-        container.className = "chatbot-lead-form";
+        container.className =
+            "chatbot-lead-form";
 
         container.innerHTML = `
-        <div class="lead-form-title">
-            Before we finish, please share your details.
-        </div>
+            <div class="lead-form-title">
+                Before we finish, please share your details.
+            </div>
 
-        <input
-            type="text"
-            id="lead-name"
-            placeholder="Your name"
-        >
+            <input
+                type="text"
+                id="lead-name"
+                placeholder="Your name"
+            >
 
-        <input
-            type="email"
-            id="lead-email"
-            placeholder="Your email"
-        >
+            <input
+                type="email"
+                id="lead-email"
+                placeholder="Your email"
+            >
 
-        <input
-            type="tel"
-            id="lead-phone"
-            placeholder="Your phone number"
-        >
+            <input
+                type="tel"
+                id="lead-phone"
+                placeholder="Your phone number"
+            >
 
-        <button type="button" id="lead-submit">
-            Submit
-        </button>
+            <button
+                type="button"
+                id="lead-submit"
+            >
+                Submit
+            </button>
 
-        <div id="lead-error"></div>
-    `;
+            <div id="lead-error"></div>
+        `;
 
-        this.messages.appendChild(container);
+        this.messages.appendChild(
+            container
+        );
 
         this.scrollBottom();
 
         document
-            .getElementById("lead-submit")
-            .addEventListener("click", () => {
-                this.submitLead();
-            });
+            .getElementById(
+                "lead-submit"
+            )
+            .addEventListener(
+                "click",
+                () => {
+                    this.submitLead();
+                }
+            );
     }
 
     async submitLead() {
 
         const name =
-            document.getElementById("lead-name").value.trim();
+            document
+                .getElementById(
+                    "lead-name"
+                )
+                .value
+                .trim();
 
         const email =
-            document.getElementById("lead-email").value.trim();
+            document
+                .getElementById(
+                    "lead-email"
+                )
+                .value
+                .trim();
 
         const phone =
-            document.getElementById("lead-phone").value.trim();
+            document
+                .getElementById(
+                    "lead-phone"
+                )
+                .value
+                .trim();
 
         const error =
-            document.getElementById("lead-error");
+            document.getElementById(
+                "lead-error"
+            );
 
         error.textContent = "";
 
         if (!name) {
-            error.textContent = "Please enter your name.";
+
+            error.textContent =
+                "Please enter your name.";
+
             return;
         }
 
         if (!email) {
-            error.textContent = "Please enter your email.";
+
+            error.textContent =
+                "Please enter your email.";
+
             return;
         }
 
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            error.textContent = "Please enter a valid email.";
+        if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                .test(email)
+        ) {
+
+            error.textContent =
+                "Please enter a valid email.";
+
             return;
         }
 
         if (!phone) {
-            error.textContent = "Please enter your phone number.";
+
+            error.textContent =
+                "Please enter your phone number.";
+
             return;
         }
+        if (!/^\+?[0-9]{7,15}$/.test(phone)) {
+    error.textContent =
+        "Please enter a valid phone number (7 to 15 digits).";
+
+    return;
+}
 
         this.ensureSessionId();
 
@@ -863,40 +1130,55 @@ class Chatbot {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json",
                     },
 
                     body: JSON.stringify({
-                         name: name,
 
-    email: email,
+                        name:
+                            name,
 
-    phone: phone,
+                        email:
+                            email,
 
+                        phone:
+                            phone,
 
-                        widget_key: this.widgetKey,
+                        widget_key:
+                            this.widgetKey,
 
-                        domain: this.domain,
+                        domain:
+                            this.domain,
 
-                        session_id: this.sessionId,
+                        session_id:
+                            this.sessionId,
 
-                        visitor_uuid: this.visitorId,
+                        visitor_uuid:
+                            this.visitorId,
 
-                        conversation_id: this.conversationId,
+                        conversation_id:
+                            this.conversationId,
 
-
-                        notes: null,
-
+                        notes:
+                            null,
                     }),
                 }
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (!data.success) {
+
                 error.textContent =
-                    data.message || "Unable to save your details.";
+                    data.message ||
+                    "Unable to save your details.";
+
                 return;
             }
 
@@ -907,15 +1189,19 @@ class Chatbot {
             );
 
             const form =
-                document.querySelector(".chatbot-lead-form");
+                document.querySelector(
+                    ".chatbot-lead-form"
+                );
 
             if (form) {
+
                 form.remove();
             }
 
             this.addBotMessage(
                 "Thanks! Your details have been saved. 😊"
             );
+
             this.showEndChatQuestion();
 
         } catch (e) {
@@ -924,124 +1210,166 @@ class Chatbot {
 
             error.textContent =
                 "Unable to connect to server.";
-
         }
     }
 
-    addLeadConfirmation(name, email, phone) {
+    addLeadConfirmation(
+        name,
+        email,
+        phone
+    ) {
 
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
-        div.className = "lead-confirmation";
+        div.className =
+            "lead-confirmation";
 
         div.innerHTML = `
-        <div class="lead-confirmation-header">
-            <div class="lead-confirmation-icon">
-                <i class="bi bi-person-fill"></i>
+            <div class="lead-confirmation-header">
+
+                <div class="lead-confirmation-icon">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+
+                <strong>My Details</strong>
+
             </div>
 
-            <strong>My Details</strong>
-        </div>
+            <div class="lead-confirmation-divider"></div>
 
-        <div class="lead-confirmation-divider"></div>
+            <div class="lead-detail">
 
-        <div class="lead-detail">
-            <i class="bi bi-person"></i>
-            <span>${this.escapeHtml(name)}</span>
-        </div>
+                <i class="bi bi-person"></i>
 
-        <div class="lead-detail">
-            <i class="bi bi-envelope-fill"></i>
-            <span>${this.escapeHtml(email)}</span>
-        </div>
+                <span>
+                    ${this.escapeHtml(name)}
+                </span>
 
-        <div class="lead-detail">
-            <i class="bi bi-telephone-fill"></i>
-            <span>${this.escapeHtml(phone)}</span>
-        </div>
-    `;
+            </div>
 
-        this.messages.appendChild(div);
+            <div class="lead-detail">
+
+                <i class="bi bi-envelope-fill"></i>
+
+                <span>
+                    ${this.escapeHtml(email)}
+                </span>
+
+            </div>
+
+            <div class="lead-detail">
+
+                <i class="bi bi-telephone-fill"></i>
+
+                <span>
+                    ${this.escapeHtml(phone)}
+                </span>
+
+            </div>
+        `;
+
+        this.messages.appendChild(
+            div
+        );
 
         this.scrollBottom();
     }
+
     escapeHtml(value) {
 
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
-        div.textContent = value;
+        div.textContent =
+            value;
 
         return div.innerHTML;
     }
 
     showEndChatQuestion() {
 
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
-        div.className = "end-chat-question";
+        div.className =
+            "end-chat-question";
 
         div.innerHTML = `
-        <div class="bot-message">
-            Would you like to end this chat?
-        </div>
+            <div class="bot-message">
+                Would you like to end this chat?
+            </div>
 
-        <div class="end-chat-options">
+            <div class="end-chat-options">
 
-            <button
-                type="button"
-                class="end-chat-option"
-                data-action="yes"
-            >
-                Yes, end chat
-            </button>
+                <button
+                    type="button"
+                    class="end-chat-option"
+                    data-action="yes"
+                >
+                    Yes, end chat
+                </button>
 
-            <button
-                type="button"
-                class="end-chat-option"
-                data-action="no"
-            >
-                No, continue
-            </button>
+                <button
+                    type="button"
+                    class="end-chat-option"
+                    data-action="no"
+                >
+                    No, continue
+                </button>
 
-        </div>
-    `;
+            </div>
+        `;
 
-        this.messages.appendChild(div);
+        this.messages.appendChild(
+            div
+        );
 
         this.scrollBottom();
 
         const buttons =
-            div.querySelectorAll(".end-chat-option");
+            div.querySelectorAll(
+                ".end-chat-option"
+            );
 
         buttons.forEach(button => {
 
-            button.addEventListener("click", () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                const action =
-                    button.dataset.action;
+                    const action =
+                        button.dataset.action;
 
-                const selectedText = button.textContent.trim();
+                    const selectedText =
+                        button
+                            .textContent
+                            .trim();
 
-                // Don't remove the question.
-                // Just remove the option buttons.
-                const options =
-                    div.querySelector(".end-chat-options");
+                    const options =
+                        div.querySelector(
+                            ".end-chat-options"
+                        );
 
-                if (options) {
-                    options.remove();
+                    if (options) {
+
+                        options.remove();
+                    }
+
+                    this.addUserMessage(
+                        selectedText
+                    );
+
+                    if (action === "yes") {
+
+                        this.confirmEndChat();
+
+                    } else {
+
+                        this.continueChat();
+                    }
                 }
-
-                // Show selected option as visitor message
-                this.addUserMessage(selectedText);
-
-                if (action === "yes") {
-                    this.confirmEndChat();
-                } else {
-                    this.continueChat();
-                }
-
-            });
-
+            );
         });
     }
 
@@ -1051,7 +1379,8 @@ class Chatbot {
             "Sure! 😊 What else can I help you with?"
         );
 
-        this.conversationEnded = false;
+        this.conversationEnded =
+            false;
 
         this.scrollBottom();
     }
@@ -1061,7 +1390,9 @@ class Chatbot {
         if (!this.conversationId) {
             return;
         }
+
         this.ensureSessionId();
+
         try {
 
             const response = await fetch(
@@ -1070,28 +1401,41 @@ class Chatbot {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json",
                     },
 
                     body: JSON.stringify({
-    
-                        widget_key: this.widgetKey,
 
-                        domain: this.domain,
+                        widget_key:
+                            this.widgetKey,
 
-                        session_id: this.sessionId,
-                        visitor_uuid: this.visitorId,
+                        domain:
+                            this.domain,
 
-                        conversation_id: this.conversationId,
+                        session_id:
+                            this.sessionId,
 
+                        visitor_uuid:
+                            this.visitorId,
+
+                        conversation_id:
+                            this.conversationId,
                     }),
                 }
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
-            if (!response.ok || !data.success) {
+            if (
+                !response.ok ||
+                !data.success
+            ) {
 
                 this.addBotMessage(
                     "Sorry, I couldn't end the conversation."
@@ -1100,7 +1444,8 @@ class Chatbot {
                 return;
             }
 
-            this.conversationEnded = true;
+            this.conversationEnded =
+                true;
 
             this.addBotMessage(
                 "Your conversation has ended. Thank you for chatting with us! 😊"
@@ -1110,7 +1455,10 @@ class Chatbot {
 
         } catch (error) {
 
-            console.error("End chat error:", error);
+            console.error(
+                "End chat error:",
+                error
+            );
 
             this.addBotMessage(
                 "Unable to end the conversation."
@@ -1120,19 +1468,24 @@ class Chatbot {
 
     addConversationDivider() {
 
-        const divider = document.createElement("div");
+        const divider =
+            document.createElement("div");
 
-        divider.className = "conversation-divider";
+        divider.className =
+            "conversation-divider";
 
         divider.innerHTML = `
-        <span>Conversation ended</span>
-    `;
+            <span>
+                Conversation ended
+            </span>
+        `;
 
-        this.messages.appendChild(divider);
+        this.messages.appendChild(
+            divider
+        );
 
         this.scrollBottom();
     }
-
 }
 
 new Chatbot();

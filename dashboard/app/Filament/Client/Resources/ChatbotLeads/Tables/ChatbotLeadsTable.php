@@ -4,6 +4,7 @@ namespace App\Filament\Client\Resources\ChatbotLeads\Tables;
 
 use App\Filament\Client\Resources\ChatbotLeads\ChatbotLeadResource;
 use Filament\Actions\Action;
+use App\Support\BrowserTime;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -30,14 +31,15 @@ class ChatbotLeadsTable
                 TextColumn::make('chatbot_leads_max_created_at')
                     ->label('Last Lead')
                     ->since()
-                    ->tooltip(
-                        fn ($record) =>
-                            $record->chatbot_leads_max_created_at
-                                ? \Carbon\Carbon::parse(
-                                    $record->chatbot_leads_max_created_at
-                                )->format('d M Y, h:i A')
-                                : 'No leads'
-                    )
+                   ->tooltip(
+    fn ($record) =>
+        $record->chatbot_leads_max_created_at
+            ? BrowserTime::format(
+                $record->chatbot_leads_max_created_at,
+                'd M Y, h:i A'
+            )
+            : 'No leads'
+)
                     ->placeholder('No leads')
                     ->sortable(),
 

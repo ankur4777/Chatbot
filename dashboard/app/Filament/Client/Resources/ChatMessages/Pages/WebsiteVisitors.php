@@ -7,6 +7,7 @@ use App\Models\ChatConversation;
 use App\Models\Visitor;
 use App\Models\Website;
 use Filament\Actions\Action;
+use App\Support\BrowserTime;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -102,13 +103,14 @@ class WebsiteVisitors extends ListRecords
                     ->label('Last Activity')
                     ->since()
                     ->tooltip(
-                        fn ($record) =>
-                            $record->last_activity_at
-                                ? $record->last_activity_at->format(
-                                    'd M Y, h:i A'
-                                )
-                                : 'N/A'
-                    )
+    fn ($record) =>
+        $record->last_activity_at
+            ? BrowserTime::format(
+                $record->last_activity_at,
+                'd M Y, h:i A'
+            )
+            : 'N/A'
+)
                     ->sortable(),
 
             ])

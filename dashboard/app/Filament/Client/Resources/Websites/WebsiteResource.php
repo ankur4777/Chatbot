@@ -2,7 +2,6 @@
 
 namespace App\Filament\Client\Resources\Websites;
 
-use App\Filament\Client\Resources\Websites\Pages\EditWebsite;
 use App\Filament\Client\Resources\Websites\Pages\ListWebsites;
 use App\Filament\Client\Resources\Websites\Schemas\WebsiteForm;
 use App\Filament\Client\Resources\Websites\Tables\WebsitesTable;
@@ -59,7 +58,6 @@ class WebsiteResource extends Resource
     {
         return [
             'index' => ListWebsites::route('/'),
-            'edit' => EditWebsite::route('/{record}/edit'),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Client\Resources\ChatbotFlows\Tables;
 
 use Filament\Actions\DeleteAction;
+use App\Support\BrowserTime;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -43,7 +44,10 @@ class ChatbotFlowsTable
                     ->tooltip(
                         fn ($record) =>
                             $record->updated_at
-                                ? $record->updated_at->format('d M Y, h:i A')
+                                ? BrowserTime::format(
+                $record->updated_at,
+                'd M Y, h:i A'
+            )
                                 : 'N/A'
                     )
                     ->sortable(),

@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
+use App\Support\BrowserTime;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -37,14 +38,29 @@ class WebsitesTable
     TextColumn::make('created_at')
     ->label('Created At')
     ->since()
-    ->tooltip(fn ($record) => $record->created_at?->format('d M Y, h:i A'))
-    ->sortable(),
+->tooltip(
+    fn ($record) =>
+        $record->created_at
+            ? BrowserTime::format(
+                $record->created_at,
+                'd M Y, h:i A'
+            )
+            : 'N/A'
+)    ->sortable(),
 
     TextColumn::make('updated_at')
         ->label('Updated At')
         ->since()
         ->sortable()
-            ->tooltip(fn ($record) => $record->updated_at?->format('d M Y, h:i A'))
+           ->tooltip(
+    fn ($record) =>
+        $record->updated_at
+            ? BrowserTime::format(
+                $record->updated_at,
+                'd M Y, h:i A'
+            )
+            : 'N/A'
+)
 
         ->toggleable(isToggledHiddenByDefault: true),
 ])

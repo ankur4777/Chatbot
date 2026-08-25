@@ -5,6 +5,7 @@ namespace App\Filament\Client\Resources\ChatMessages\Pages;
 use App\Filament\Client\Resources\ChatMessages\ChatMessageResource;
 use App\Models\ChatConversation;
 use App\Models\Visitor;
+use App\Support\BrowserTime;
 use App\Models\Website;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
@@ -105,26 +106,28 @@ class VisitorConversations extends ListRecords
                     ->label('Started')
                     ->date('d M Y')
                     ->tooltip(
-                        fn ($record) =>
-                            $record->started_at
-                                ? $record->started_at->format(
-                                    'd M Y, h:i A'
-                                )
-                                : 'N/A'
-                    )
+    fn ($record) =>
+        $record->started_at
+            ? BrowserTime::format(
+                $record->started_at,
+                'd M Y, h:i A'
+            )
+            : 'N/A'
+)
                     ->sortable(),
 
                 TextColumn::make('updated_at')
                     ->label('Last Activity')
                     ->since()
-                    ->tooltip(
-                        fn ($record) =>
-                            $record->updated_at
-                                ? $record->updated_at->format(
-                                    'd M Y, h:i A'
-                                )
-                                : 'N/A'
-                    )
+                   ->tooltip(
+    fn ($record) =>
+        $record->updated_at
+            ? BrowserTime::format(
+                $record->updated_at,
+                'd M Y, h:i A'
+            )
+            : 'N/A'
+)
                     ->sortable(),
 
             ])

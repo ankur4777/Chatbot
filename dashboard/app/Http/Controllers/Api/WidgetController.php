@@ -124,14 +124,33 @@ public function saveFlowAnswer(Request $request)
 public function saveLead(Request $request)
 {
     $request->validate([
-        'widget_key' => 'required',
-        'session_id' => 'required',
-        'conversation_id' => 'required|integer',
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'phone' => 'required|string|max:20',
-        'notes' => 'nullable|string',
-    ]);
+    'widget_key' => 'required',
+    'session_id' => 'required',
+    'conversation_id' => 'required|integer',
+
+    'name' => [
+        'required',
+        'string',
+        'max:255',
+    ],
+
+    'email' => [
+        'required',
+        'email',
+        'max:255',
+    ],
+
+    'phone' => [
+        'required',
+        'string',
+        'regex:/^\+?[0-9]{7,15}$/',
+    ],
+
+    'notes' => [
+        'nullable',
+        'string',
+    ],
+]);
 
     $website = $this->widgetService->verifyWebsite($request);
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Websites\Tables;
 use Filament\Actions\EditAction;
+use App\Support\BrowserTime;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
@@ -44,7 +45,6 @@ class WebsitesTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
             ]);
     }
 }

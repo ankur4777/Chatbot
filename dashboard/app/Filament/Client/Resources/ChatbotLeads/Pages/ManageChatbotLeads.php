@@ -5,6 +5,7 @@ namespace App\Filament\Client\Resources\ChatbotLeads\Pages;
 use App\Filament\Client\Resources\ChatbotLeads\ChatbotLeadResource;
 use App\Models\ChatbotLead;
 use App\Models\Website;
+use App\Support\BrowserTime;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -104,11 +105,14 @@ class ManageChatbotLeads extends ListRecords
                 ->label('Created At')
                 ->since()
                 ->tooltip(
-                    fn ($record) =>
-                        $record->created_at
-                            ? $record->created_at->format('d M Y, h:i A')
-                            : 'N/A'
-                )
+    fn ($record) =>
+        $record->created_at
+            ? BrowserTime::format(
+                $record->created_at,
+                'd M Y, h:i A'
+            )
+            : 'N/A'
+)
                 ->sortable(),
         ])
         ->recordUrl(null)

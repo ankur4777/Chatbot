@@ -1,41 +1,30 @@
-public function up(): void
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
-    Schema::table('chat_messages', function (Blueprint $table) {
-        $table->foreignId('conversation_id')
-            ->after('id')
-            ->constrained('chat_conversations')
-            ->cascadeOnDelete();
+    public function up(): void
+    {
+        Schema::create('chatbot_flows', function (Blueprint $table) {
+            $table->id();
 
-        $table->string('sender_type')->after('conversation_id');
-        $table->unsignedBigInteger('sender_id')->nullable()->after('sender_type');
-        $table->longText('message')->nullable()->after('sender_id');
-        $table->string('attachment')->nullable()->after('message');
-        $table->string('attachment_type')->nullable()->after('attachment');
-        $table->json('metadata')->nullable()->after('attachment_type');
-        $table->timestamp('read_at')->nullable()->after('metadata');
+            $table->foreignId('website_id')
+                ->constrained('websites')
+                ->cascadeOnDelete();
 
-        $table->index(['conversation_id', 'created_at']);
-        $table->index(['sender_type', 'sender_id']);
-    });
-}
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
 
-public function down(): void
-{
-    Schema::table('chat_messages', function (Blueprint $table) {
-        $table->dropForeign(['conversation_id']);
+            $table->timestamps();
+        });
+    }
 
-        $table->dropIndex(['conversation_id', 'created_at']);
-        $table->dropIndex(['sender_type', 'sender_id']);
-
-        $table->dropColumn([
-            'conversation_id',
-            'sender_type',
-            'sender_id',
-            'message',
-            'attachment',
-            'attachment_type',
-            'metadata',
-            'read_at',
-        ]);
-    });
-}
+    public function down(): void
+    {
+        Schema::dropIfExists('chatbot_flows');
+    }
+};

@@ -90,8 +90,7 @@ class Chatbot {
 
         this.createWidget();
 
-        this.apiUrl = "http://127.0.0.1:8000/api/widget";
-
+ this.apiUrl = "https://chatbot.shabddtravels.in/api/widget";
         this.domain = window.location.hostname;
 
         this.widgetKey =

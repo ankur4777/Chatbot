@@ -4,7 +4,9 @@ namespace App\Filament\Client\Resources\KnowledgeSources\Tables;
 
 use App\Services\KnowledgeSourceService;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use App\Support\BrowserTime;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -22,6 +24,7 @@ class KnowledgeSourcesTable
                     ->sortable(),
 
                 TextColumn::make('title')
+                    ->label('Title')
                     ->searchable()
                     ->sortable(),
 
@@ -30,38 +33,42 @@ class KnowledgeSourcesTable
                     ->badge()
                     ->searchable(),
 
-                TextColumn::make('type')
-                    ->badge(),
-
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'completed' => 'success',
-                        'processing' => 'warning',
-                        'failed' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(
+                        fn (string $state): string => match ($state) {
+                            'completed' => 'success',
+                            'processing' => 'warning',
+                            'failed' => 'danger',
+                            default => 'gray',
+                        }
+                    ),
 
                 TextColumn::make('pages')
                     ->label('Pages'),
 
-                TextColumn::make('chunks')
-                    ->label('Chunks'),
-
                 TextColumn::make('last_synced_at')
                     ->label('Last Synced')
-                    ->since(),
+                    ->since()
+                    ->placeholder('Not synced')
+                    ->tooltip(
+                        fn ($record) =>
+                           $record->last_synced_at
+            ? BrowserTime::format(
+                $record->last_synced_at,
+                'd M Y, h:i A'
+            )
+                                : 'Not synced'
+                    ),
 
                 TextColumn::make('error')
                     ->label('Error')
-                    ->limit(60)
+                    ->limit(20)
                     ->tooltip(fn ($record) => $record->error)
                     ->color('danger')
+                    ->placeholder('—')
                     ->wrap(),
-            ])
-
-            ->filters([
-                //
             ])
 
             ->recordActions([
@@ -96,13 +103,16 @@ class KnowledgeSourcesTable
                             ->title('Knowledge sync failed.')
                             ->body(
                                 $result['message']
-                                ?? 'Unable to sync the knowledge source.'
+                                    ?? 'Unable to sync the knowledge source.'
                             )
                             ->danger()
                             ->send();
                     }),
 
                 EditAction::make(),
+
+                DeleteAction::make()
+                    ->requiresConfirmation(),
             ]);
     }
 }

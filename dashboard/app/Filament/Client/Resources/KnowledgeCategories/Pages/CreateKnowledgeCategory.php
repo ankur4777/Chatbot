@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateKnowledgeCategory extends CreateRecord
 {
     protected static string $resource = KnowledgeCategoryResource::class;
+
+    public function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

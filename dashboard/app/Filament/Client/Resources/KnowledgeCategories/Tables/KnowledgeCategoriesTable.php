@@ -4,6 +4,7 @@ namespace App\Filament\Client\Resources\KnowledgeCategories\Tables;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use App\Support\BrowserTime;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -25,27 +26,40 @@ class KnowledgeCategoriesTable
 
                 TextColumn::make('description')
                     ->label('Description')
-                    ->limit(50)
+                    ->limit(30)
                     ->tooltip(fn ($record) => $record->description)
+                    ->placeholder('—')
                     ->wrap(),
 
+                TextColumn::make('knowledge_sources_count')
+                    ->label('Sources')
+                    ->counts('knowledgeSources')
+                    ->sortable(),
+
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label('Created At')
                     ->since()
+                    ->tooltip(
+                        fn ($record) =>
+                           BrowserTime::format($record->created_at)
+                    )
                     ->sortable(),
 
                 TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label('Updated At')
                     ->since()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->tooltip(
+                        fn ($record) =>
+                            BrowserTime::format($record->updated_at)
+                    )
+                    ->sortable(),
             ])
-            ->filters([
-                //
-            ])
+
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+
+                DeleteAction::make()
+                    ->requiresConfirmation(),
             ]);
     }
 }

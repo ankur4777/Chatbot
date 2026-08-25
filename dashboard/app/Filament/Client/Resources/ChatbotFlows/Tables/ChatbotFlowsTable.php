@@ -14,31 +14,48 @@ class ChatbotFlowsTable
     {
         return $table
             ->columns([
+
                 TextColumn::make('website.name')
                     ->label('Website')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('name')
-                    ->label('Flow Name')
+                    ->label('Flow')
                     ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('steps_count')
+                    ->label('Steps')
+                    ->counts('steps')
+                    ->formatStateUsing(
+                        fn ($state) => $state . ' ' . ($state == 1 ? 'Step' : 'Steps')
+                    )
                     ->sortable(),
 
                 IconColumn::make('is_active')
                     ->label('Status')
                     ->boolean(),
 
-                TextColumn::make('created_at')
-                    ->label('Created At')
-                    ->dateTime('d M Y')
+                TextColumn::make('updated_at')
+                    ->label('Last Updated')
+                    ->since()
+                    ->tooltip(
+                        fn ($record) =>
+                            $record->updated_at
+                                ? $record->updated_at->format('d M Y, h:i A')
+                                : 'N/A'
+                    )
                     ->sortable(),
+
             ])
-            ->filters([
-                //
-            ])
+
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->label('Manage'),
+
+                DeleteAction::make()
+                    ->requiresConfirmation(),
             ]);
     }
 }

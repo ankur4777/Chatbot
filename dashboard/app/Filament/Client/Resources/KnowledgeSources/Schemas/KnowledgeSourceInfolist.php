@@ -17,15 +17,15 @@ class KnowledgeSourceInfolist
                         TextEntry::make('title')
                             ->label('Title'),
 
-                        TextEntry::make('type')
-                            ->label('Source Type')
-                            ->badge(),
-
                         TextEntry::make('knowledgeCategory.name')
                             ->label('Category'),
 
                         TextEntry::make('website.name')
                             ->label('Website'),
+
+                        TextEntry::make('source')
+                            ->label('Source File')
+                            ->placeholder('No file'),
                     ])
                     ->columns(2),
 
@@ -50,13 +50,6 @@ class KnowledgeSourceInfolist
                             ->placeholder('No error'),
                     ])
                     ->columns(2),
-
-                Section::make('Source File')
-                    ->schema([
-                        TextEntry::make('source')
-                            ->label('File')
-                            ->placeholder('No file'),
-                    ]),
             ]);
     }
 }

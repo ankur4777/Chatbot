@@ -5,6 +5,7 @@ namespace App\Filament\Client\Resources\KnowledgeCategories;
 use App\Filament\Client\Resources\KnowledgeCategories\Pages\CreateKnowledgeCategory;
 use App\Filament\Client\Resources\KnowledgeCategories\Pages\EditKnowledgeCategory;
 use App\Filament\Client\Resources\KnowledgeCategories\Pages\ListKnowledgeCategories;
+use App\Filament\Client\Resources\KnowledgeCategories\Pages\WebsiteCategories;
 use App\Filament\Client\Resources\KnowledgeCategories\Schemas\KnowledgeCategoryForm;
 use App\Filament\Client\Resources\KnowledgeCategories\Tables\KnowledgeCategoriesTable;
 use App\Models\KnowledgeCategory;
@@ -61,8 +62,14 @@ class KnowledgeCategoryResource extends Resource
     {
         return [
             'index' => ListKnowledgeCategories::route('/'),
+
             'create' => CreateKnowledgeCategory::route('/create'),
+
             'edit' => EditKnowledgeCategory::route('/{record}/edit'),
+
+            'website-categories' => WebsiteCategories::route(
+                '/website/{website}/categories'
+            ),
         ];
     }
 }

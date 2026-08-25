@@ -2,8 +2,9 @@
 
 namespace App\Filament\Client\Resources\ChatConversations\Tables;
 
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use App\Filament\Client\Resources\ChatConversations\ChatConversationResource;
+use Filament\Actions\Action;
+use App\Support\BrowserTime;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -13,42 +14,58 @@ class ChatConversationsTable
     {
         return $table
             ->columns([
-                TextColumn::make('website.name')
+
+                TextColumn::make('name')
                     ->label('Website')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('visitor.name')
-                    ->label('Visitor')
-                    ->searchable()
+                TextColumn::make('conversations_count')
+                    ->label('Total Conversations')
                     ->sortable(),
 
-                TextColumn::make('assignedAgent.name')
-                    ->label('Assigned Agent')
-                    ->placeholder('Unassigned')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('status')
-                    ->badge()
-                    ->sortable(),
-
-                TextColumn::make('started_at')
-                    ->label('Started')
+                TextColumn::make('conversations_max_updated_at')
+                    ->label('Last Activity')
                     ->since()
-                    ->sortable(),
-
-                TextColumn::make('ended_at')
-                    ->label('Ended')
-                    ->since()
+                    ->placeholder('No conversations')
+                    ->tooltip(
+    fn ($record) =>
+        $record->conversations_max_updated_at
+            ? BrowserTime::format(
+                $record->conversations_max_updated_at,
+                'd M Y, h:i A'
+            )
+            : 'No conversations'
+)
                     ->sortable(),
             ])
-            ->filters([
-                //
-            ])
+
+            ->recordUrl(
+                fn ($record) =>
+                    ChatConversationResource::getUrl(
+                        'website-conversations',
+                        [
+                            'website' => $record->id,
+                        ]
+                    )
+            )
+
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ]);
+                Action::make('view')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(
+                        fn ($record) =>
+                            ChatConversationResource::getUrl(
+                                'website-conversations',
+                                [
+                                    'website' => $record->id,
+                                ]
+                            )
+                    ),
+            ])
+
+            ->defaultSort('name', 'asc');
     }
 }

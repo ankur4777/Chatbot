@@ -5,9 +5,8 @@ namespace App\Filament\Resources\WebsiteSettings\Schemas;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Schema;
 
 class WebsiteSettingForm
 {
@@ -15,7 +14,8 @@ class WebsiteSettingForm
     {
         return $schema
             ->components([
-             Select::make('website_id')
+
+                Select::make('website_id')
     ->label('Website')
     ->relationship(
         name: 'website',
@@ -30,21 +30,25 @@ class WebsiteSettingForm
     )
     ->searchable()
     ->preload()
+    ->unique(ignoreRecord: true)
     ->required(),
 
-TextInput::make('chatbot_name')
-    ->label('Chatbot Name')
-    ->required()
-    ->maxLength(100)
-    ->default('AI Assistant'),
+                TextInput::make('chatbot_name')
+                    ->label('Chatbot Name')
+                    ->required()
+                    ->maxLength(100)
+                    ->default('AI Assistant'),
+
                 Textarea::make('welcome_message')
+                    ->label('Welcome Message')
                     ->rows(3)
                     ->default('Hello 👋 How can I help you today?'),
+
                 TextInput::make('placeholder')
-    ->label('Input Placeholder')
-    ->required()
-    ->maxLength(255)
-    ->default('Type your message...'),
+                    ->label('Input Placeholder')
+                    ->required()
+                    ->maxLength(255)
+                    ->default('Type your message...'),
 
                 TextInput::make('temperature')
                     ->numeric()
@@ -53,67 +57,61 @@ TextInput::make('chatbot_name')
                     ->step(0.1)
                     ->default(0.7)
                     ->required(),
+
                 TextInput::make('primary_color')
+                    ->label('Primary Color')
                     ->required()
                     ->default('#2563eb'),
+
                 Textarea::make('system_prompt')
                     ->label('System Prompt')
                     ->rows(10)
-                    ->columnSpanFull(), 
-                Hidden::make('position')
-    ->default([
-        'horizontal' => 'right',
-        'horizontal_value' => 25,
-        'vertical' => 'bottom',
-        'vertical_value' => 25,
-    ])
-    ->dehydrated(true),
+                    ->columnSpanFull(),
 
-Select::make('position_horizontal')
-    ->label('Horizontal Position')
-    ->options([
-        'left' => 'Left',
-        'right' => 'Right',
-    ])
-    ->default('right')
-    ->required(),
+                Select::make('position_horizontal')
+                    ->label('Horizontal Position')
+                    ->options([
+                        'left' => 'Left',
+                        'right' => 'Right',
+                    ])
+                    ->default('right')
+                    ->required(),
 
-TextInput::make('position_horizontal_value')
-    ->label('Horizontal Distance')
-    ->numeric()
-    ->minValue(0)
-    ->maxValue(500)
-    ->suffix('px')
-    ->default(25)
-    ->required(),
+                TextInput::make('position_horizontal_value')
+                    ->label('Horizontal Distance')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(500)
+                    ->suffix('px')
+                    ->default(25)
+                    ->required(),
 
-Select::make('position_vertical')
-    ->label('Vertical Position')
-    ->options([
-        'top' => 'Top',
-        'bottom' => 'Bottom',
-    ])
-    ->default('bottom')
-    ->required(),
+                Select::make('position_vertical')
+                    ->label('Vertical Position')
+                    ->options([
+                        'top' => 'Top',
+                        'bottom' => 'Bottom',
+                    ])
+                    ->default('bottom')
+                    ->required(),
 
-TextInput::make('position_vertical_value')
-    ->label('Vertical Distance')
-    ->numeric()
-    ->minValue(0)
-    ->maxValue(500)
-    ->suffix('px')
-    ->default(25)
-    ->required(),
-                   
+                TextInput::make('position_vertical_value')
+                    ->label('Vertical Distance')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(500)
+                    ->suffix('px')
+                    ->default(25)
+                    ->required(),
+
                 Toggle::make('enable_chatbot')
                     ->label('Enable Chatbot')
                     ->default(true),
+
                 Toggle::make('enable_live_chat')
                     ->label('Enable Live Chat')
                     ->default(true),
-                Toggle::make('show_connect_agent')
-                    ->label('Show Connect to Agent')
-                    ->default(true),
+
             ]);
     }
 }

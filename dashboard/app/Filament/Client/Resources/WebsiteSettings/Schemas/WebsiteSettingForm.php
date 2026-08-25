@@ -14,23 +14,24 @@ class WebsiteSettingForm
     {
         return $schema
             ->components([
+
                 Select::make('website_id')
-                    ->label('Website')
-                    ->relationship(
-                        name: 'website',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: function ($query) {
-                            $user = auth()->user();
+    ->label('Website')
+    ->relationship(
+        name: 'website',
+        titleAttribute: 'name',
+        modifyQueryUsing: function ($query) {
+            $user = auth()->user();
 
-                            if ($user && $user->role === 'owner') {
-                                $query->where('company_id', $user->company_id);
-                            }
-                        }
-                    )
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
+            if ($user && $user->role === 'owner') {
+                $query->where('company_id', $user->company_id);
+            }
+        }
+    )
+    ->searchable()
+    ->preload()
+    ->unique(ignoreRecord: true)
+    ->required(),
                 TextInput::make('chatbot_name')
                     ->label('Chatbot Name')
                     ->required()
@@ -66,7 +67,8 @@ class WebsiteSettingForm
                     ->rows(10)
                     ->columnSpanFull(),
 
-                Select::make('position')
+                Select::make('position_horizontal')
+                    ->label('Horizontal Position')
                     ->options([
                         'left' => 'Left',
                         'right' => 'Right',
@@ -74,17 +76,33 @@ class WebsiteSettingForm
                     ->default('right')
                     ->required(),
 
-                Toggle::make('enable_chatbot')
-                    ->label('Enable Chatbot')
-                    ->default(true),
+                TextInput::make('position_horizontal_value')
+                    ->label('Horizontal Distance')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(500)
+                    ->suffix('px')
+                    ->default(25)
+                    ->required(),
 
-                Toggle::make('enable_live_chat')
-                    ->label('Enable Live Chat')
-                    ->default(true),
+                Select::make('position_vertical')
+                    ->label('Vertical Position')
+                    ->options([
+                        'top' => 'Top',
+                        'bottom' => 'Bottom',
+                    ])
+                    ->default('bottom')
+                    ->required(),
 
-                Toggle::make('show_connect_agent')
-                    ->label('Show Connect to Agent')
-                    ->default(true),
+                TextInput::make('position_vertical_value')
+                    ->label('Vertical Distance')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(500)
+                    ->suffix('px')
+                    ->default(25)
+                    ->required(),
+
             ]);
     }
 }

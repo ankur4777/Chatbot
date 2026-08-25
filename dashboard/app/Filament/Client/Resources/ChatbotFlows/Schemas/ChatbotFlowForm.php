@@ -15,24 +15,37 @@ class ChatbotFlowForm
         return $schema
             ->components([
                 Select::make('website_id')
-                    ->label('Website')
-                    ->relationship(
-                        name: 'website',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: function ($query) {
-                            $user = auth()->user();
+    ->label('Website')
+    ->relationship(
+        name: 'website',
+        titleAttribute: 'name',
+        modifyQueryUsing: function ($query, $record) {
 
-                            if ($user && $user->role === 'owner') {
-                                $query->where(
-                                    'company_id',
-                                    $user->company_id
-                                );
-                            }
-                        }
-                    )
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+            $user = auth()->user();
+
+            if ($user && $user->role === 'owner') {
+                $query->where(
+                    'company_id',
+                    $user->company_id
+                );
+            }
+
+            $query->where(function ($query) use ($record) {
+
+                $query->whereDoesntHave('chatbotFlow');
+
+                if ($record?->website_id) {
+                    $query->orWhere(
+                        'id',
+                        $record->website_id
+                    );
+                }
+            });
+        }
+    )
+    ->searchable()
+    ->preload()
+    ->required(),
 
                 TextInput::make('name')
                     ->label('Flow Name')

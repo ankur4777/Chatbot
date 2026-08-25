@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
 {
+
+Schema::table('website_settings', function (Blueprint $table) {
+    $table->unique('website_id');
+});
+
     Schema::create('website_settings', function (Blueprint $table) {
 
         $table->id();

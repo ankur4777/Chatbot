@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Client\Resources\KnowledgeSources\Tables\KnowledgeSourcesTable;
 use App\Models\KnowledgeSource;
 use BackedEnum;
+use App\Filament\Client\Resources\KnowledgeSources\Pages\WebsiteSources;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -65,12 +66,19 @@ class KnowledgeSourceResource extends Resource
     }
 
     public static function getPages(): array
-    {
-        return [
-            'index' => ListKnowledgeSources::route('/'),
-            'create' => CreateKnowledgeSource::route('/create'),
-            'view' => ViewKnowledgeSource::route('/{record}'),
-            'edit' => EditKnowledgeSource::route('/{record}/edit'),
-        ];
-    }
+{
+    return [
+        'index' => ListKnowledgeSources::route('/'),
+
+        'create' => CreateKnowledgeSource::route('/create'),
+
+        'view' => ViewKnowledgeSource::route('/{record}'),
+
+        'edit' => EditKnowledgeSource::route('/{record}/edit'),
+
+        'website-sources' => WebsiteSources::route(
+            '/website/{website}/sources'
+        ),
+    ];
+}
 }

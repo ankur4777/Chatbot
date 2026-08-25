@@ -8,4 +8,9 @@ use Filament\Resources\Pages\ListRecords;
 class ListChatConversations extends ListRecords
 {
     protected static string $resource = ChatConversationResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
 }

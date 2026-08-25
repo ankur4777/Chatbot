@@ -97,7 +97,8 @@ class StepsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                ->label('New Chatbot Flow Step')
             ])
             ->recordActions([
                 EditAction::make(),

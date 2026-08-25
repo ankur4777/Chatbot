@@ -2,8 +2,10 @@
 
 namespace App\Filament\Client\Resources\Visitors\Tables;
 
-use Filament\Tables\Columns\TextColumn;
+use App\Models\Visitor;
+use App\Filament\Client\Resources\Visitors\VisitorResource;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 
 class VisitorsTable
 {
@@ -11,54 +13,62 @@ class VisitorsTable
     {
         return $table
             ->columns([
-                TextColumn::make('website.name')
+
+                TextColumn::make('name')
                     ->label('Website')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('name')
-                    ->label('Visitor')
-                    ->searchable()
-                    ->sortable()
-                    ->placeholder('Anonymous'),
+                TextColumn::make('total_visitors')
+                    ->label('Total Visitors')
+                    ->state(function ($record) {
 
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable()
-                    ->copyable()
-                    ->placeholder('-'),
+                        return Visitor::query()
+                            ->where('website_id', $record->id)
+                            ->whereNotNull('visitor_uuid')
+                            ->where('visitor_uuid', '!=', '')
+                            ->distinct()
+                            ->count('visitor_uuid');
+                    }),
 
-                TextColumn::make('phone')
-                    ->label('Phone')
-                    ->copyable()
-                    ->placeholder('-'),
+                TextColumn::make('total_visits')
+                    ->label('Total Visits')
+                    ->state(function ($record) {
 
-                TextColumn::make('session_id')
-                    ->label('Session ID')
-                    ->limit(20)
-                    ->tooltip(fn ($record) => $record->session_id),
+                        $latestIds = Visitor::query()
+                            ->where('website_id', $record->id)
+                            ->whereNotNull('visitor_uuid')
+                            ->where('visitor_uuid', '!=', '')
+                            ->whereIn('id', function ($subQuery) use ($record) {
 
-                TextColumn::make('ip_address')
-                    ->label('IP Address'),
+                                $subQuery
+                                    ->from('visitors')
+                                    ->selectRaw('MAX(id)')
+                                    ->where('website_id', $record->id)
+                                    ->whereNotNull('visitor_uuid')
+                                    ->where('visitor_uuid', '!=', '')
+                                    ->groupBy('visitor_uuid');
 
-                TextColumn::make('created_at')
-                    ->label('First Seen')
-                    ->since()
-                    ->sortable(),
+                            })
+                            ->pluck('id');
 
-                TextColumn::make('updated_at')
-                    ->label('Last Activity')
-                    ->since()
-                    ->sortable(),
+                        return Visitor::query()
+                            ->whereIn('id', $latestIds)
+                            ->withCount('sessions')
+                            ->get()
+                            ->sum('sessions_count');
+                    }),
+
             ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
-                //
-            ])
-            ->toolbarActions([
-                //
-            ]);
+
+            ->recordUrl(
+                fn ($record) =>
+                    VisitorResource::getUrl(
+                        'website-visitors',
+                        ['record' => $record]
+                    )
+            )
+
+            ->defaultSort('name', 'asc');
     }
 }

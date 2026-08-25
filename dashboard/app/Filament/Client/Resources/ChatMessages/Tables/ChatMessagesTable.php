@@ -2,6 +2,10 @@
 
 namespace App\Filament\Client\Resources\ChatMessages\Tables;
 
+use App\Filament\Client\Resources\ChatMessages\ChatMessageResource;
+use App\Models\ChatConversation;
+use App\Models\Visitor;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -11,35 +15,61 @@ class ChatMessagesTable
     {
         return $table
             ->columns([
-                TextColumn::make('conversation.id')
-                    ->label('Conversation')
-                    ->sortable()
-                    ->searchable(),
 
-                TextColumn::make('sender_type')
-                    ->label('Sender')
-                    ->badge()
+                TextColumn::make('name')
+                    ->label('Website')
+                    ->searchable()
                     ->sortable(),
 
-                TextColumn::make('message')
-                    ->label('Message')
-                    ->wrap()
-                    ->limit(100)
-                    ->tooltip(fn ($record) => $record->message),
+                TextColumn::make('total_visitors')
+                    ->label('Visitors')
+                    ->state(
+                        fn ($record) =>
+                            Visitor::query()
+                                ->where('website_id', $record->id)
+                                ->whereNotNull('visitor_uuid')
+                                ->where('visitor_uuid', '!=', '')
+                                ->distinct()
+                                ->count('visitor_uuid')
+                    ),
 
-                TextColumn::make('created_at')
-                    ->label('Time')
-                    ->since()
-                    ->sortable(),
+                TextColumn::make('total_conversations')
+                    ->label('Conversations')
+                    ->state(
+                        fn ($record) =>
+                            ChatConversation::query()
+                                ->where('website_id', $record->id)
+                                ->count()
+                    ),
+
             ])
-            ->filters([
-                //
-            ])
+
+            ->recordUrl(
+                fn ($record) =>
+                    ChatMessageResource::getUrl(
+                        'website-visitors',
+                        [
+                            'website' => $record->id,
+                        ]
+                    )
+            )
+
             ->recordActions([
-                //
+                Action::make('view')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(
+                        fn ($record) =>
+                            ChatMessageResource::getUrl(
+                                'website-visitors',
+                                [
+                                    'website' => $record->id,
+                                ]
+                            )
+                    ),
             ])
-            ->toolbarActions([
-                //
-            ]);
+
+            ->defaultSort('name', 'asc');
     }
 }

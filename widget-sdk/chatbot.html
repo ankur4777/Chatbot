@@ -1,98 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Widget</title>
 
     <link rel="stylesheet" href="chatbot.css">
-     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
+
 <body>
 
-<!-- Floating Button -->
-<div id="chatbot-toggle">
-    <i class="bi bi-chat-dots-fill"></i>
-</div>
+    <!-- Floating Button -->
+    <div id="chatbot-toggle">
+        <i class="bi bi-chat-dots-fill"></i>
+    </div>
 
-<!-- Chat Window -->
-<div id="chatbot-box">
+    <!-- Chat Window -->
+    <div id="chatbot-box">
 
-    <!-- Header -->
-    <div id="chatbot-header">
+        <!-- Header -->
+        <div id="chatbot-header">
 
-        <div class="chatbot-header-info">
+            <div class="chatbot-header-info">
 
-            <div class="chatbot-avatar">
-                <i class="bi bi-robot"></i>
+                <div class="chatbot-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+
+                <div>
+
+                    <h5 id="chatbot-title">
+                        AI Assistant
+                    </h5>
+
+                    <small id="chatbot-status">
+                        Online
+                    </small>
+
+                </div>
+
             </div>
 
-            <div>
+            <button id="chatbot-close">
+                <i class="bi bi-x"></i>
+            </button>
 
-                <h5 id="chatbot-title">
-                    AI Assistant
-                </h5>
+        </div>
 
-                <small id="chatbot-status">
-                    Online
-                </small>
+        <!-- Messages -->
+
+        <div id="chatbot-messages">
+
+            <div id="chatbot-hero">
+
+                <div class="chatbot-hero-icon">
+                    <i class="bi bi-robot"></i>
+                </div>
+
+                <h2 id="chatbot-hero-title"></h2>
+
+                <div id="chatbot-hero-message"></div>
 
             </div>
 
         </div>
 
-        <button id="chatbot-close">
-            <i class="bi bi-x"></i>
-        </button>
+        <!-- Input -->
 
-    </div>
+        <div id="chatbot-input-area">
 
-    <!-- Messages -->
+            <input type="text" id="chatbot-input" placeholder="Type your message..." autocomplete="off">
 
-   <div id="chatbot-messages">
+            <button id="chatbot-send">
 
-    <div id="chatbot-hero">
+                <i class="bi bi-send-fill"></i>
 
-        <div class="chatbot-hero-icon">
-            <i class="bi bi-robot"></i>
+            </button>
+
         </div>
 
-        <h2 id="chatbot-hero-title"></h2>
-
-        <div id="chatbot-hero-message"></div>
-
     </div>
 
-</div>
-
-    <!-- Input -->
-
-    <div id="chatbot-input-area">
-
-        <input
-            type="text"
-            id="chatbot-input"
-            placeholder="Type your message..."
-            autocomplete="off"
-        >
-
-        <button id="chatbot-send">
-
-            <i class="bi bi-send-fill"></i>
-
-        </button>
-
-    </div>
-
-</div>
-
-<script src="chatbot.js"></script>
+    <script src="chatbot.js"></script>
 
 </body>
+
 </html>

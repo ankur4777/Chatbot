@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\ChatConversation;
 use App\Models\ChatbotFlow;
 use Illuminate\Support\Facades\DB;
+use App\Models\VisitorSession;
 
 class WidgetService
 {
@@ -22,15 +23,12 @@ class WidgetService
         'message' => 'Website not found.'
     ], 404);
 }
-$visitor = $this->findOrCreateVisitor($request, $website);
-
 
     return response()->json([
     'success' => true,
     'data' => [
         'website'      => $website,
         'settings'     => $this->getWebsiteSettings($website),
-        'quickReplies' => $this->getQuickReplies($website),
     ],
 ]);
 }
@@ -46,26 +44,10 @@ $visitor = $this->findOrCreateVisitor($request, $website);
     ];
 }
 
-    public function getQuickReplies(Website $website)
-{
-    return $website->quickReplies
-        ->map(function ($reply) {
-            return [
-                'label' => $reply->label,
-                'value' => $reply->value,
-                'icon'  => $reply->icon,
-            ];
-        })
-        ->values();
-}
 public function verifyWebsite(Request $request){
     
     $website = Website::with([
         'settings',
-        'quickReplies' => function ($query) {
-            $query->where('is_active', true)
-                  ->orderBy('sort_order');
-        }
     ])
     ->where('widget_key', $request->widget_key)
     ->first();
@@ -87,19 +69,83 @@ public function verifyWebsite(Request $request){
 
 public function findOrCreateVisitor(Request $request, Website $website)
 {
-    
-$sessionId = $request->session_id ?? Str::uuid();
-$visitor = Visitor::firstOrCreate(
-    [
-        'session_id' => $sessionId,
-    ],
-    [
-        'website_id' => $website->id,
+    $visitorUuid = $request->visitor_uuid;
+
+    if (! $visitorUuid) {
+        $visitorUuid = (string) Str::uuid();
+    }
+
+    $visitor = Visitor::firstOrCreate(
+        [
+            'website_id'   => $website->id,
+            'visitor_uuid' => $visitorUuid,
+        ],
+        [
+            'ip_address'       => $request->ip(),
+            'first_seen_at'    => now(),
+            'last_activity_at' => null,
+        ]
+    );
+
+    // Only update IP during widget initialization.
+    // Do NOT update last_activity_at here.
+    $visitor->update([
         'ip_address' => $request->ip(),
-        'user_agent' => $request->userAgent(),
-    ]
-);
-return $visitor;
+    ]);
+
+    return $visitor;
+}
+
+public function recordVisitorActivity(
+    Request $request,
+    Website $website
+) {
+    $visitorUuid = $request->visitor_uuid;
+    $sessionId = $request->session_id;
+
+    if (! $visitorUuid || ! $sessionId) {
+        return null;
+    }
+
+    // Find existing visitor or create new visitor
+    $visitor = Visitor::firstOrCreate(
+        [
+            'website_id' => $website->id,
+            'visitor_uuid' => $visitorUuid,
+        ],
+        [
+            'ip_address' => $request->ip(),
+            'first_seen_at' => now(),
+            'last_activity_at' => now(),
+        ]
+    );
+
+    // Create session only when actual chatbot activity happens
+    $session = VisitorSession::firstOrCreate(
+        [
+            'session_id' => $sessionId,
+        ],
+        [
+            'visitor_id' => $visitor->id,
+            'ip_address' => $request->ip(),
+            'started_at' => now(),
+            'last_activity_at' => now(),
+        ]
+    );
+
+    // Update current session activity
+    $session->update([
+        'last_activity_at' => now(),
+        'ip_address' => $request->ip(),
+    ]);
+
+    // Update visitor activity
+    $visitor->update([
+        'last_activity_at' => now(),
+        'ip_address' => $request->ip(),
+    ]);
+
+    return $visitor;
 }
 
 public function getFlow(Request $request)

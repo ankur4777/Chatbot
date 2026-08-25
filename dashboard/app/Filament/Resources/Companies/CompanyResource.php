@@ -92,12 +92,15 @@ class CompanyResource extends Resource
     }
 
     public static function getPages(): array
-    {
-        return [
-            'index' => ListCompanies::route('/'),
-             'view' => ViewCompany::route('/{record}'),
-            'create' => CreateCompany::route('/create'),
-            'edit' => EditCompany::route('/{record}/edit'),
-        ];
-    }
+{
+    return [
+        'index' => ListCompanies::route('/'),
+
+        'create' => CreateCompany::route('/create'),
+
+        'view' => ViewCompany::route('/{record}'),
+
+        'edit' => EditCompany::route('/{record}/edit'),
+    ];
+}
 }

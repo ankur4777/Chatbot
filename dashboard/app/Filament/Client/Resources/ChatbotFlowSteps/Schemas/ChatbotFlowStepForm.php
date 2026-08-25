@@ -7,6 +7,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Repeater;
 
 class ChatbotFlowStepForm
 {
@@ -75,6 +76,33 @@ class ChatbotFlowStepForm
                 Toggle::make('is_required')
                     ->label('Required')
                     ->default(true),
+
+                Repeater::make('options')
+    ->label('Button Options')
+    ->relationship('options')
+    ->schema([
+        TextInput::make('label')
+            ->label('Button Label')
+            ->required()
+            ->maxLength(255),
+
+        TextInput::make('value')
+            ->label('Value')
+            ->required()
+            ->maxLength(255),
+
+        TextInput::make('sort_order')
+            ->label('Sort Order')
+            ->numeric()
+            ->required()
+            ->default(1),
+    ])
+    ->columns(3)
+    ->orderColumn('sort_order')
+    ->addActionLabel('Add Option')
+    ->collapsible()
+    ->columnSpanFull()
+    ->visible(fn ($get) => $get('input_type') === 'buttons')
             ]);
     }
 }

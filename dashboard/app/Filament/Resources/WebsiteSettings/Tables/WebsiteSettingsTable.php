@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\DeleteAction;
 use Filament\Tables\Table;
 
 class WebsiteSettingsTable
@@ -18,38 +19,34 @@ class WebsiteSettingsTable
                 TextColumn::make('website.name')
                     ->searchable(),
                 TextColumn::make('chatbot_name')
+                ->label('Chatbot Name')
                     ->searchable(),
-                TextColumn::make('welcome_message')
-                    ->limit(40)
-                    ->tooltip(fn ($record) => $record->welcome_message),
-                TextColumn::make('placeholder')
-                    ->limit(30),
-                TextColumn::make('temperature')
-                    ->sortable(),
-                TextColumn::make('primary_color')
-                    ->searchable(),
-                TextColumn::make('position')
-                    ->badge(),
                 IconColumn::make('enable_chatbot')
+                 ->label('Chatbot')
                     ->boolean(),
                 IconColumn::make('enable_live_chat')
-                    ->boolean(),
-                IconColumn::make('show_connect_agent')
+                 ->label('Live Chat')
                     ->boolean(),
                 TextColumn::make('created_at')
                     ->since()
+                    ->label('Created At')
+                        ->tooltip(fn ($record) => $record->created_at?->format('d M Y, h:i A'))
+
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                ->label('Updated At')
                     ->since()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->tooltip(fn ($record) => $record->updated_at?->format('d M Y, h:i A'))
+
             ])
             ->filters([
                 //
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class KnowledgeSource extends Model
 {
@@ -38,4 +39,13 @@ public function knowledgeBase(): HasOne
 {
     return $this->hasOne(KnowledgeBase::class);
 }
+public function websiteKnowledgeSources(): HasMany
+{
+    return $this->hasMany(
+        KnowledgeSource::class,
+        'website_id',
+        'website_id'
+    );
+}
+
 }

@@ -8,6 +8,9 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
+use App\Http\Middleware\SetBrowserTimezone;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
@@ -45,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
+                SetBrowserTimezone::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
@@ -54,6 +58,45 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+    PanelsRenderHook::BODY_END,
+    fn (): string => Blade::render(<<<'BLADE'
+        <script>
+            (() => {
+                const timezone =
+                    Intl.DateTimeFormat()
+                        .resolvedOptions()
+                        .timeZone;
+
+                if (!timezone) {
+                    return;
+                }
+
+                const currentTimezone =
+                    document.cookie
+                        .split('; ')
+                        .find(row =>
+                            row.startsWith('browser_timezone=')
+                        )
+                        ?.split('=')[1];
+
+                if (
+                    decodeURIComponent(currentTimezone || '')
+                    === timezone
+                ) {
+                    return;
+                }
+
+                document.cookie =
+                    'browser_timezone=' +
+                    encodeURIComponent(timezone) +
+                    '; path=/; max-age=31536000; SameSite=Lax';
+
+                window.location.reload();
+            })();
+        </script>
+    BLADE),
+);
     }
 }

@@ -2,26 +2,31 @@
 
 namespace App\Filament\Client\Resources\ChatConversations;
 
-use App\Filament\Client\Resources\ChatConversations\Pages\EditChatConversation;
+use App\Filament\Client\Resources\ChatConversations\Pages\ConversationMessages;
 use App\Filament\Client\Resources\ChatConversations\Pages\ListChatConversations;
-use App\Filament\Client\Resources\ChatConversations\Schemas\ChatConversationForm;
+use App\Filament\Client\Resources\ChatConversations\Pages\WebsiteConversations;
 use App\Filament\Client\Resources\ChatConversations\Tables\ChatConversationsTable;
-use App\Models\ChatConversation;
+use App\Models\Website;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class ChatConversationResource extends Resource
 {
-    protected static ?string $model = ChatConversation::class;
+    protected static ?string $model = Website::class;
+
+    protected static ?string $navigationLabel = 'Conversations';
+
+    protected static ?string $modelLabel = 'Conversation';
+
+    protected static ?string $pluralModelLabel = 'Conversations';
 
     protected static string|BackedEnum|null $navigationIcon =
-        Heroicon::OutlinedRectangleStack;
+        Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function getEloquentQuery(): Builder
     {
@@ -29,21 +34,18 @@ class ChatConversationResource extends Resource
 
         $user = auth()->user();
 
-        if ($user && $user->role === 'owner' && $user->company_id) {
-            return $query->whereHas('website', function ($websiteQuery) use ($user) {
-                $websiteQuery->where(
-                    'company_id',
-                    $user->company_id
-                );
-            });
+        if (
+            $user &&
+            $user->role === 'owner' &&
+            $user->company_id
+        ) {
+            return $query
+                ->where('company_id', $user->company_id)
+                ->withCount('conversations')
+                ->withMax('conversations', 'updated_at');
         }
 
         return $query->whereRaw('1 = 0');
-    }
-
-    public static function form(Schema $schema): Schema
-    {
-        return ChatConversationForm::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -60,7 +62,14 @@ class ChatConversationResource extends Resource
     {
         return [
             'index' => ListChatConversations::route('/'),
-            'edit' => EditChatConversation::route('/{record}/edit'),
+
+            'website-conversations' => WebsiteConversations::route(
+                '/website/{website}/conversations'
+            ),
+
+            'conversation-messages' => ConversationMessages::route(
+                '/website/{website}/conversation/{conversation}/messages'
+            ),
         ];
     }
 }

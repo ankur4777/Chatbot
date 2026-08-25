@@ -3,9 +3,10 @@
 namespace App\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Visitor;
 
 class Website extends Model
 {
@@ -64,22 +65,17 @@ class Website extends Model
         return $this->hasMany(ChatConversation::class);
     }
 
-    public function leads(): HasMany
-    {
-        return $this->hasMany(ChatbotLead::class);
-    }
     public function knowledgeSources(): HasMany
 {
     return $this->hasMany(KnowledgeSource::class);
 }
 
-    public function quickReplies(): HasMany
+public function chatbotLeads()
 {
-    return $this->hasMany(ChatbotQuickReply::class);
+    return $this->hasMany(\App\Models\ChatbotLead::class, 'website_id');
 }
-
-public function chatbotFlows(): HasMany
+public function chatbotFlow(): HasOne
 {
-    return $this->hasMany(ChatbotFlow::class);
+    return $this->hasOne(ChatbotFlow::class);
 }
 }

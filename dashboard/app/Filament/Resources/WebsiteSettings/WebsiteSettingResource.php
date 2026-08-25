@@ -19,7 +19,8 @@ class WebsiteSettingResource extends Resource
 {
     protected static ?string $model = WebsiteSetting::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon =
+        Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'website_id';
 
@@ -48,26 +49,30 @@ class WebsiteSettingResource extends Resource
             'edit' => EditWebsiteSetting::route('/{record}/edit'),
         ];
     }
+
     public static function getEloquentQuery(): Builder
-{
-    $query = parent::getEloquentQuery();
+    {
+        $query = parent::getEloquentQuery();
 
-    $user = auth()->user();
+        $user = auth()->user();
 
-    // Super Admin can see all website settings
-    if ($user && $user->role === 'super_admin') {
-        return $query;
+        // Super Admin can see all website settings
+        if ($user && $user->role === 'super_admin') {
+            return $query;
+        }
+
+        // Owner can only see settings for websites
+        // belonging to their company
+        if ($user && $user->company_id) {
+            return $query->whereHas('website', function ($websiteQuery) use ($user) {
+                $websiteQuery->where(
+                    'company_id',
+                    $user->company_id
+                );
+            });
+        }
+
+        // No company = no settings
+        return $query->whereRaw('1 = 0');
     }
-
-    // Owner can only see settings for websites
-    // belonging to their company
-    if ($user && $user->company_id) {
-        return $query->whereHas('website', function ($websiteQuery) use ($user) {
-            $websiteQuery->where('company_id', $user->company_id);
-        });
-    }
-
-    // No company = no settings
-    return $query->whereRaw('1 = 0');
-}
 }

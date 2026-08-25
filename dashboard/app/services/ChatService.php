@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Visitor;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\Website;
@@ -11,6 +10,9 @@ use App\Services\AIService;
 use App\Services\WidgetService;
 use App\Models\ChatbotFlowAnswer;
 use App\Models\ChatbotFlowStep;
+use App\Models\Visitor;
+use App\Models\VisitorSession;
+use Illuminate\Support\Str;
 
 class ChatService
 {
@@ -185,16 +187,10 @@ public function sendMessage(Request $request)
     Website $website
 )
 {
-    $visitor = Visitor::firstOrCreate(
-        [
-            'website_id' => $website->id,
-            'session_id' => $request->session_id,
-        ],
-        [
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]
-    );
+    $visitor = $this->getOrCreateVisitor(
+    $request,
+    $website
+);
 
     if ($request->conversation_id) {
 
@@ -307,16 +303,10 @@ public function saveFlowAnswer(
     Request $request,
     Website $website
 ) {
-    $visitor = Visitor::firstOrCreate(
-        [
-            'website_id' => $website->id,
-            'session_id' => $request->session_id,
-        ],
-        [
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]
-    );
+    $visitor = $this->getOrCreateVisitor(
+    $request,
+    $website
+);
 
     $conversation = null;
 
@@ -384,16 +374,10 @@ public function saveLeadData(
     Request $request,
     Website $website
 ) {
-    $visitor = Visitor::firstOrCreate(
-        [
-            'website_id' => $website->id,
-            'session_id' => $request->session_id,
-        ],
-        [
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]
-    );
+    $visitor = $this->getOrCreateVisitor(
+    $request,
+    $website
+);
 
     $conversation = null;
 
@@ -426,10 +410,57 @@ public function saveLeadData(
     return $lead;
 }
 
+protected function getOrCreateVisitor(
+    Request $request,
+    Website $website
+): Visitor {
+    $visitorUuid = $request->input('visitor_uuid');
+    $sessionId = $request->input('session_id');
 
-public function getQuickReplies()
-{
+    if (! $visitorUuid) {
+        $visitorUuid = (string) Str::uuid();
+    }
 
+    if (! $sessionId) {
+        $sessionId = (string) Str::uuid();
+    }
+
+    $visitor = Visitor::firstOrCreate(
+        [
+            'website_id' => $website->id,
+            'visitor_uuid' => $visitorUuid,
+        ],
+        [
+            'first_seen_at' => now(),
+            'last_activity_at' => now(),
+            'ip_address' => $request->ip(),
+                    ]
+    );
+
+    $visitor->update([
+        'last_activity_at' => now(),
+        'ip_address' => $request->ip(),
+    ]);
+
+    VisitorSession::firstOrCreate(
+        [
+            'session_id' => $sessionId,
+        ],
+        [
+            'visitor_id' => $visitor->id,
+            'ip_address' => $request->ip(),
+            'started_at' => now(),
+            'last_activity_at' => now(),
+        ]
+    );
+
+    VisitorSession::where('session_id', $sessionId)
+        ->update([
+            'last_activity_at' => now(),
+            'ip_address' => $request->ip(),
+        ]);
+
+    return $visitor;
 }
 
 }

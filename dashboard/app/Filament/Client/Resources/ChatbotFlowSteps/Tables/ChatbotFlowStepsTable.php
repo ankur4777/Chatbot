@@ -30,17 +30,13 @@ class ChatbotFlowStepsTable
 
                 TextColumn::make('question')
                     ->label('Question')
-                    ->limit(60)
+                    ->limit(50)
                     ->wrap()
                     ->searchable(),
 
                 TextColumn::make('input_type')
                     ->label('Input Type')
                     ->badge(),
-
-                TextColumn::make('placeholder')
-                    ->label('Placeholder')
-                    ->limit(40),
 
                 IconColumn::make('is_required')
                     ->label('Required')

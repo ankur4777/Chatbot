@@ -3,18 +3,24 @@
 namespace App\Filament\Client\Resources\Visitors;
 
 use App\Filament\Client\Resources\Visitors\Pages\ListVisitors;
+use App\Filament\Client\Resources\Visitors\Pages\ManageVisitors;
 use App\Filament\Client\Resources\Visitors\Tables\VisitorsTable;
-use App\Models\Visitor;
+use App\Models\Website;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 
 class VisitorResource extends Resource
 {
-    protected static ?string $model = Visitor::class;
+    protected static ?string $model = Website::class;
+
+    protected static ?string $navigationLabel = 'Visitors';
+
+    protected static ?string $modelLabel = 'Visitor';
+
+protected static ?string $pluralModelLabel = 'Visitors';
 
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
@@ -28,18 +34,14 @@ class VisitorResource extends Resource
         $user = auth()->user();
 
         if ($user && $user->role === 'owner' && $user->company_id) {
-            return $query->whereHas('website', function ($websiteQuery) use ($user) {
-                $websiteQuery->where(
-                    'company_id',
-                    $user->company_id
-                );
-            });
+            return $query->where(
+                'company_id',
+                $user->company_id
+            );
         }
 
         return $query->whereRaw('1 = 0');
     }
-
- 
 
     public static function table(Table $table): Table
     {
@@ -55,6 +57,10 @@ class VisitorResource extends Resource
     {
         return [
             'index' => ListVisitors::route('/'),
+
+            'website-visitors' => ManageVisitors::route(
+                '/{record}/visitors'
+            ),
         ];
     }
 }

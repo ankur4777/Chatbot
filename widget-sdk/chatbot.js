@@ -4,12 +4,12 @@ class Chatbot {
     createWidget() {
 
         if (document.getElementById("chatbot-box")) {
-        return;
-    }
+            return;
+        }
 
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        `
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            `
 <div id="chatbot-toggle">
     <i class="bi bi-chat-dots-fill"></i>
 </div>
@@ -84,21 +84,21 @@ class Chatbot {
 
 </div>
         `
-    );
+        );
 
-}
+    }
 
     constructor() {
-       this.createWidget();
+        this.createWidget();
 
-    this.apiUrl = "http://127.0.0.1:8000/api/widget";
+        this.apiUrl = "http://127.0.0.1:8000/api/widget";
         this.domain = window.location.hostname;
         this.widgetKey = window.ChatbotConfig?.widgetKey || null;
 
         this.sessionId = this.getSessionId();
 
-this.conversationId = null;
-this.conversationEnded = false;
+        this.conversationId = null;
+        this.conversationEnded = false;
 
         this.toggle = document.getElementById("chatbot-toggle");
         this.box = document.getElementById("chatbot-box");
@@ -115,130 +115,130 @@ this.conversationEnded = false;
         this.bindEvents();
 
         window.addEventListener("beforeunload", () => {
-    if (!this.conversationId) {
-        return;
-    }
+            if (!this.conversationId) {
+                return;
+            }
 
-    const data = JSON.stringify({
-        widget_key: this.widgetKey,
-        domain: this.domain,
-        session_id: this.sessionId,
-        conversation_id: this.conversationId,
-    });
+            const data = JSON.stringify({
+                widget_key: this.widgetKey,
+                domain: this.domain,
+                session_id: this.sessionId,
+                conversation_id: this.conversationId,
+            });
 
-    navigator.sendBeacon(
-        `${this.apiUrl}/end-chat`,
-        new Blob([data], {
-            type: "application/json"
-        })
-    );
-});
+            navigator.sendBeacon(
+                `${this.apiUrl}/end-chat`,
+                new Blob([data], {
+                    type: "application/json"
+                })
+            );
+        });
 
     }
 
     bindEvents() {
 
-    this.toggle.addEventListener("click", () => this.open());
+        this.toggle.addEventListener("click", () => this.open());
 
-    this.close.addEventListener("click", () => this.closeWidget());
+        this.close.addEventListener("click", () => this.closeWidget());
 
-    this.newChatButton =
-    document.getElementById("chatbot-new-chat");
+        this.newChatButton =
+            document.getElementById("chatbot-new-chat");
 
-this.newChatButton.addEventListener(
-    "click",
-    () => this.newChat()
-);
+        this.newChatButton.addEventListener(
+            "click",
+            () => this.newChat()
+        );
 
-    this.send.addEventListener("click", (e) => {
-    e.preventDefault();
-    this.sendMessage();
-});
+        this.send.addEventListener("click", (e) => {
+            e.preventDefault();
+            this.sendMessage();
+        });
 
-    this.input.addEventListener("keypress", (e) => {
+        this.input.addEventListener("keypress", (e) => {
 
-        if (e.key === "Enter") {
-    e.preventDefault();
-    this.sendMessage();
-}
+            if (e.key === "Enter") {
+                e.preventDefault();
+                this.sendMessage();
+            }
 
-    });
+        });
 
-}
+    }
     getSessionId() {
 
-    let sessionId = localStorage.getItem("chatbot_session");
+        let sessionId = localStorage.getItem("chatbot_session");
 
-    if (!sessionId) {
+        if (!sessionId) {
 
-        sessionId = crypto.randomUUID();
+            sessionId = crypto.randomUUID();
 
-        localStorage.setItem("chatbot_session", sessionId);
-
-    }
-
-    return sessionId;
-
-}
-
-    open() {
-
-    this.toggle.style.display = "none";
-
-    this.box.style.display = "flex";
-
-    if (!this.initialized) {
-        this.init();
-    }
-
-}
-
-    closeWidget() {
-
-    this.box.style.display = "none";
-
-    this.toggle.style.display = "flex";
-
-}
-async newChat() {
-
-    try {
-
-        if (this.conversationId) {
-
-            await fetch(`${this.apiUrl}/end-chat`, {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-
-                body: JSON.stringify({
-
-                    widget_key: this.widgetKey,
-
-                    domain: this.domain,
-
-                    session_id: this.sessionId,
-
-                    conversation_id: this.conversationId,
-
-                }),
-
-            });
+            localStorage.setItem("chatbot_session", sessionId);
 
         }
 
-        // Clear current conversation
-        this.conversationId = null;
-        this.conversationEnded = false;
+        return sessionId;
 
-        localStorage.removeItem("chatbot_conversation");
+    }
 
-        // Clear messages
-        this.messages.innerHTML = `
+    open() {
+
+        this.toggle.style.display = "none";
+
+        this.box.style.display = "flex";
+
+        if (!this.initialized) {
+            this.init();
+        }
+
+    }
+
+    closeWidget() {
+
+        this.box.style.display = "none";
+
+        this.toggle.style.display = "flex";
+
+    }
+    async newChat() {
+
+        try {
+
+            if (this.conversationId) {
+
+                await fetch(`${this.apiUrl}/end-chat`, {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+
+                    body: JSON.stringify({
+
+                        widget_key: this.widgetKey,
+
+                        domain: this.domain,
+
+                        session_id: this.sessionId,
+
+                        conversation_id: this.conversationId,
+
+                    }),
+
+                });
+
+            }
+
+            // Clear current conversation
+            this.conversationId = null;
+            this.conversationEnded = false;
+
+            localStorage.removeItem("chatbot_conversation");
+
+            // Clear messages
+            this.messages.innerHTML = `
             <div id="chatbot-hero">
 
                 <div class="chatbot-hero-icon">
@@ -251,286 +251,286 @@ async newChat() {
 
             </div>
         `;
-        const settings = this.settings ?? {};
+            const settings = this.settings ?? {};
 
-document.getElementById("chatbot-hero-title").textContent =
-    settings.chatbot_name || "AI Assistant";
+            document.getElementById("chatbot-hero-title").textContent =
+                settings.chatbot_name || "AI Assistant";
 
-document.getElementById("chatbot-hero-message").textContent =
-    settings.welcome_message || "Hey! 👋, how may I help you?";
+            document.getElementById("chatbot-hero-message").textContent =
+                settings.welcome_message || "Hey! 👋, how may I help you?";
 
-        // Reset flow
-        this.currentStep = 0;
+            // Reset flow
+            this.currentStep = 0;
 
-        if (this.flow) {
+            if (this.flow) {
+                this.showCurrentStep();
+            }
+
+            this.input.value = "";
+
+        } catch (error) {
+
+            console.error("New chat error:", error);
+
+        }
+    }
+
+    async init() {
+        try {
+            const response = await fetch(
+                `${this.apiUrl}/init?domain=${encodeURIComponent(this.domain)}&widget_key=${encodeURIComponent(this.widgetKey)}`
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+
+                this.addBotMessage("Unable to initialize chatbot.");
+                return;
+
+            }
+
+            this.initialized = true;
+
+            this.settings = data.data.settings ?? {};
+
+            const settings = this.settings;
+
+            // Hero Section
+            document.getElementById("chatbot-title").textContent =
+                settings.chatbot_name || "AI Assistant";
+
+            document.getElementById("chatbot-hero-title").textContent =
+                settings.chatbot_name || "AI Assistant";
+
+            document.getElementById("chatbot-hero-message").textContent =
+                settings.welcome_message || "Hey! 👋, how may I help you?";
+
+            document.getElementById("chatbot-input").placeholder =
+                settings.placeholder || "Type your message...";
+
+            if (settings.primary_color) {
+                document.getElementById("chatbot-header").style.background = settings.primary_color;
+                document.getElementById("chatbot-send").style.background = settings.primary_color;
+                document.getElementById("chatbot-toggle").style.background = settings.primary_color;
+            }
+
+            await this.loadFlow();
+
+        } catch (error) {
+
+            console.error(error);
+
+            this.addBotMessage("Unable to connect to server.");
+
+        }
+
+    }
+    async loadFlow() {
+
+        try {
+
+            const response = await fetch(
+                `${this.apiUrl}/flow?domain=${encodeURIComponent(this.domain)}&widget_key=${encodeURIComponent(this.widgetKey)}`
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+                return;
+            }
+
+            this.flow = data.flow;
+            this.currentStep = 0;
+
             this.showCurrentStep();
-        }
 
-        this.input.value = "";
+        } catch (error) {
 
-    } catch (error) {
-
-        console.error("New chat error:", error);
-
-    }
-}
-
-async init() {
-    try {
-    const response = await fetch(
-    `${this.apiUrl}/init?domain=${encodeURIComponent(this.domain)}&widget_key=${encodeURIComponent(this.widgetKey)}`
-);
-
-        const data = await response.json();
-
-        if (!data.success) {
-
-            this.addBotMessage("Unable to initialize chatbot.");
-            return;
+            console.error(error);
 
         }
 
-        this.initialized = true;
-
-        this.settings = data.data.settings ?? {};
-
-const settings = this.settings;
-
-        // Hero Section
-        document.getElementById("chatbot-title").textContent =
-    settings.chatbot_name || "AI Assistant";
-
-document.getElementById("chatbot-hero-title").textContent =
-    settings.chatbot_name || "AI Assistant";
-
-document.getElementById("chatbot-hero-message").textContent =
-    settings.welcome_message || "Hey! 👋, how may I help you?";
-
-document.getElementById("chatbot-input").placeholder =
-    settings.placeholder || "Type your message...";
-
-    if (settings.primary_color) {
-    document.getElementById("chatbot-header").style.background = settings.primary_color;
-    document.getElementById("chatbot-send").style.background = settings.primary_color;
-    document.getElementById("chatbot-toggle").style.background = settings.primary_color;
-}
-
-        await this.loadFlow();
-
-    } catch (error) {
-
-        console.error(error);
-
-        this.addBotMessage("Unable to connect to server.");
-
     }
-
-}
-async loadFlow() {
-
-    try {
-
-        const response = await fetch(
-            `${this.apiUrl}/flow?domain=${encodeURIComponent(this.domain)}&widget_key=${encodeURIComponent(this.widgetKey)}`
-        );
-
-        const data = await response.json();
-
-        if (!data.success) {
-            return;
-        }
-
-        this.flow = data.flow;
-        this.currentStep = 0;
-
-        this.showCurrentStep();
-
-    } catch (error) {
-
-        console.error(error);
-
-    }
-
-}
 
     async sendMessage() {
 
-    const message = this.input.value.trim();
+        const message = this.input.value.trim();
 
-    if (!message) {
-        return;
-    }
+        if (!message) {
+            return;
+        }
 
-    const wasConversationEnded =
-        this.conversationEnded;
+        const wasConversationEnded =
+            this.conversationEnded;
 
-    const oldConversationId =
-        this.conversationId;
+        const oldConversationId =
+            this.conversationId;
 
-    this.input.value = "";
+        this.input.value = "";
 
-    /*
-     * If current conversation is still active,
-     * show visitor message immediately.
-     *
-     * If conversation was ended, wait until backend
-     * creates the new conversation before displaying
-     * the message.
-     */
-    if (!wasConversationEnded) {
-        this.addUserMessage(message);
-    }
+        /*
+         * If current conversation is still active,
+         * show visitor message immediately.
+         *
+         * If conversation was ended, wait until backend
+         * creates the new conversation before displaying
+         * the message.
+         */
+        if (!wasConversationEnded) {
+            this.addUserMessage(message);
+        }
 
-    this.showTyping();
+        this.showTyping();
 
-    try {
+        try {
 
-        const response = await fetch(
-            `${this.apiUrl}/send-message`,
-            {
-                method: "POST",
+            const response = await fetch(
+                `${this.apiUrl}/send-message`,
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
 
-                body: JSON.stringify({
+                    body: JSON.stringify({
 
-                    widget_key: this.widgetKey,
+                        widget_key: this.widgetKey,
 
-                    domain: this.domain,
+                        domain: this.domain,
 
-                    session_id: this.sessionId,
+                        session_id: this.sessionId,
 
-                    conversation_id:
-                        this.conversationId,
+                        conversation_id:
+                            this.conversationId,
 
-                    message: message,
+                        message: message,
 
-                }),
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            this.hideTyping();
+
+            if (!data.success) {
+
+                this.addBotMessage(
+                    "Something went wrong."
+                );
+
+                return;
             }
-        );
 
-        const data = await response.json();
+            /*
+             * Backend creates a NEW conversation
+             * when old conversation is already ended.
+             */
+            const newConversationId =
+                data.conversation_id;
 
-        this.hideTyping();
+            if (
+                wasConversationEnded &&
+                newConversationId !== oldConversationId
+            ) {
 
-        if (!data.success) {
+
+                this.addUserMessage(message);
+
+                this.conversationEnded = false;
+            }
+
+            this.conversationId =
+                newConversationId;
+
+            localStorage.setItem(
+                "chatbot_conversation",
+                this.conversationId
+            );
 
             this.addBotMessage(
-                "Something went wrong."
+                data.response
             );
+
+        } catch (error) {
+
+            this.hideTyping();
+
+            console.error(error);
+
+            this.addBotMessage(
+                "Unable to connect to server."
+            );
+        }
+
+    }
+    showCurrentStep() {
+
+        if (!this.flow) return;
+
+        const step = this.flow.steps[this.currentStep];
+
+        if (!step) {
+
+            // Flow finished
+            this.addBotMessage(
+                "Great! I have all the trip details I need."
+            );
+
+            this.showLeadForm();
 
             return;
         }
 
-        /*
-         * Backend creates a NEW conversation
-         * when old conversation is already ended.
-         */
-        const newConversationId =
-            data.conversation_id;
+        this.addBotMessage(step.question);
 
-        if (
-            wasConversationEnded &&
-            newConversationId !== oldConversationId
-        ) {
-
-
-            this.addUserMessage(message);
-
-            this.conversationEnded = false;
-        }
-
-        this.conversationId =
-            newConversationId;
-
-        localStorage.setItem(
-            "chatbot_conversation",
-            this.conversationId
-        );
-
-        this.addBotMessage(
-            data.response
-        );
-
-    } catch (error) {
-
-        this.hideTyping();
-
-        console.error(error);
-
-        this.addBotMessage(
-            "Unable to connect to server."
-        );
+        this.addOptionButtons(step.options);
     }
 
-}
-showCurrentStep() {
+    addUserMessage(message) {
 
-    if (!this.flow) return;
+        const div = document.createElement("div");
 
-    const step = this.flow.steps[this.currentStep];
+        div.className = "user-message";
 
-    if (!step) {
+        div.textContent = message;
 
-        // Flow finished
-        this.addBotMessage(
-            "Great! I have all the trip details I need."
-        );
+        this.messages.appendChild(div);
 
-        this.showLeadForm();
+        this.scrollBottom();
 
-        return;
     }
-
-    this.addBotMessage(step.question);
-
-    this.addOptionButtons(step.options);
-}
-
-   addUserMessage(message) {
-
-    const div = document.createElement("div");
-
-    div.className = "user-message";
-
-    div.textContent = message;
-
-    this.messages.appendChild(div);
-
-    this.scrollBottom();
-
-}
 
     addBotMessage(message) {
 
-    const div = document.createElement("div");
+        const div = document.createElement("div");
 
-    div.className = "bot-message";
+        div.className = "bot-message";
 
-    div.textContent = message;
+        div.textContent = message;
 
-    this.messages.appendChild(div);
+        this.messages.appendChild(div);
 
-    this.scrollBottom();
+        this.scrollBottom();
 
-}
+    }
 
     showTyping() {
 
-    if (document.getElementById("typing-indicator")) {
-        return;
-    }
+        if (document.getElementById("typing-indicator")) {
+            return;
+        }
 
-    const typing = document.createElement("div");
+        const typing = document.createElement("div");
 
-    typing.id = "typing-indicator";
+        typing.id = "typing-indicator";
 
-    typing.className = "bot-message";
+        typing.className = "bot-message";
 
-    typing.innerHTML = `
+        typing.innerHTML = `
         <div class="typing-bubble">
             <span></span>
             <span></span>
@@ -538,148 +538,148 @@ showCurrentStep() {
         </div>
     `;
 
-    this.messages.appendChild(typing);
+        this.messages.appendChild(typing);
 
-    this.scrollBottom();
+        this.scrollBottom();
 
-}
-
-hideTyping() {
-
-    const typing = document.getElementById("typing-indicator");
-
-    if (typing) {
-        typing.remove();
     }
 
-}
+    hideTyping() {
+
+        const typing = document.getElementById("typing-indicator");
+
+        if (typing) {
+            typing.remove();
+        }
+
+    }
 
     scrollBottom() {
 
-    this.messages.scrollTop = this.messages.scrollHeight;
+        this.messages.scrollTop = this.messages.scrollHeight;
 
-}
-async addOptionButtons(options) {
-
-    if (!options || options.length === 0) {
-        return;
     }
+    async addOptionButtons(options) {
 
-    const container = document.createElement("div");
-    container.className = "chatbot-options";
+        if (!options || options.length === 0) {
+            return;
+        }
 
-    const currentStep =
-        this.flow?.steps?.[this.currentStep];
+        const container = document.createElement("div");
+        container.className = "chatbot-options";
 
-    if (!currentStep) {
-        return;
-    }
+        const currentStep =
+            this.flow?.steps?.[this.currentStep];
 
-    options.forEach(option => {
+        if (!currentStep) {
+            return;
+        }
 
-        const button = document.createElement("button");
+        options.forEach(option => {
 
-        button.type = "button";
-        button.className = "chatbot-option";
+            const button = document.createElement("button");
 
-        const answer =
-            option.value ?? option.label;
+            button.type = "button";
+            button.className = "chatbot-option";
 
-        button.textContent = answer;
+            const answer =
+                option.value ?? option.label;
 
-        button.addEventListener("click", async () => {
+            button.textContent = answer;
 
-            // Show selected answer in chat
-            this.addUserMessage(answer);
+            button.addEventListener("click", async () => {
 
-            // Remove option buttons
-            container.remove();
+                // Show selected answer in chat
+                this.addUserMessage(answer);
 
-            try {
+                // Remove option buttons
+                container.remove();
 
-                const response = await fetch(
-                    `${this.apiUrl}/flow-answer`,
-                    {
-                        method: "POST",
+                try {
 
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json",
-                        },
+                    const response = await fetch(
+                        `${this.apiUrl}/flow-answer`,
+                        {
+                            method: "POST",
 
-                        body: JSON.stringify({
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
+                            },
 
-                            widget_key: this.widgetKey,
+                            body: JSON.stringify({
 
-                            domain: this.domain,
+                                widget_key: this.widgetKey,
 
-                            session_id: this.sessionId,
+                                domain: this.domain,
 
-                            conversation_id:
-                                this.conversationId,
+                                session_id: this.sessionId,
 
-                            chatbot_flow_step_id:
-                                currentStep.id,
+                                conversation_id:
+                                    this.conversationId,
 
-                            answer: answer,
+                                chatbot_flow_step_id:
+                                    currentStep.id,
 
-                        }),
-                    }
-                );
+                                answer: answer,
 
-                const data = await response.json();
-
-                if (!data.success) {
-
-                    console.error(
-                        "Flow answer failed:",
-                        data
+                            }),
+                        }
                     );
 
-                    return;
+                    const data = await response.json();
+
+                    if (!data.success) {
+
+                        console.error(
+                            "Flow answer failed:",
+                            data
+                        );
+
+                        return;
+                    }
+
+                    // Save conversation ID
+                    this.conversationId =
+                        data.conversation_id;
+
+                    localStorage.setItem(
+                        "chatbot_conversation",
+                        this.conversationId
+                    );
+
+                    // Move to next flow step
+                    this.currentStep++;
+
+                    this.showCurrentStep();
+
+                } catch (error) {
+
+                    console.error(
+                        "Flow answer error:",
+                        error
+                    );
+
                 }
 
-                // Save conversation ID
-                this.conversationId =
-                    data.conversation_id;
+            });
 
-                localStorage.setItem(
-                    "chatbot_conversation",
-                    this.conversationId
-                );
-
-                // Move to next flow step
-                this.currentStep++;
-
-                this.showCurrentStep();
-
-            } catch (error) {
-
-                console.error(
-                    "Flow answer error:",
-                    error
-                );
-
-            }
+            container.appendChild(button);
 
         });
 
-        container.appendChild(button);
+        this.messages.appendChild(container);
 
-    });
+        this.scrollBottom();
+    }
 
-    this.messages.appendChild(container);
+    showLeadForm() {
 
-    this.scrollBottom();
-}
+        const container = document.createElement("div");
 
-showLeadForm() {
+        container.className = "chatbot-lead-form";
 
-    const container = document.createElement("div");
-
-    container.className = "chatbot-lead-form";
-
-    container.innerHTML = `
+        container.innerHTML = `
         <div class="lead-form-title">
             Before we finish, please share your details.
         </div>
@@ -709,130 +709,130 @@ showLeadForm() {
         <div id="lead-error"></div>
     `;
 
-    this.messages.appendChild(container);
+        this.messages.appendChild(container);
 
-    this.scrollBottom();
+        this.scrollBottom();
 
-    document
-        .getElementById("lead-submit")
-        .addEventListener("click", () => {
-            this.submitLead();
-        });
-}
-
-async submitLead() {
-
-    const name =
-        document.getElementById("lead-name").value.trim();
-
-    const email =
-        document.getElementById("lead-email").value.trim();
-
-    const phone =
-        document.getElementById("lead-phone").value.trim();
-
-    const error =
-        document.getElementById("lead-error");
-
-    error.textContent = "";
-
-    if (!name) {
-        error.textContent = "Please enter your name.";
-        return;
+        document
+            .getElementById("lead-submit")
+            .addEventListener("click", () => {
+                this.submitLead();
+            });
     }
 
-    if (!email) {
-        error.textContent = "Please enter your email.";
-        return;
-    }
+    async submitLead() {
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        error.textContent = "Please enter a valid email.";
-        return;
-    }
+        const name =
+            document.getElementById("lead-name").value.trim();
 
-    if (!phone) {
-        error.textContent = "Please enter your phone number.";
-        return;
-    }
+        const email =
+            document.getElementById("lead-email").value.trim();
 
-    try {
+        const phone =
+            document.getElementById("lead-phone").value.trim();
 
-        const response = await fetch(
-            `${this.apiUrl}/save-lead`,
-            {
-                method: "POST",
+        const error =
+            document.getElementById("lead-error");
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
+        error.textContent = "";
 
-                body: JSON.stringify({
-
-                    widget_key: this.widgetKey,
-
-                    domain: this.domain,
-
-                    session_id: this.sessionId,
-
-                    conversation_id: this.conversationId,
-
-                    name: name,
-
-                    email: email,
-
-                    phone: phone,
-
-                    notes: null,
-
-                }),
-            }
-        );
-
-        const data = await response.json();
-
-        if (!data.success) {
-            error.textContent =
-                data.message || "Unable to save your details.";
+        if (!name) {
+            error.textContent = "Please enter your name.";
             return;
         }
 
-        this.addLeadConfirmation(
-    name,
-    email,
-    phone
-);
-
-        const form =
-            document.querySelector(".chatbot-lead-form");
-
-        if (form) {
-            form.remove();
+        if (!email) {
+            error.textContent = "Please enter your email.";
+            return;
         }
 
-        this.addBotMessage(
-            "Thanks! Your details have been saved. 😊"
-        );
-        this.showEndChatQuestion();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            error.textContent = "Please enter a valid email.";
+            return;
+        }
 
-    } catch (e) {
+        if (!phone) {
+            error.textContent = "Please enter your phone number.";
+            return;
+        }
 
-        console.error(e);
+        try {
 
-        error.textContent =
-            "Unable to connect to server.";
+            const response = await fetch(
+                `${this.apiUrl}/save-lead`,
+                {
+                    method: "POST",
 
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+
+                    body: JSON.stringify({
+
+                        widget_key: this.widgetKey,
+
+                        domain: this.domain,
+
+                        session_id: this.sessionId,
+
+                        conversation_id: this.conversationId,
+
+                        name: name,
+
+                        email: email,
+
+                        phone: phone,
+
+                        notes: null,
+
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+                error.textContent =
+                    data.message || "Unable to save your details.";
+                return;
+            }
+
+            this.addLeadConfirmation(
+                name,
+                email,
+                phone
+            );
+
+            const form =
+                document.querySelector(".chatbot-lead-form");
+
+            if (form) {
+                form.remove();
+            }
+
+            this.addBotMessage(
+                "Thanks! Your details have been saved. 😊"
+            );
+            this.showEndChatQuestion();
+
+        } catch (e) {
+
+            console.error(e);
+
+            error.textContent =
+                "Unable to connect to server.";
+
+        }
     }
-}
 
-addLeadConfirmation(name, email, phone) {
+    addLeadConfirmation(name, email, phone) {
 
-    const div = document.createElement("div");
+        const div = document.createElement("div");
 
-    div.className = "lead-confirmation";
+        div.className = "lead-confirmation";
 
-    div.innerHTML = `
+        div.innerHTML = `
         <div class="lead-confirmation-header">
             <div class="lead-confirmation-icon">
                 <i class="bi bi-person-fill"></i>
@@ -859,26 +859,26 @@ addLeadConfirmation(name, email, phone) {
         </div>
     `;
 
-    this.messages.appendChild(div);
+        this.messages.appendChild(div);
 
-    this.scrollBottom();
-}
-escapeHtml(value) {
+        this.scrollBottom();
+    }
+    escapeHtml(value) {
 
-    const div = document.createElement("div");
+        const div = document.createElement("div");
 
-    div.textContent = value;
+        div.textContent = value;
 
-    return div.innerHTML;
-}
+        return div.innerHTML;
+    }
 
-showEndChatQuestion() {
+    showEndChatQuestion() {
 
-    const div = document.createElement("div");
+        const div = document.createElement("div");
 
-    div.className = "end-chat-question";
+        div.className = "end-chat-question";
 
-    div.innerHTML = `
+        div.innerHTML = `
         <div class="bot-message">
             Would you like to end this chat?
         </div>
@@ -904,131 +904,131 @@ showEndChatQuestion() {
         </div>
     `;
 
-    this.messages.appendChild(div);
+        this.messages.appendChild(div);
 
-    this.scrollBottom();
+        this.scrollBottom();
 
-    const buttons =
-        div.querySelectorAll(".end-chat-option");
+        const buttons =
+            div.querySelectorAll(".end-chat-option");
 
-    buttons.forEach(button => {
+        buttons.forEach(button => {
 
-        button.addEventListener("click", () => {
+            button.addEventListener("click", () => {
 
-            const action =
-                button.dataset.action;
+                const action =
+                    button.dataset.action;
 
-            const selectedText = button.textContent.trim();
+                const selectedText = button.textContent.trim();
 
-            // Don't remove the question.
-            // Just remove the option buttons.
-            const options =
-                div.querySelector(".end-chat-options");
+                // Don't remove the question.
+                // Just remove the option buttons.
+                const options =
+                    div.querySelector(".end-chat-options");
 
-            if (options) {
-                options.remove();
-            }
+                if (options) {
+                    options.remove();
+                }
 
-            // Show selected option as visitor message
-            this.addUserMessage(selectedText);
+                // Show selected option as visitor message
+                this.addUserMessage(selectedText);
 
-            if (action === "yes") {
-                this.confirmEndChat();
-            } else {
-                this.continueChat();
-            }
+                if (action === "yes") {
+                    this.confirmEndChat();
+                } else {
+                    this.continueChat();
+                }
+
+            });
 
         });
-
-    });
-}
-
-continueChat() {
-
-    this.addBotMessage(
-        "Sure! 😊 What else can I help you with?"
-    );
-
-    this.conversationEnded = false;
-
-    this.scrollBottom();
-}
-
-async confirmEndChat() {
-
-    if (!this.conversationId) {
-        return;
     }
 
-    try {
+    continueChat() {
 
-        const response = await fetch(
-            `${this.apiUrl}/end-chat`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-
-                body: JSON.stringify({
-
-                    widget_key: this.widgetKey,
-
-                    domain: this.domain,
-
-                    session_id: this.sessionId,
-
-                    conversation_id: this.conversationId,
-
-                }),
-            }
+        this.addBotMessage(
+            "Sure! 😊 What else can I help you with?"
         );
 
-        const data = await response.json();
+        this.conversationEnded = false;
 
-        if (!response.ok || !data.success) {
+        this.scrollBottom();
+    }
 
-            this.addBotMessage(
-                "Sorry, I couldn't end the conversation."
-            );
+    async confirmEndChat() {
 
+        if (!this.conversationId) {
             return;
         }
 
-        this.conversationEnded = true;
+        try {
 
-        this.addBotMessage(
-            "Your conversation has ended. Thank you for chatting with us! 😊"
-        );
+            const response = await fetch(
+                `${this.apiUrl}/end-chat`,
+                {
+                    method: "POST",
 
-        this.addConversationDivider();
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
 
-    } catch (error) {
+                    body: JSON.stringify({
 
-        console.error("End chat error:", error);
+                        widget_key: this.widgetKey,
 
-        this.addBotMessage(
-            "Unable to end the conversation."
-        );
+                        domain: this.domain,
+
+                        session_id: this.sessionId,
+
+                        conversation_id: this.conversationId,
+
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+
+                this.addBotMessage(
+                    "Sorry, I couldn't end the conversation."
+                );
+
+                return;
+            }
+
+            this.conversationEnded = true;
+
+            this.addBotMessage(
+                "Your conversation has ended. Thank you for chatting with us! 😊"
+            );
+
+            this.addConversationDivider();
+
+        } catch (error) {
+
+            console.error("End chat error:", error);
+
+            this.addBotMessage(
+                "Unable to end the conversation."
+            );
+        }
     }
-}
 
-addConversationDivider() {
+    addConversationDivider() {
 
-    const divider = document.createElement("div");
+        const divider = document.createElement("div");
 
-    divider.className = "conversation-divider";
+        divider.className = "conversation-divider";
 
-    divider.innerHTML = `
+        divider.innerHTML = `
         <span>Conversation ended</span>
     `;
 
-    this.messages.appendChild(divider);
+        this.messages.appendChild(divider);
 
-    this.scrollBottom();
-}
+        this.scrollBottom();
+    }
 
 }
 

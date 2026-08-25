@@ -4,6 +4,7 @@ namespace App\Filament\Resources\WebsiteSettings\Pages;
 
 use App\Filament\Resources\WebsiteSettings\WebsiteSettingResource;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
 class EditWebsiteSetting extends EditRecord
@@ -13,6 +14,21 @@ class EditWebsiteSetting extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $position = $data['position'] ?? [];
+
+        if (is_string($position)) {
+            $decoded = json_decode($position, true);
+
+            if (is_array($decoded)) {
+                $position = $decoded;
+            } else {
+                $position = [
+                    'horizontal' => $position ?: 'right',
+                    'horizontal_value' => 25,
+                    'vertical' => 'bottom',
+                    'vertical_value' => 25,
+                ];
+            }
+        }
 
         $data['position_horizontal'] =
             $position['horizontal'] ?? 'right';
@@ -54,4 +70,9 @@ class EditWebsiteSetting extends EditRecord
             DeleteAction::make(),
         ];
     }
+     protected function getSaveFormAction(): Action
+{
+    return parent::getSaveFormAction()
+        ->label('Save Changes');
+}
 }

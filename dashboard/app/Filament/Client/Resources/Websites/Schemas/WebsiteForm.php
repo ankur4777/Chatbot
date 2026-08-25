@@ -3,7 +3,6 @@
 namespace App\Filament\Client\Resources\Websites\Schemas;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class WebsiteForm
@@ -26,9 +25,6 @@ class WebsiteForm
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
 
-                Toggle::make('status')
-                    ->label('Active')
-                    ->default(true),
             ]);
     }
 }

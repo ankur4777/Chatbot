@@ -1,10 +1,9 @@
 <?php
 
 namespace App\Filament\Client\Resources\Websites\Tables;
-
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 
 class WebsitesTable
@@ -24,18 +23,21 @@ class WebsitesTable
                     ->copyable(),
 
                 IconColumn::make('status')
-                    ->label('Active')
-                    ->boolean(),
+    ->label('Active')
+    ->boolean(),
 
                 TextColumn::make('created_at')
-                    ->label('Created')
-                    ->since()
-                    ->sortable(),
+    ->label('Created At')
+    ->since()
+    ->tooltip(fn ($record) => BrowserTime::format($record->created_at)
+)
+    ->sortable(),
 
                 TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label('Updated At')
                     ->since()
                     ->sortable()
+                    ->tooltip(fn ($record) =>  BrowserTime::format($record->updated_at))
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

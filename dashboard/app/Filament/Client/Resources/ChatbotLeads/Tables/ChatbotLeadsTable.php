@@ -2,8 +2,8 @@
 
 namespace App\Filament\Client\Resources\ChatbotLeads\Tables;
 
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
+use App\Filament\Client\Resources\ChatbotLeads\ChatbotLeadResource;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -13,46 +13,62 @@ class ChatbotLeadsTable
     {
         return $table
             ->columns([
-                TextColumn::make('website.name')
+
+                TextColumn::make('name')
                     ->label('Website')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('visitor.name')
-                    ->label('Visitor')
-                    ->searchable()
-                    ->sortable()
-                    ->placeholder('Unknown'),
-
-                TextColumn::make('conversation.id')
-                    ->label('Conversation')
+                TextColumn::make('chatbot_leads_count')
+                    ->label('Total Leads')
                     ->sortable(),
 
-                TextColumn::make('name')
-                    ->label('Full Name')
-                    ->searchable()
+                TextColumn::make('today_leads_count')
+                    ->label('Today')
                     ->sortable(),
 
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable()
-                    ->copyable(),
-
-                TextColumn::make('phone')
-                    ->label('Phone')
-                    ->copyable(),
-
-                TextColumn::make('created_at')
-                    ->label('Created')
+                TextColumn::make('chatbot_leads_max_created_at')
+                    ->label('Last Lead')
                     ->since()
+                    ->tooltip(
+                        fn ($record) =>
+                            $record->chatbot_leads_max_created_at
+                                ? \Carbon\Carbon::parse(
+                                    $record->chatbot_leads_max_created_at
+                                )->format('d M Y, h:i A')
+                                : 'No leads'
+                    )
+                    ->placeholder('No leads')
                     ->sortable(),
+
             ])
-            ->filters([
-                //
-            ])
+
+            ->recordUrl(
+                fn ($record) =>
+                    ChatbotLeadResource::getUrl(
+                        'website-leads',
+                        [
+                            'website' => $record->id,
+                        ]
+                    )
+            )
+
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+
+                Action::make('viewLeads')
+                    ->label('View')
+                    ->icon('heroicon-m-eye')
+                    ->color('gray')
+                    ->url(
+                        fn ($record) =>
+                            ChatbotLeadResource::getUrl(
+                                'website-leads',
+                                [
+                                    'website' => $record->id,
+                                ]
+                            )
+                    ),
+
             ]);
     }
 }

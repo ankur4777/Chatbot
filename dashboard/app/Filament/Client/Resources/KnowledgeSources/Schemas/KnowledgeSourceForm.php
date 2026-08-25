@@ -6,8 +6,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class KnowledgeSourceForm
@@ -35,11 +33,6 @@ class KnowledgeSourceForm
                     )
                     ->searchable()
                     ->preload()
-                    ->live()
-                    ->afterStateUpdated(function (Set $set) {
-                        // Website change hone par category reset
-                        $set('knowledge_category_id', null);
-                    })
                     ->required(),
 
                 Select::make('knowledge_category_id')
@@ -47,7 +40,7 @@ class KnowledgeSourceForm
                     ->relationship(
                         name: 'knowledgeCategory',
                         titleAttribute: 'name',
-                        modifyQueryUsing: function ($query, Get $get) {
+                        modifyQueryUsing: function ($query, $get) {
 
                             $websiteId = $get('website_id');
 
@@ -65,56 +58,19 @@ class KnowledgeSourceForm
                     ->preload()
                     ->required(),
 
-                Select::make('type')
-                    ->label('Source Type')
-                    ->options([
-                        'website'  => 'Website',
-                        'pdf'      => 'PDF',
-                        'json'     => 'JSON',
-                        'docx'     => 'DOCX',
-                        'txt'      => 'TXT',
-                        'faq'      => 'FAQ',
-                        'manual'   => 'Manual',
-                        'database' => 'Database',
-                    ])
-                    ->live()
-                    ->afterStateUpdated(function (Set $set) {
-                        // Type change hone par old URL/file remove
-                        $set('source', null);
-                    })
-                    ->required(),
-
                 TextInput::make('title')
                     ->required()
                     ->maxLength(255),
-
-                TextInput::make('source')
-                    ->label('Website URL')
-                    ->url()
-                    ->visible(
-                        fn (Get $get): bool =>
-                            $get('type') === 'website'
-                    )
-                    ->required(
-                        fn (Get $get): bool =>
-                            $get('type') === 'website'
-                    ),
 
                 FileUpload::make('source')
                     ->label('Upload PDF')
                     ->disk('public')
                     ->directory('knowledge')
+                    ->preserveFilenames()
                     ->acceptedFileTypes([
                         'application/pdf',
                     ])
-                    ->visible(
-                        fn (Get $get): bool =>
-                            $get('type') === 'pdf'
-                    )
-                    ->required(
-                        fn (Get $get): bool =>
-                            $get('type') === 'pdf'
-                    ),
+                    ->required(),
 
                 Textarea::make('error')
                     ->label('Error Message')
@@ -125,6 +81,7 @@ class KnowledgeSourceForm
                             $record?->status === 'failed'
                     )
                     ->columnSpanFull(),
+
             ]);
     }
 }

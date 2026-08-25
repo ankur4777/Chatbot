@@ -27,6 +27,20 @@ public function __construct(
 }
 public function sendMessage(SendMessageRequest $request)
 {
+    $website = $this->widgetService->verifyWebsite($request);
+
+    if (! $website) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Website not found.',
+        ], 404);
+    }
+
+   $this->widgetService->recordVisitorActivity(
+    $request,
+    $website
+);
+
     return $this->chatService->sendMessage($request);
 }
 
@@ -53,9 +67,15 @@ public function endChat(Request $request)
         ->where('status', 'active')
         ->first();
 
+
     if ($conversation) {
-        $this->chatService->endConversation($conversation);
-    }
+    $this->chatService->endConversation($conversation);
+
+   $this->widgetService->recordVisitorActivity(
+    $request,
+    $website
+);
+}
 
     return response()->json([
         'success' => true,
@@ -84,6 +104,11 @@ public function saveFlowAnswer(Request $request)
             'message' => 'Website not found.',
         ], 404);
     }
+
+    $this->widgetService->recordVisitorActivity(
+    $request,
+    $website
+);
 
     $result = $this->chatService->saveFlowAnswer(
         $request,
@@ -122,12 +147,22 @@ public function saveLead(Request $request)
         $website
     );
 
+    $this->widgetService->recordVisitorActivity(
+        $request,
+        $website
+    );
+
     if (! $lead) {
         return response()->json([
             'success' => false,
             'message' => 'Active conversation not found.',
         ], 404);
     }
+
+    $this->widgetService->recordVisitorActivity(
+    $request,
+    $website
+);
 
     return response()->json([
         'success' => true,

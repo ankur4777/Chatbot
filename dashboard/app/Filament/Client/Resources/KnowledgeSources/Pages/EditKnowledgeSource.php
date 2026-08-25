@@ -5,12 +5,23 @@ namespace App\Filament\Client\Resources\KnowledgeSources\Pages;
 use App\Filament\Client\Resources\KnowledgeSources\KnowledgeSourceResource;
 use App\Models\KnowledgeCategory;
 use App\Models\Website;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditKnowledgeSource extends EditRecord
 {
     protected static string $resource = KnowledgeSourceResource::class;
+
+    protected function getFormActions(): array
+{
+    return [
+        $this->getSaveFormAction()
+            ->label('Save Changes'),
+
+        $this->getCancelFormAction(),
+    ];
+}
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
@@ -42,6 +53,8 @@ class EditKnowledgeSource extends EditRecord
     {
         return [
             ViewAction::make(),
+            DeleteAction::make()
+            ->requiresConfirmation(),
         ];
     }
 }

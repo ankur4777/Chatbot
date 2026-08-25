@@ -10,12 +10,15 @@ class Visitor extends Model
 {
     protected $fillable = [
         'website_id',
-        'name',
-        'email',
-        'phone',
-        'session_id',
+        'visitor_uuid',
         'ip_address',
-        'user_agent',
+        'first_seen_at',
+        'last_activity_at',
+    ];
+
+    protected $casts = [
+        'first_seen_at' => 'datetime',
+        'last_activity_at' => 'datetime',
     ];
 
     public function website(): BelongsTo
@@ -27,4 +30,15 @@ class Visitor extends Model
     {
         return $this->hasMany(ChatConversation::class);
     }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(VisitorSession::class);
+    }
+
+    public function getTotalVisitsAttribute()
+    {
+        return $this->sessions()->count();
+    }
+
 }

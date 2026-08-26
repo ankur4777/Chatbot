@@ -84,7 +84,25 @@ class AIService
         $data
     );
 
-            return $response->json();
+            $result = $response->json();
+
+if (! is_array($result)) {
+    \Log::error('Invalid Python API response', [
+        'status' => $response->status(),
+        'body' => $response->body(),
+        'headers' => $response->headers(),
+    ]);
+
+    return [
+        'success' => false,
+        'message' => 'Invalid response from Python API. Status: '
+            . $response->status()
+            . ' Body: '
+            . substr($response->body(), 0, 500),
+    ];
+}
+
+return $result;
 
         } catch (\Throwable $e) {
 

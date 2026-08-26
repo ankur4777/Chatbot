@@ -37,14 +37,21 @@ class ImportRequest(BaseModel):
 @router.post("/knowledge/import")
 def import_knowledge(request: ImportRequest):
 
-   if request.type == "pdf":
-    return knowledge_importer.import_pdf(
-        file_path=request.source,
-        website_id=request.website_id
-    )
+    if request.type == "pdf":
+        return knowledge_importer.import_pdf(
+            file_path=request.source,
+            website_id=request.website_id
+        )
+
+    if request.type == "website":
+        return knowledge_importer.import_website(
+            url=request.source,
+            website_id=request.website_id
+        )
+
     return {
         "success": False,
-        "message": f"Unsupported source type: {request.type}"
+        "message": f"Unsupported source type: {request.type}",
     }
 @router.post("/knowledge/sync")
 def sync(request: SyncRequest):

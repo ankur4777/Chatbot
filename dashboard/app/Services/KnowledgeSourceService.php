@@ -15,14 +15,21 @@ class KnowledgeSourceService
 
     public function import(KnowledgeSource $knowledgeSource): array
     {
+        $type = $this->effectiveType($knowledgeSource);
+
         $knowledgeSource->update([
             'status' => 'processing',
+            'type' => $type,
         ]);
+
+        $source = $type === 'website'
+            ? $knowledgeSource->source
+            : storage_path('app/public/' . $knowledgeSource->source);
 
         $response = $this->aiService->importKnowledge([
             'website_id' => $knowledgeSource->website_id,
-            'type'   => $knowledgeSource->type,
-            'source' => storage_path('app/public/' . $knowledgeSource->source),
+            'type'   => $type,
+            'source' => $source,
         ]);
 
         if ($response['success'] ?? false) {
@@ -37,8 +44,13 @@ class KnowledgeSourceService
                     'knowledge_category_id' => $knowledgeSource->knowledge_category_id,
                     'title'                 => $knowledgeSource->title,
                     'content'               => $response['content'] ?? '',
-                    'source_type'           => 'pdf',
-                    'source_file'           => $knowledgeSource->source,
+                    'source_type'           => $this->sourceType($type),
+                    'source_file'           => $type === 'website'
+                        ? null
+                        : $knowledgeSource->source,
+                    'source_url'            => $type === 'website'
+                        ? $knowledgeSource->source
+                        : null,
                 ]
             );
 
@@ -84,5 +96,37 @@ $knowledgeSource->update([
         }
 
         return $response;
+    }
+
+    protected function effectiveType(KnowledgeSource $knowledgeSource): string
+    {
+        $source = (string) $knowledgeSource->source;
+
+        if ($this->isUrl($source)) {
+            return 'website';
+        }
+
+        $extension = strtolower(pathinfo($source, PATHINFO_EXTENSION));
+
+        return match ($extension) {
+            'pdf' => 'pdf',
+            'json' => 'json',
+            'docx' => 'docx',
+            'txt' => 'txt',
+            default => $knowledgeSource->type,
+        };
+    }
+
+    protected function isUrl(string $source): bool
+    {
+        return in_array(parse_url($source, PHP_URL_SCHEME), ['http', 'https'], true);
+    }
+
+    protected function sourceType(string $type): string
+    {
+        return match ($type) {
+            'website' => 'url',
+            default => $type,
+        };
     }
 }

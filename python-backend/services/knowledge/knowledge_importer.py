@@ -21,38 +21,69 @@ class KnowledgeImporter:
        self.vector_service.save_website(website_id)
 
     def import_website(self, url: str, website_id: int):
-        self.vector_service.reset()
+        try:
+            self.vector_service.load_website(website_id)
 
-        pages = self.crawler.crawl(url)
+            pages = self.crawler.crawl(url)
 
-        total_chunks = 0
+            all_chunks = []
+            content_parts = []
 
-        for page in pages:
+            for page in pages:
+                if page["text"]:
+                    content_parts.append(page["text"])
 
-            chunks = self.chunk_service.chunk(
-                text=page["text"],
-                source=page["url"]
-            )
-
-            for chunk in chunks:
-
-                embedding = self.embedding_service.embed(
-                    chunk["text"]
+                chunks = self.chunk_service.chunk(
+                    text=page["text"],
+                    source=page["url"]
                 )
 
-                self.vector_service.add(
-                    embedding,
-                    chunk
+                for chunk in chunks:
+
+                    embedding = self.embedding_service.embed(
+                        chunk["text"]
+                    )
+
+                    if embedding is None:
+                        raise RuntimeError(
+                            "Failed to create embedding for website content."
+                        )
+
+                    self.vector_service.add(
+                        embedding,
+                        chunk
+                    )
+
+                    all_chunks.append(chunk)
+
+            if not all_chunks:
+                raise ValueError(
+                    "No readable content found on this website."
                 )
 
-                total_chunks += 1
-        self._save_knowledge(website_id)
+            self._save_knowledge(website_id)
 
-        return {
-            "success": True,
-            "pages": len(pages),
-            "chunks": total_chunks,
-        }
+            return {
+                "success": True,
+                "pages": len(pages),
+                "chunks": len(all_chunks),
+                "content": "\n\n".join(content_parts),
+                "chunk_data": all_chunks,
+            }
+
+        except ValueError as e:
+
+            return {
+                "success": False,
+                "message": str(e),
+            }
+
+        except Exception as e:
+
+            return {
+                "success": False,
+                "message": f"Knowledge processing failed: {str(e)}",
+            }
 
     def import_json(self, file_path: str):
         pass

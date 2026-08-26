@@ -3,6 +3,7 @@
 namespace App\Filament\Client\Resources\KnowledgeSources\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -14,6 +15,10 @@ class KnowledgeSourceForm
     {
         return $schema
             ->components([
+
+                Hidden::make('type')
+                    ->default('pdf')
+                    ->dehydrated(),
 
                 Select::make('website_id')
                     ->label('Website')

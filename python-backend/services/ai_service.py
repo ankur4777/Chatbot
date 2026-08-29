@@ -1,14 +1,17 @@
 import os
-from pyexpat import model
-from numpy import rint
 import ollama
 
 from services.context_builder import ContextBuilder
+from services.conversational_intent_service import ConversationalIntentService
+from services.contextual_query_service import ContextualQueryService
 from services.prompt_service import PromptService
 from services.knowledge.retrieval_service import RetrievalService
 
 
 class AIService:
+    KNOWLEDGE_FALLBACK = (
+        "I couldn't find this information in the uploaded knowledge base."
+    )
 
     def __init__(self):
 
@@ -17,6 +20,10 @@ class AIService:
         self.context_builder = ContextBuilder()
 
         self.retrieval_service = RetrievalService()
+
+        self.conversational_intent_service = ConversationalIntentService()
+
+        self.contextual_query_service = ContextualQueryService()
 
     def generate_summary(
         self,
@@ -97,6 +104,10 @@ Create the updated running summary.
         response = ollama.chat(
             model=model,
             messages=summary_prompt,
+            options={
+                "temperature": 0,
+                "num_predict": 80,
+            },
     )
 
         return response.message.content.strip()
@@ -115,52 +126,71 @@ Create the updated running summary.
         print("WEBSITE ID:", website_id)
         print("SUMMARY:", summary)
 
+        conversational_response = (
+            self.conversational_intent_service.get_response(message)
+        )
+
+        if conversational_response:
+            return {
+                "response": conversational_response,
+                "is_conversational": True,
+                "skip_summary": True,
+                "knowledge_found": None,
+            }
+
+        search_query = self.contextual_query_service.build_search_query(
+            message=message,
+            history=history,
+            summary=summary,
+        )
+
+        print("SEARCH QUERY:", search_query)
+
         results = self.retrieval_service.retrieve(
             website_id=website_id,
-            question=message,
+            question=search_query,
         )
 
         print("RESULTS:", results)
         print("TOTAL RESULTS:", len(results))
 
+        if not results:
+            return {
+                "response": self.KNOWLEDGE_FALLBACK,
+                "knowledge_found": False,
+            }
+
         # --------------------------------
         # KNOWLEDGE BASE RESPONSE
         # --------------------------------
 
-        if results:
+        context = self.context_builder.build(
+            results
+        )
 
-            context = self.context_builder.build(
-                results
-            )
-
-            messages = self.prompt_service.build_prompt(
-                message,
-                context,
-                history,
-                summary
-            )
-
-        # --------------------------------
-        # CONVERSATION HISTORY RESPONSE
-        # --------------------------------
-
-        else:
-
-            messages = self.prompt_service.build_conversation_prompt(
-                message,
-                history,
-                summary
-            )
+        messages = self.prompt_service.build_prompt(
+            search_query,
+            context,
+            history,
+            summary
+        )
 
         response = ollama.chat(
             model=model,
             messages=messages,
+            options={
+                "temperature": 0,
+                "top_p": 0.7,
+                "num_predict": 160,
+                "num_ctx": 2048,
+            },
         )
 
         print("RAW RESPONSE:", response)
         print("CONTENT:", response.message.content)
 
         return {
-            "response": response.message.content
+            "response": response.message.content.strip(),
+            "knowledge_found": True,
         }
         

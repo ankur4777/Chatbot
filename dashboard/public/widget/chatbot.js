@@ -90,11 +90,14 @@ class Chatbot {
 
         this.createWidget();
 
- this.apiUrl = "https://chatbot.shabddtravels.in/api/widget";
-        this.domain = window.location.hostname;
+        this.apiUrl = window.ChatbotConfig?.apiUrl || "/api/widget";
+        this.domain = window.ChatbotConfig?.domain || window.location.hostname;
 
         this.widgetKey =
             window.ChatbotConfig?.widgetKey || null;
+
+        this.showToggleOnError =
+            window.ChatbotConfig?.showToggleOnError || false;
 
         this.visitorId =
             this.getVisitorId();
@@ -477,7 +480,7 @@ class Chatbot {
             if (!data.success) {
 
                 this.toggle.style.display =
-                    "none";
+                    this.showToggleOnError ? "flex" : "none";
 
                 this.box.style.display =
                     "none";
@@ -556,7 +559,7 @@ class Chatbot {
             console.error(error);
 
             this.toggle.style.display =
-                "none";
+                this.showToggleOnError ? "flex" : "none";
 
             this.box.style.display =
                 "none";

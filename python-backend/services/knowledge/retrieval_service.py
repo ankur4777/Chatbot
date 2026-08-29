@@ -16,16 +16,16 @@ class RetrievalService:
         self.reranker_service = RerankerService()
 
         self.top_k = int(
-            os.getenv("RAG_TOP_K", "5")
+            os.getenv("RAG_TOP_K", "4")
         )
 
         self.rerank_top_k = int(
-            os.getenv("RERANK_TOP_K", "3")
+            os.getenv("RERANK_TOP_K", "2")
         )
 
         self.reranker_threshold = float(
-    os.getenv("RERANKER_THRESHOLD", "0.40")
-)
+            os.getenv("RERANKER_THRESHOLD", "0.55")
+        )
 
     def retrieve(
         self,

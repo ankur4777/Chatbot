@@ -14,11 +14,16 @@
         return;
     }
 
-    window.ChatbotConfig = {
-        widgetKey: widgetKey
-    };
-
     const baseUrl = currentScript.src.replace("/loader.js", "");
+    const apiUrl = currentScript.dataset.apiUrl ||
+        new URL("/api/widget", currentScript.src).toString();
+
+    window.ChatbotConfig = {
+        widgetKey: widgetKey,
+        apiUrl: apiUrl,
+        domain: currentScript.dataset.widgetDomain || null,
+        showToggleOnError: currentScript.dataset.showToggleOnError === "true"
+    };
 
     // Google Font
     const font = document.createElement("link");

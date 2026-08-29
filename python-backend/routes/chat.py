@@ -41,7 +41,7 @@ def chat(request: ChatRequest):
         summary=request.summary,
     )
 
-    if request.summary_messages:
+    if request.summary_messages and not response.get("skip_summary"):
 
         print("SUMMARY GENERATION STARTED")
         print("SUMMARY MESSAGES COUNT:", len(request.summary_messages))

@@ -91,9 +91,11 @@ class Chatbot {
     constructor() {
         this.createWidget();
 
-        this.apiUrl = "http://127.0.0.1:8000/api/widget";
-        this.domain = window.location.hostname;
+        this.apiUrl = window.ChatbotConfig?.apiUrl || "/api/widget";
+        this.domain = window.ChatbotConfig?.domain || window.location.hostname;
         this.widgetKey = window.ChatbotConfig?.widgetKey || null;
+        this.showToggleOnError =
+            window.ChatbotConfig?.showToggleOnError || false;
 
         this.sessionId = this.getSessionId();
 
@@ -286,6 +288,8 @@ class Chatbot {
             if (!data.success) {
 
                 this.addBotMessage("Unable to initialize chatbot.");
+                this.toggle.style.display =
+                    this.showToggleOnError ? "flex" : "none";
                 return;
 
             }
@@ -320,6 +324,9 @@ class Chatbot {
         } catch (error) {
 
             console.error(error);
+
+            this.toggle.style.display =
+                this.showToggleOnError ? "flex" : "none";
 
             this.addBotMessage("Unable to connect to server.");
 

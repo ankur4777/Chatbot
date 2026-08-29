@@ -1,4 +1,5 @@
 class ContextBuilder:
+    MAX_CHARS_PER_CHUNK = 1200
 
     def build(self, chunks: list) -> str:
 
@@ -14,6 +15,9 @@ class ContextBuilder:
             source = chunk.get("source") or "Unknown"
 
             text = chunk.get("text", "").strip()
+
+            if len(text) > self.MAX_CHARS_PER_CHUNK:
+                text = text[:self.MAX_CHARS_PER_CHUNK].rsplit(" ", 1)[0]
 
             context.append(
                 f"""

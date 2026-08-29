@@ -1,7 +1,8 @@
-from pyexpat.errors import messages
-
-
 class PromptService:
+
+    KNOWLEDGE_FALLBACK = (
+        "I couldn't find this information in the uploaded knowledge base."
+    )
 
     def build_prompt(
         self,
@@ -12,61 +13,26 @@ class PromptService:
     ):
 
         system_prompt = f"""
-You are an AI assistant for a website.
+You are a strict knowledge-base assistant for a website.
 
-Previous Conversation Summary:
-{summary or "No previous conversation summary."}
-
-The Knowledge Base below is your ONLY source of factual information.
+The Knowledge Base below is your ONLY allowed source for answers.
 
 ==================== KNOWLEDGE BASE ====================
-
 {context}
-
-==========================================================
+========================================================
 
 STRICT RULES:
-
-1. Use ONLY the Knowledge Base for factual information about the website,
-   its products, services, destinations, packages, prices, policies,
-   features, or any other business information.
-
-2. Do NOT use your general knowledge.
-
-3. Do NOT use internet knowledge or outside information.
-
-4. Do NOT invent, assume, or guess any information.
-
-5. You MAY use the conversation summary to understand facts explicitly
-   provided by the user, such as their destination, budget, travel dates,
-   number of travelers, or preferences.
-
-6. The conversation summary is NOT a source for website facts.
-
-7. Previous assistant messages are NOT a source of factual information.
-
-8. If the user's question requires factual information that is not
-   available in the Knowledge Base, reply exactly:
-
-I couldn't find this information in the uploaded knowledge base.
-
-9. You MAY summarize, compare, categorize, or reason from information
-   contained in the Knowledge Base.
-
-10. Do not add information that is not supported by the Knowledge Base.
-
-11. Answer only what the user asked.
-
-12. Keep the answer short, clear, natural, and direct.
-
-13. Prefer 2-4 short sentences unless the user explicitly asks for details.
-
-14. Do not use Markdown formatting.
-
-15. Do not use asterisks (*), bullet points, numbered lists,
-    headings, or special formatting.
-
-16. Return plain text only.
+1. Answer ONLY from the Knowledge Base text above.
+2. Do NOT use general knowledge, internet knowledge, assumptions, guesses, conversation history, summary, or previous assistant messages.
+3. If the answer is not explicitly supported by the Knowledge Base text above, do not answer from memory.
+4. If the Knowledge Base does not clearly contain the answer, reply exactly:
+{self.KNOWLEDGE_FALLBACK}
+5. Do not mention that you are using context, chunks, sources, or a knowledge base unless the user asks.
+6. Keep the answer natural, direct, and concise.
+7. Prefer 1-3 short sentences.
+8. Return plain text only. No Markdown, bullets, headings, numbering, or special formatting.
+9. Keep named subjects separate. If the question is about one destination, product, package, plan, or service, never answer with facts belonging to another one.
+10. Answer only the exact detail requested. For example, an inclusions question should return only that subject's inclusions, not its price, exclusions, or highlights.
 """
 
         messages = [
@@ -76,152 +42,9 @@ I couldn't find this information in the uploaded knowledge base.
             }
         ]
 
-        if history:
-            for chat in history:
-                if chat.role == "user":
-                    messages.append({
-                "role": "user",
-                "content": chat.content,
-            })
-
         messages.append({
             "role": "user",
             "content": message,
         })
-
-        return messages
-
-    def build_conversation_prompt(
-        self,
-        message: str,
-        history: list = None,
-        summary: str = None
-    ):
-
-        user_history = []
-
-        if history:
-            for chat in history:
-                if chat.role == "user":
-                    user_history.append(chat.content)
-
-        system_prompt = f"""
-You are an AI assistant having a conversation with the user.
-
-Previous Conversation Summary:
-{summary or "No previous conversation summary."}
-
-Recent information explicitly provided by the user:
-{chr(10).join(user_history)}
-
-STRICT RULES:
-
-1. You may use ONLY information explicitly provided by the user.
-
-2. The conversation summary may be used to remember information
-   explicitly provided by the user.
-
-3. Previous assistant responses are NOT factual sources.
-
-4. Do NOT use general knowledge.
-
-5. Do NOT use internet knowledge or outside information.
-
-6. Do NOT invent, assume, or guess information.
-
-7. If the user's information does not contain the answer, reply exactly:
-
-I couldn't find this information in the uploaded knowledge base.
-
-8. Keep the answer very short, clear, natural, and direct.
-
-9. Prefer 1-2 short sentences.
-
-10. Do not use Markdown formatting.
-
-11. Do not use asterisks (*), bullet points, numbered lists,
-    headings, or special formatting.
-
-12. Return plain text only.
-
-13. Answer only what the user asked.
-"""
-
-        messages = [
-        {
-            "role": "system",
-            "content": system_prompt,
-        }
-    ]
-
-        messages.append({
-        "role": "user",
-        "content": message,
-    })
-
-        return messages
-
-    def build_conversation_prompt(
-        self,
-        message: str,
-        history: list = None,
-        summary: str = None
-   ):
-
-        system_prompt = f"""
-        
-You are an AI assistant having a conversation with the user.
-
-Previous Conversation Summary:
-{summary or "No previous conversation summary."}
-
-You may use ONLY the information explicitly provided by the user
-in the conversation history.
-
-Rules:
-
-1. Use the conversation history to understand the user's current question.
-
-2. You MAY use facts explicitly provided by the user earlier in the conversation.
-
-3. Do NOT use general knowledge or outside information.
-
-4. Do NOT invent or assume missing information.
-
-5. If the conversation history does not contain enough information
-   to answer the question, reply exactly:
-
-"I couldn't find this information in the uploaded knowledge base."
-
-6. Keep the answer very short, clear, natural and direct.
-
-7. Prefer 1-2 short sentences.
-
-8. Do not use Markdown formatting.
-
-9. Do not use asterisks (*), bullet points, numbered lists,
-   headings, or special formatting.
-
-10. Answer only what the user asked.
-"""
-
-        messages = [
-        {
-            "role": "system",
-            "content": system_prompt,
-        }
-    ]
-
-        if history:
-            for chat in history:
-                messages.append({
-                "role": chat.role,
-                "content": chat.content,
-            })
-
-        messages.append({
-            "role": "user",
-            "content": message,
-    })
 
         return messages

@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
+use App\Models\User;
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -44,11 +45,33 @@ class UserForm
         'owner' => 'Owner',
         'agent' => 'Agent',
     ])
+    ->disableOptionWhen(
+        fn (string $value, ?User $record = null): bool => $value === 'super_admin'
+            && self::anotherSuperAdminExists($record),
+    )
+    ->rules([
+        fn (?User $record = null): Closure => function (string $attribute, $value, Closure $fail) use ($record): void {
+            if ($value === 'super_admin' && self::anotherSuperAdminExists($record)) {
+                $fail('Only one Super Admin user is allowed.');
+            }
+        },
+    ])
     ->default('owner')
     ->required(),
                 Toggle::make('status')
     ->label('Active')
     ->default(true),
             ]);
+    }
+
+    private static function anotherSuperAdminExists(?User $record = null): bool
+    {
+        return User::query()
+            ->where('role', 'super_admin')
+            ->when(
+                $record?->exists,
+                fn ($query) => $query->whereKeyNot($record->getKey()),
+            )
+            ->exists();
     }
 }

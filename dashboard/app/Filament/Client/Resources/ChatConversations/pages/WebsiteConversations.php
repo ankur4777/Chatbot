@@ -24,6 +24,8 @@ class WebsiteConversations extends ListRecords
 
         $this->getWebsite();
 
+        $this->endInactiveConversations();
+
         parent::mount();
     }
 
@@ -49,6 +51,24 @@ class WebsiteConversations extends ListRecords
             ->where('website_id', $this->websiteId)
             ->with('visitor')
             ->withCount('messages');
+    }
+
+    private function endInactiveConversations(): void
+    {
+        $cutoff = now()->subMinutes(5);
+
+        ChatConversation::query()
+            ->where('website_id', $this->websiteId)
+            ->where('status', 'active')
+            ->where('created_at', '<=', $cutoff)
+            ->whereDoesntHave(
+                'messages',
+                fn ($query) => $query->where('created_at', '>', $cutoff),
+            )
+            ->update([
+                'status' => 'ended',
+                'ended_at' => now(),
+            ]);
     }
 
     public function table(Table $table): Table

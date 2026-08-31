@@ -59,12 +59,30 @@ public function verifyWebsite(Request $request){
     if (! $website->status) {
         return null;
     }
-    // Verify domain only if it is sent
-    if ($request->filled('domain') && $website->domain !== $request->domain) {
+    // Verify domain only if it is sent. Ignore scheme/port for local testing.
+    if (
+        $request->filled('domain') &&
+        $this->normalizeDomain($website->domain) !== $this->normalizeDomain($request->domain)
+    ) {
         return null;
     }
 
     return $website;
+}
+
+private function normalizeDomain(?string $domain): ?string
+{
+    if (! $domain) {
+        return null;
+    }
+
+    $host = parse_url($domain, PHP_URL_HOST);
+
+    if (! $host) {
+        $host = parse_url('http://' . $domain, PHP_URL_HOST);
+    }
+
+    return strtolower($host ?: $domain);
 }
 
 public function findOrCreateVisitor(Request $request, Website $website)

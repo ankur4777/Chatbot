@@ -245,6 +245,12 @@ class Chatbot {
                 }
             )
         );
+
+        this.conversationEnded = true;
+
+        localStorage.removeItem(
+            "chatbot_conversation"
+        );
     }
 
     getVisitorId() {
@@ -308,9 +314,70 @@ class Chatbot {
 
     closeWidget() {
 
+        this.endCurrentConversation();
+
         this.box.style.display = "none";
 
         this.toggle.style.display = "flex";
+    }
+
+    async endCurrentConversation() {
+
+        if (
+            !this.conversationId ||
+            this.conversationEnded
+        ) {
+            return;
+        }
+
+        try {
+
+            await fetch(
+                `${this.apiUrl}/end-chat`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json",
+                    },
+
+                    body: JSON.stringify({
+
+                        widget_key:
+                            this.widgetKey,
+
+                        domain:
+                            this.domain,
+
+                        visitor_uuid:
+                            this.visitorId,
+
+                        session_id:
+                            this.sessionId,
+
+                        conversation_id:
+                            this.conversationId,
+                    }),
+                }
+            );
+
+            this.conversationEnded = true;
+
+            localStorage.removeItem(
+                "chatbot_conversation"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "End chat error:",
+                error
+            );
+        }
     }
 
     async newChat() {

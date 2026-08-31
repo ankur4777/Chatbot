@@ -150,6 +150,7 @@
     overflow-wrap: break-word;
     word-break: normal;
     line-height: 1.2;
+    color: #fff
 }
 
 #chatbot-status {

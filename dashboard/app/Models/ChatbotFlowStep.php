@@ -22,6 +22,13 @@ class ChatbotFlowStep extends Model
         'is_required' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (ChatbotFlowStep $step) {
+            $step->input_type = 'buttons';
+        });
+    }
+
     public function flow(): BelongsTo
     {
         return $this->belongsTo(ChatbotFlow::class, 'chatbot_flow_id');

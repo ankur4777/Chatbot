@@ -7,7 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -44,26 +44,38 @@ class StepsRelationManager extends RelationManager
                     ->rows(3)
                     ->columnSpanFull(),
 
-                Select::make('input_type')
-                    ->label('Input Type')
-                    ->options([
-                        'text' => 'Text',
-                        'textarea' => 'Textarea',
-                        'number' => 'Number',
-                        'date' => 'Date',
-                        'select' => 'Select',
-                        'buttons' => 'Buttons',
-                    ])
-                    ->searchable()
-                    ->required(),
-
-                TextInput::make('placeholder')
-                    ->label('Placeholder')
-                    ->maxLength(255),
-
                 Toggle::make('is_required')
                     ->label('Required')
                     ->default(true),
+
+                Repeater::make('options')
+                    ->label('Button Options')
+                    ->relationship('options')
+                    ->schema([
+                        TextInput::make('label')
+                            ->label('Button Label')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('value')
+                            ->label('Value')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('sort_order')
+                            ->label('Sort Order')
+                            ->numeric()
+                            ->required()
+                            ->default(1),
+                    ])
+                    ->columns(3)
+                    ->orderColumn('sort_order')
+                    ->required()
+                    ->minItems(1)
+                    ->defaultItems(1)
+                    ->addActionLabel('Add Option')
+                    ->collapsible()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -84,10 +96,6 @@ class StepsRelationManager extends RelationManager
                     ->label('Question')
                     ->limit(50)
                     ->searchable(),
-
-                TextColumn::make('input_type')
-                    ->label('Input Type')
-                    ->badge(),
 
                 IconColumn::make('is_required')
                     ->label('Required')

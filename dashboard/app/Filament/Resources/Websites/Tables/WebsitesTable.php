@@ -31,6 +31,11 @@ class WebsitesTable
         ->searchable()
         ->copyable(),
 
+    TextColumn::make('widget_key')
+        ->label('Widget Key')
+        ->searchable()
+        ->copyable(),
+
     IconColumn::make('status')
         ->label('Active')
         ->boolean(),

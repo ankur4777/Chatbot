@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\URL;
 
 class UsersTable
 {
@@ -46,11 +49,32 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('viewClientDashboard')
+                    ->label('View Client Dashboard')
+                    ->icon('heroicon-o-arrow-right-on-rectangle')
+                    ->color('warning')
+                    ->visible(
+                        fn (User $record): bool =>
+                            $record->role === 'owner' &&
+                            $record->status &&
+                            (bool) $record->company?->status
+                    )
+                    ->url(
+                        fn (User $record): string => URL::temporarySignedRoute(
+                            'admin.users.view-client-dashboard',
+                            now()->addMinutes(5),
+                            ['user' => $record],
+                            false
+                        )
+                    ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->checkIfRecordIsSelectableUsing(
+                fn (User $record): bool => $record->role !== 'super_admin',
+            );
     }
 }

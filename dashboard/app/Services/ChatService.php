@@ -201,6 +201,8 @@ public function sendMessage(Request $request)
     ->first();
 
 if (!$conversation) {
+            $this->endActiveVisitorConversations($website, $visitor);
+
             $conversation = ChatConversation::create([
                 'website_id' => $website->id,
                 'visitor_id' => $visitor->id,
@@ -210,6 +212,8 @@ if (!$conversation) {
         }
 
     } else {
+
+        $this->endActiveVisitorConversations($website, $visitor);
 
         $conversation = ChatConversation::create([
             'website_id' => $website->id,
@@ -299,6 +303,26 @@ public function endConversation(ChatConversation $conversation)
 
     return $conversation;
 }
+
+private function endActiveVisitorConversations(
+    Website $website,
+    Visitor $visitor,
+    ?int $exceptConversationId = null
+): void {
+    ChatConversation::query()
+        ->where('website_id', $website->id)
+        ->where('visitor_id', $visitor->id)
+        ->where('status', 'active')
+        ->when(
+            $exceptConversationId,
+            fn ($query) => $query->whereKeyNot($exceptConversationId),
+        )
+        ->update([
+            'status' => 'ended',
+            'ended_at' => now(),
+        ]);
+}
+
 public function saveFlowAnswer(
     Request $request,
     Website $website
@@ -319,6 +343,8 @@ public function saveFlowAnswer(
     }
 
     if (! $conversation) {
+        $this->endActiveVisitorConversations($website, $visitor);
+
         $conversation = ChatConversation::create([
             'website_id' => $website->id,
             'visitor_id' => $visitor->id,

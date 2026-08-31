@@ -52,27 +52,6 @@ class ChatbotFlowStepForm
                     ->rows(3)
                     ->columnSpanFull(),
 
-                Select::make('input_type')
-                    ->label('Input Type')
-                    ->options([
-                        'buttons' => 'Buttons',
-                        'text' => 'Text',
-                        'textarea' => 'Textarea',
-                        'number' => 'Number',
-                        'email' => 'Email',
-                        'phone' => 'Phone',
-                        'date' => 'Date',
-                        'select' => 'Select',
-                        'radio' => 'Radio',
-                        'checkbox' => 'Checkbox',
-                    ])
-                    ->searchable()
-                    ->required(),
-
-                TextInput::make('placeholder')
-                    ->label('Placeholder')
-                    ->default(null),
-
                 Toggle::make('is_required')
                     ->label('Required')
                     ->default(true),
@@ -99,10 +78,12 @@ class ChatbotFlowStepForm
     ])
     ->columns(3)
     ->orderColumn('sort_order')
+    ->required()
+    ->minItems(1)
+    ->defaultItems(1)
     ->addActionLabel('Add Option')
     ->collapsible()
     ->columnSpanFull()
-    ->visible(fn ($get) => $get('input_type') === 'buttons')
             ]);
     }
 }

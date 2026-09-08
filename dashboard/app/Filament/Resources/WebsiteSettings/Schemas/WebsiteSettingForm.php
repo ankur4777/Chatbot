@@ -108,9 +108,15 @@ class WebsiteSettingForm
                     ->label('Enable Chatbot')
                     ->default(true),
 
+                Toggle::make('enable_ai_responses')
+                    ->label('Enable AI Responses')
+                    ->helperText('Allow the chatbot to generate AI responses using the configured knowledge base. Turn this off to use chatbot flows and live chat without AI responses.')
+                    ->default(true),
+
                 Toggle::make('enable_live_chat')
                     ->label('Enable Live Chat')
-                    ->default(true),
+                    ->live()
+                    ->default(false),
 
             ]);
     }

@@ -13,17 +13,27 @@ class ChatConversation extends Model
         'visitor_id',
         'assigned_agent_id',
         'status',
+        'mode',
         'started_at',
         'ended_at',
         'summary',
         'lead_step',
         'lead_completed',
+        'handoff_requested_at',
+        'assigned_at',
+        'live_started_at',
+        'live_ended_at',
+        'closed_by_id',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'lead_completed' => 'boolean',
+        'handoff_requested_at' => 'datetime',
+        'assigned_at' => 'datetime',
+        'live_started_at' => 'datetime',
+        'live_ended_at' => 'datetime',
     ];
 
     public function website(): BelongsTo
@@ -41,9 +51,19 @@ class ChatConversation extends Model
         return $this->belongsTo(User::class, 'assigned_agent_id');
     }
 
+    public function closedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'closed_by_id');
+    }
+
     public function messages(): HasMany
     {
         return $this->hasMany(ChatMessage::class, 'conversation_id');
+    }
+
+    public function liveChatSessions(): HasMany
+    {
+        return $this->hasMany(LiveChatSession::class, 'conversation_id');
     }
 
     public function lead()
@@ -53,5 +73,22 @@ class ChatConversation extends Model
     public function flowAnswers(): HasMany
 {
     return $this->hasMany(ChatbotFlowAnswer::class, 'conversation_id');
+}
+
+public function isAiActive(): bool
+{
+    return $this->status === 'active'
+        && ($this->mode ?? 'ai') === 'ai';
+}
+
+public function isWaitingForAgent(): bool
+{
+    return $this->status === 'waiting_agent';
+}
+
+public function isLiveActive(): bool
+{
+    return $this->status === 'live_active'
+        && $this->mode === 'live';
 }
 }

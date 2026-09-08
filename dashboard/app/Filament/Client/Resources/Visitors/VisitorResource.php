@@ -25,6 +25,10 @@ protected static ?string $pluralModelLabel = 'Visitors';
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 70;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getEloquentQuery(): Builder

@@ -23,7 +23,12 @@ class WebsiteSetting extends Model
         'position',
 
         'enable_chatbot',
+        'enable_ai_responses',
         'enable_live_chat',
+        'offline_behavior',
+        'max_active_chats_per_agent',
+        'offline_message',
+        'waiting_message',
 
     ];
 
@@ -31,8 +36,9 @@ class WebsiteSetting extends Model
         'position' => 'array',
         'temperature' => 'float',
         'enable_chatbot' => 'boolean',
+        'enable_ai_responses' => 'boolean',
         'enable_live_chat' => 'boolean',
-        'show_connect_agent' => 'boolean',
+        'max_active_chats_per_agent' => 'integer',
     ];
 
     public function website(): BelongsTo

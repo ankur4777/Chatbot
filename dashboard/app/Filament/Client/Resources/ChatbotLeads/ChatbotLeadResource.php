@@ -25,6 +25,10 @@ class ChatbotLeadResource extends Resource
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 40;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getEloquentQuery(): Builder
@@ -36,16 +40,32 @@ class ChatbotLeadResource extends Resource
         if ($user && $user->role === 'owner' && $user->company_id) {
             return $query
                 ->where('company_id', $user->company_id)
-                ->withCount('chatbotLeads')
                 ->withCount([
+                    'chatbotLeads' => function ($query) {
+                        static::scopeNormalChatbotLeads($query);
+                    },
                     'chatbotLeads as today_leads_count' => function ($query) {
-                        $query->whereDate('created_at', today());
+                        static::scopeNormalChatbotLeads($query)
+                            ->whereDate('created_at', today());
                     },
                 ])
-                ->withMax('chatbotLeads', 'created_at');
+                ->withMax([
+                    'chatbotLeads as chatbot_leads_max_created_at' => function ($query) {
+                        static::scopeNormalChatbotLeads($query);
+                    },
+                ], 'created_at');
         }
 
         return $query->whereRaw('1 = 0');
+    }
+
+    public static function scopeNormalChatbotLeads(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query): void {
+            $query
+                ->whereNull('source')
+                ->orWhere('source', '!=', 'live_chat_offline_request');
+        });
     }
 
     public static function table(Table $table): Table

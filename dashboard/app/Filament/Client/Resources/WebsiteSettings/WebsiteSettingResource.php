@@ -19,8 +19,18 @@ class WebsiteSettingResource extends Resource
 {
     protected static ?string $model = WebsiteSetting::class;
 
+    protected static ?string $navigationLabel = 'Chatbot Settings';
+
+    protected static ?string $modelLabel = 'Chatbot Setting';
+
+    protected static ?string $pluralModelLabel = 'Chatbot Settings';
+
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 80;
 
     protected static ?string $recordTitleAttribute = 'website_id';
 

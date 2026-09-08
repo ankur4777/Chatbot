@@ -22,6 +22,10 @@ class ChatbotFlowStepResource extends Resource
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 20;
+
     protected static ?string $recordTitleAttribute = 'question';
 
     public static function getEloquentQuery(): Builder

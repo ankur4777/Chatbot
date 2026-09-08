@@ -47,6 +47,11 @@ class ManageChatbotLeads extends ListRecords
     {
         return ChatbotLead::query()
             ->where('website_id', $this->websiteId)
+            ->where(function (Builder $query): void {
+                $query
+                    ->whereNull('source')
+                    ->orWhere('source', '!=', 'live_chat_offline_request');
+            })
             ->whereHas('website', function ($query) {
                 $query->where(
                     'company_id',
@@ -82,6 +87,22 @@ class ManageChatbotLeads extends ListRecords
                 ->label('Conversation')
                 ->sortable()
                 ->placeholder('—'),
+
+            TextColumn::make('source')
+                ->label('Source')
+                ->badge()
+                ->formatStateUsing(
+                    fn (?string $state): string =>
+                        $state === 'live_chat_offline_request'
+                            ? 'Live Chat Offline Request'
+                            : 'Chatbot'
+                )
+                ->color(
+                    fn (?string $state): string =>
+                        $state === 'live_chat_offline_request'
+                            ? 'warning'
+                            : 'gray'
+                ),
 
             TextColumn::make('name')
                 ->label('Full Name')

@@ -62,6 +62,11 @@ class WebsiteSettingForm
                     ->required()
                     ->default('#2563eb'),
 
+                Toggle::make('enable_ai_responses')
+                    ->label('Enable AI Responses')
+                    ->helperText('Allow the chatbot to generate AI responses using the configured knowledge base. Turn this off to use chatbot flows and live chat without AI responses.')
+                    ->default(true),
+
                 Textarea::make('system_prompt')
                     ->label('System Prompt')
                     ->rows(10)

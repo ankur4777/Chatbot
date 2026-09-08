@@ -9,6 +9,7 @@ use App\Filament\Client\Resources\KnowledgeCategories\Pages\WebsiteCategories;
 use App\Filament\Client\Resources\KnowledgeCategories\Schemas\KnowledgeCategoryForm;
 use App\Filament\Client\Resources\KnowledgeCategories\Tables\KnowledgeCategoriesTable;
 use App\Models\KnowledgeCategory;
+use App\Services\WebsiteFeatureService;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -23,7 +24,17 @@ class KnowledgeCategoryResource extends Resource
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 50;
+
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return app(WebsiteFeatureService::class)
+            ->isAiResponsesEnabledForAuthenticatedUserCompany();
+    }
 
     public static function getEloquentQuery(): Builder
     {

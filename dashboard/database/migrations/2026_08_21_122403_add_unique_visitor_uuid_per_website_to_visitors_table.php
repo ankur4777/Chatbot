@@ -9,22 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+public function up(): void
 {
-    Schema::table('visitors', function (Blueprint $table) {
-        $table->unique(
-            ['website_id', 'visitor_uuid'],
-            'visitors_website_visitor_uuid_unique'
-        );
-    });
+    // The unique website/visitor UUID constraint is already created in
+    // 2026_08_21_070940_add_visitor_tracking_fields_to_visitors_table.php.
+    // Keep this migration as a no-op so fresh test databases do not try to
+    // create a duplicate unique index.
 }
 
 public function down(): void
 {
-    Schema::table('visitors', function (Blueprint $table) {
-        $table->dropUnique(
-            'visitors_website_visitor_uuid_unique'
-        );
-    });
+    //
 }
 };

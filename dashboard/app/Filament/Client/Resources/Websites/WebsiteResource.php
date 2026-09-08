@@ -21,6 +21,10 @@ class WebsiteResource extends Resource
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedGlobeAlt;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 90;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getEloquentQuery(): Builder

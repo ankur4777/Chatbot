@@ -10,6 +10,7 @@ use App\Models\ChatConversation;
 use App\Models\ChatbotFlow;
 use Illuminate\Support\Facades\DB;
 use App\Models\VisitorSession;
+use App\Services\LiveChatAvailabilityService;
 
 class WidgetService
 {
@@ -29,18 +30,55 @@ class WidgetService
     'data' => [
         'website'      => $website,
         'settings'     => $this->getWebsiteSettings($website),
+        'realtime' => $this->getRealtimeSettings(),
     ],
 ]);
 }
 
     public function getWebsiteSettings(Website $website): array
 {
-    return [
+        $enableLiveChat = (bool) $website->settings?->enable_live_chat;
+        $agentStats = app(LiveChatAvailabilityService::class)
+            ->getWebsiteAgentStats($website);
+        $offlineBehavior = $website->settings?->offline_behavior
+            ?? 'show_offline_form';
+        $hasAvailableAgents = $agentStats['available'] > 0;
+        $showLiveChatEntry = $enableLiveChat
+            && (
+                $hasAvailableAgents
+                || $offlineBehavior !== 'hide_button'
+            );
+
+        return [
         'chatbot_name'     => $website->settings?->chatbot_name,
         'welcome_message'  => $website->settings?->welcome_message,
         'primary_color'    => $website->settings?->primary_color,
         'position'         => $website->settings?->position,
         'placeholder'      => $website->settings?->placeholder,
+        'enable_live_chat' => $enableLiveChat,
+        'enable_ai_responses' => $website->settings?->enable_ai_responses !== false,
+        'show_live_chat_entry' => $showLiveChatEntry,
+        'can_request_live_chat' => $showLiveChatEntry,
+        'live_chat_available' => $enableLiveChat && $hasAvailableAgents,
+        'offline_behavior' => $offlineBehavior,
+        'offline_message' => $website->settings?->offline_message
+            ?: 'Our support team is currently offline. Leave your details and message and we will get back to you.',
+        'waiting_message' => $website->settings?->waiting_message
+            ?: 'Connecting you to our support team Please wait...',
+    ];
+}
+
+public function getRealtimeSettings(): array
+{
+    return [
+        'enabled' => config('broadcasting.default') === 'reverb'
+            && filled(config('broadcasting.connections.reverb.key')),
+        'broadcaster' => 'reverb',
+        'key' => config('broadcasting.connections.reverb.key'),
+        'host' => config('broadcasting.connections.reverb.options.host'),
+        'port' => (int) config('broadcasting.connections.reverb.options.port'),
+        'scheme' => config('broadcasting.connections.reverb.options.scheme'),
+        'auth_endpoint' => url('/api/widget/realtime-auth'),
     ];
 }
 

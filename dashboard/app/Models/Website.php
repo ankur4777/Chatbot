@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Visitor;
 
 class Website extends Model
@@ -45,6 +46,11 @@ class Website extends Model
         return $this->hasOne(WebsiteSetting::class);
     }
 
+    public function setting(): HasOne
+    {
+        return $this->settings();
+    }
+
     public function apiKeys(): HasMany
     {
         return $this->hasMany(ApiKey::class);
@@ -63,6 +69,13 @@ class Website extends Model
     public function conversations(): HasMany
     {
         return $this->hasMany(ChatConversation::class);
+    }
+
+    public function liveChatAgents(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'website_agent', 'website_id', 'agent_id')
+            ->where('role', 'agent')
+            ->withTimestamps();
     }
 
     public function knowledgeSources(): HasMany

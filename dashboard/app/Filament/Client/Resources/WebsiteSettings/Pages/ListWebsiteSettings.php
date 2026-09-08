@@ -14,7 +14,7 @@ class ListWebsiteSettings extends ListRecords
     {
         return [
             CreateAction::make()
-             ->label('New Website Settings'),
+             ->label('New Chatbot Setting'),
         ];
     }
 }

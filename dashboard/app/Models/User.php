@@ -11,15 +11,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Filament\Models\Contracts\FilamentUser;
+use App\Services\WebsiteFeatureService;
 
 #[Fillable([
     'company_id',
     'name',
     'email',
+    'phone',
     'password',
     'role',
     'status',
+    'is_online',
+    'availability_status',
+    'last_seen_at',
 ])]
 
 #[Hidden(['password', 'remember_token'])]
@@ -40,6 +46,8 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
 
         'status' => 'boolean',
+        'is_online' => 'boolean',
+        'last_seen_at' => 'datetime',
     ];
 }
 public function company()
@@ -50,6 +58,32 @@ public function assignedConversations()
 {
     return $this->hasMany(ChatConversation::class, 'assigned_agent_id');
 }
+
+public function assignedWebsites(): BelongsToMany
+{
+    return $this->belongsToMany(Website::class, 'website_agent', 'agent_id', 'website_id')
+        ->withTimestamps();
+}
+
+public function liveChatSessions()
+{
+    return $this->hasMany(LiveChatSession::class, 'agent_id');
+}
+
+public function hasLiveChatAccess(): bool
+{
+    return app(WebsiteFeatureService::class)
+        ->userHasLiveChatAccess($this);
+}
+
+public function isAvailableForLiveChat(): bool
+{
+    return $this->role === 'agent'
+        && $this->status
+        && $this->company_id
+        && $this->availability_status === 'online';
+}
+
 public function canAccessPanel(Panel $panel): bool
 {
     // Inactive user cannot access any dashboard
@@ -57,8 +91,8 @@ public function canAccessPanel(Panel $panel): bool
         return false;
     }
 
-    // Owner's company must also be active
-    if ($this->role === 'owner') {
+    // Company users must belong to an active company.
+    if (in_array($this->role, ['owner', 'agent'], true)) {
         if (! $this->company || ! $this->company->status) {
             return false;
         }

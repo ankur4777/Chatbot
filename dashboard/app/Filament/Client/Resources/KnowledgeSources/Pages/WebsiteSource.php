@@ -17,7 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class WebsiteSources extends ListRecords
+class WebsiteSource extends ListRecords
 {
     protected static string $resource = KnowledgeSourceResource::class;
 

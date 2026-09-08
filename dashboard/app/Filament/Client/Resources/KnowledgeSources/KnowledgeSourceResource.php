@@ -11,8 +11,9 @@ use App\Filament\Client\Resources\KnowledgeSources\Schemas\KnowledgeSourceInfoli
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Client\Resources\KnowledgeSources\Tables\KnowledgeSourcesTable;
 use App\Models\KnowledgeSource;
+use App\Services\WebsiteFeatureService;
 use BackedEnum;
-use App\Filament\Client\Resources\KnowledgeSources\Pages\WebsiteSources;
+use App\Filament\Client\Resources\KnowledgeSources\Pages\WebsiteSource;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -24,7 +25,18 @@ class KnowledgeSourceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Chatbot';
+
+    protected static ?int $navigationSort = 60;
+
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return app(WebsiteFeatureService::class)
+            ->isAiResponsesEnabledForAuthenticatedUserCompany();
+    }
+
     public static function getEloquentQuery(): Builder
 {
     $query = parent::getEloquentQuery();
@@ -76,7 +88,7 @@ class KnowledgeSourceResource extends Resource
 
         'edit' => EditKnowledgeSource::route('/{record}/edit'),
 
-        'website-sources' => WebsiteSources::route(
+        'website-sources' => WebsiteSource::route(
             '/website/{website}/sources'
         ),
     ];

@@ -30,7 +30,18 @@ class UsersTable
     ->label('Email')
     ->searchable()
     ->copyable(),
+                TextColumn::make('phone')
+    ->label('Phone')
+    ->searchable()
+    ->copyable()
+    ->placeholder('N/A'),
                 TextColumn::make('role')
+    ->formatStateUsing(fn (string $state): string => match ($state) {
+        'super_admin' => 'Super Admin',
+        'owner' => 'Client',
+        'agent' => 'Agent',
+        default => ucfirst(str_replace('_', ' ', $state)),
+    })
     ->badge()
     ->sortable(),
                 TextColumn::make('created_at')

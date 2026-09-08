@@ -25,6 +25,9 @@ class WebsiteSettingsTable
                 IconColumn::make('enable_chatbot')
                  ->label('Chatbot')
                     ->boolean(),
+                IconColumn::make('enable_ai_responses')
+                 ->label('AI Responses')
+                    ->boolean(),
                 IconColumn::make('enable_live_chat')
                  ->label('Live Chat')
                     ->boolean(),

@@ -9,13 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+public function up(): void
 {
-
-Schema::table('website_settings', function (Blueprint $table) {
-    $table->unique('website_id');
-});
-
     Schema::create('website_settings', function (Blueprint $table) {
 
         $table->id();
@@ -44,6 +39,8 @@ Schema::table('website_settings', function (Blueprint $table) {
         $table->boolean('show_connect_agent')->default(false);
 
         $table->timestamps();
+
+        $table->unique('website_id');
     });
 }
 

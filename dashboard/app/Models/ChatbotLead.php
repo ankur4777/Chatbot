@@ -11,6 +11,7 @@ class ChatbotLead extends Model
         'website_id',
         'visitor_id',
         'conversation_id',
+        'source',
         'name',
         'email',
         'phone',

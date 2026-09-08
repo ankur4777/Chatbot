@@ -31,6 +31,12 @@ class UserForm
     ->unique(ignoreRecord: true)
     ->required()
     ->maxLength(255),
+                TextInput::make('phone')
+    ->label('Phone Number')
+    ->tel()
+    ->required()
+    ->maxLength(30)
+    ->regex('/^\+?[0-9\s\-()]{7,30}$/'),
                 TextInput::make('password')
     ->label('Password')
     ->password()
@@ -42,7 +48,7 @@ class UserForm
     ->label('Role')
     ->options([
         'super_admin' => 'Super Admin',
-        'owner' => 'Owner',
+        'owner' => 'Client',
         'agent' => 'Agent',
     ])
     ->disableOptionWhen(

@@ -45,8 +45,14 @@ class ChatConversationResource extends Resource
         ) {
             return $query
                 ->where('company_id', $user->company_id)
-                ->withCount('conversations')
-                ->withMax('conversations', 'updated_at');
+                ->withCount([
+                    'conversations' => fn (Builder $query) =>
+                        $query->where('updated_at', '>=', now()->subDays(30)),
+                ])
+                ->withMax([
+                    'conversations' => fn (Builder $query) =>
+                        $query->where('updated_at', '>=', now()->subDays(30)),
+                ], 'updated_at');
         }
 
         return $query->whereRaw('1 = 0');

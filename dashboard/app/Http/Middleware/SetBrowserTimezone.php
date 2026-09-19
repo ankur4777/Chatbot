@@ -11,7 +11,7 @@ class SetBrowserTimezone
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $timezone = 'UTC';
+        $timezone = config('app.display_timezone', 'Asia/Kolkata');
 
         if (isset($_COOKIE['browser_timezone'])) {
             $timezone = urldecode($_COOKIE['browser_timezone']);
@@ -29,7 +29,7 @@ class SetBrowserTimezone
         $timezone = $aliases[$timezone] ?? $timezone;
 
         if (! in_array($timezone, timezone_identifiers_list(), true)) {
-            $timezone = 'UTC';
+            $timezone = config('app.display_timezone', 'Asia/Kolkata');
         }
 
         FilamentTimezone::set($timezone);

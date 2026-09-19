@@ -122,6 +122,7 @@ class LiveChatService
                 'agent_id' => $agent->id,
                 'started_at' => now(),
                 'rating_status' => 'pending',
+                'agent_chat_status' => LiveChatSession::AGENT_CHAT_STATUS_ACTIVE,
             ]);
 
             $lockedConversation = $lockedConversation->refresh();
@@ -187,6 +188,16 @@ class LiveChatService
 
         if ($shouldBroadcast) {
             $this->broadcastSafely(new LiveChatClosed($closedConversation));
+            $session = LiveChatSession::query()
+                ->where('conversation_id', $closedConversation->id)
+                ->whereNotNull('ended_at')
+                ->latest('ended_at')
+                ->latest('id')
+                ->first();
+
+            if ($session) {
+                app(AgentNotificationService::class)->conversationClosed($session);
+            }
         }
 
         return $closedConversation;
@@ -280,28 +291,93 @@ class LiveChatService
     public function sendAgentMessage(
         ChatConversation $conversation,
         User $agent,
-        string $message
+        string $message,
+        ?array $attachmentData = null
     ): \App\Models\ChatMessage {
         $this->authorizeAssignedAgentForConversation(
             $agent,
             $conversation
         );
 
-        if ($conversation->status !== 'live_active') {
+        if ($conversation->status !== 'live_active' || $conversation->mode !== 'live') {
             throw new InvalidArgumentException(
                 'Agent messages can only be sent to active live chats.'
             );
         }
 
-        $chatMessage = $conversation->messages()->create([
+        $payload = [
             'sender_type' => 'agent',
             'sender_id' => $agent->id,
             'message' => $message,
-        ]);
+        ];
+
+        if ($attachmentData) {
+            $payload['attachment'] = $attachmentData['path'];
+            $payload['attachment_type'] = $attachmentData['type'];
+            $payload['metadata'] = [
+                'attachment' => $attachmentData['metadata'],
+            ];
+        }
+
+        $chatMessage = $conversation->messages()->create($payload);
 
         $this->broadcastSafely(new LiveChatMessageSent($chatMessage));
 
         return $chatMessage;
+    }
+
+    public function updateAgentChatStatus(
+        ChatConversation $conversation,
+        User $agent,
+        string $status
+    ): LiveChatSession {
+        if (! in_array($status, LiveChatSession::agentChatStatuses(), true)) {
+            throw new InvalidArgumentException(
+                'Invalid chat status selected.'
+            );
+        }
+
+        return DB::transaction(function () use ($conversation, $agent, $status) {
+            $lockedConversation = ChatConversation::query()
+                ->with('website.settings')
+                ->whereKey($conversation->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $this->authorizeAssignedAgentForConversation(
+                $agent,
+                $lockedConversation
+            );
+
+            if (
+                $lockedConversation->status !== 'live_active'
+                || $lockedConversation->mode !== 'live'
+            ) {
+                throw new InvalidArgumentException(
+                    'Chat status can only be changed for active live chats.'
+                );
+            }
+
+            $session = LiveChatSession::query()
+                ->where('conversation_id', $lockedConversation->id)
+                ->where('agent_id', $agent->id)
+                ->whereNull('ended_at')
+                ->latest('id')
+                ->lockForUpdate()
+                ->first();
+
+            if (! $session) {
+                throw new InvalidArgumentException(
+                    'No active live chat session found.'
+                );
+            }
+
+            $session->update([
+                'agent_chat_status' => $status,
+            ]);
+
+            return $session->refresh();
+        });
     }
 
     public function closeConversationAsAgent(
@@ -359,6 +435,16 @@ class LiveChatService
         });
 
         $this->broadcastSafely(new LiveChatClosed($endedConversation));
+        $session = LiveChatSession::query()
+            ->where('conversation_id', $endedConversation->id)
+            ->whereNotNull('ended_at')
+            ->latest('ended_at')
+            ->latest('id')
+            ->first();
+
+        if ($session) {
+            app(AgentNotificationService::class)->conversationClosed($session);
+        }
 
         return $endedConversation;
     }
@@ -451,6 +537,7 @@ class LiveChatService
         $session->update([
             'ended_at' => now(),
             'ended_by' => $endedBy,
+            'agent_chat_status' => null,
         ]);
 
         return $session->refresh();

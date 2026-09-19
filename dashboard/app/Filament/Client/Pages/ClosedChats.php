@@ -8,6 +8,7 @@ use App\Filament\Client\Concerns\RequiresLiveChatAccess;
 use App\Models\LiveChatSession;
 use App\Support\BrowserTime;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -40,6 +41,16 @@ class ClosedChats extends Page implements HasTable
     {
         return $table
             ->query($this->getTableQuery())
+            ->headerActions([
+                Action::make('downloadAll')
+                    ->label('Download All PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn () => route('client.closed-chats.download-all', [
+                        'website' => $this->selectedLiveChatWebsiteId(),
+                        'agent' => $this->selectedLiveChatAgentId(),
+                    ])),
+            ])
             ->columns([
                 TextColumn::make('conversation.visitor.visitor_uuid')
                     ->label('Visitor')
@@ -47,9 +58,6 @@ class ClosedChats extends Page implements HasTable
                         fn ($state) =>
                             $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
                     ),
-
-                TextColumn::make('conversation.website.name')
-                    ->label('Website'),
 
                 TextColumn::make('agent.name')
                     ->label('Agent')
@@ -105,6 +113,16 @@ class ClosedChats extends Page implements HasTable
                     ->wrap()
                     ->limit(160),
             ])
+            ->recordActions([
+                Action::make('download')
+                    ->label('Download PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(
+                        fn (LiveChatSession $record) =>
+                            route('client.closed-chats.download', $record)
+                    ),
+            ])
             ->defaultSort('ended_at', 'desc');
     }
 
@@ -115,6 +133,7 @@ class ClosedChats extends Page implements HasTable
         return LiveChatSession::query()
             ->with(['conversation.visitor', 'conversation.website', 'agent'])
             ->whereNotNull('ended_at')
+            ->where('ended_at', '>=', $this->recentChatCutoff())
             ->whereHas(
                 'conversation.website',
                 fn ($query) => $query
@@ -125,6 +144,11 @@ class ClosedChats extends Page implements HasTable
                 $selectedAgentId,
                 fn ($query) => $query->where('agent_id', $selectedAgentId)
             );
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 
     protected function formatDuration(LiveChatSession $session): ?string

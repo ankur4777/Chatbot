@@ -17,10 +17,15 @@ class CompaniesTable
     {
         return $table
             ->columns([
+                
                 TextColumn::make('name')
                     ->label('Company')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('owner_name')
+    ->label('Owner')
+    ->searchable(),
 
                 TextColumn::make('email')
                     ->label('Email')
@@ -38,6 +43,15 @@ class CompaniesTable
     ->bulleted()
     ->limitList(3)
     ->expandableLimitedList(),
+
+    TextColumn::make('gst_number')
+    ->label('GST No.')
+    ->searchable(),
+
+TextColumn::make('address')
+    ->label('Address')
+    ->limit(40)
+    ->tooltip(fn ($record) => $record->address),
 
                 IconColumn::make('status')
                     ->label('Status')

@@ -40,6 +40,13 @@ class WebsitesTable
         ->label('Active')
         ->boolean(),
 
+    TextColumn::make('live_chat_agents_count')
+    ->label('Agents')
+    ->counts('liveChatAgents')
+    ->badge()
+    ->alignCenter()
+    ->sortable(),
+
     TextColumn::make('created_at')
     ->label('Created At')
     ->since()

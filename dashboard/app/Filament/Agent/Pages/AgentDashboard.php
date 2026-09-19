@@ -41,6 +41,7 @@ class AgentDashboard extends Page
                     fn ($query) => $query->where('company_id', $companyId)
                 )
                 ->where('status', 'waiting_agent')
+                ->where('updated_at', '>=', $this->recentChatCutoff())
                 ->count(),
 
             'active' => ChatConversation::query()
@@ -50,6 +51,7 @@ class AgentDashboard extends Page
                 )
                 ->where('status', 'live_active')
                 ->where('assigned_agent_id', $agentId)
+                ->where('updated_at', '>=', $this->recentChatCutoff())
                 ->count(),
 
             'closed_today' => ChatConversation::query()
@@ -75,6 +77,7 @@ class AgentDashboard extends Page
                 )
             )
             ->where('status', 'waiting_agent')
+            ->where('updated_at', '>=', $this->recentChatCutoff())
             ->latest('handoff_requested_at')
             ->limit(6)
             ->get();
@@ -93,8 +96,14 @@ class AgentDashboard extends Page
             )
             ->where('status', 'live_active')
             ->where('assigned_agent_id', auth()->id())
+            ->where('updated_at', '>=', $this->recentChatCutoff())
             ->latest('updated_at')
             ->limit(6)
             ->get();
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 }

@@ -27,6 +27,7 @@ class VisitorsTable
                             ->where('website_id', $record->id)
                             ->whereNotNull('visitor_uuid')
                             ->where('visitor_uuid', '!=', '')
+                            ->where('last_activity_at', '>=', now()->subDays(30))
                             ->distinct()
                             ->count('visitor_uuid');
                     }),
@@ -39,6 +40,7 @@ class VisitorsTable
                             ->where('website_id', $record->id)
                             ->whereNotNull('visitor_uuid')
                             ->where('visitor_uuid', '!=', '')
+                            ->where('last_activity_at', '>=', now()->subDays(30))
                             ->whereIn('id', function ($subQuery) use ($record) {
 
                                 $subQuery
@@ -47,6 +49,7 @@ class VisitorsTable
                                     ->where('website_id', $record->id)
                                     ->whereNotNull('visitor_uuid')
                                     ->where('visitor_uuid', '!=', '')
+                                    ->where('last_activity_at', '>=', now()->subDays(30))
                                     ->groupBy('visitor_uuid');
 
                             })

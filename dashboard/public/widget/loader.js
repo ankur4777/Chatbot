@@ -42,12 +42,12 @@
     // Widget CSS
     const css = document.createElement("link");
     css.rel = "stylesheet";
-    css.href = `${baseUrl}/chatbot.css`;
+    css.href = `${baseUrl}/chatbot.css?v=voice-player`;
     document.head.appendChild(css);
 
     // Widget JS
     const script = document.createElement("script");
-    script.src = `${baseUrl}/chatbot.js`;
+    script.src = `${baseUrl}/chatbot.js?v=voice-player`;
     script.defer = true;
     document.head.appendChild(script);
 

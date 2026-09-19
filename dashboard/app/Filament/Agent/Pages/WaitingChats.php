@@ -127,6 +127,12 @@ class WaitingChats extends Page implements HasTable
                     $this->agentCompanyId()
                 )
             )
-            ->where('status', 'waiting_agent');
+            ->where('status', 'waiting_agent')
+            ->where('updated_at', '>=', $this->recentChatCutoff());
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Companies\Schemas;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Textarea;
 
 class CompanyForm
 {
@@ -22,6 +23,10 @@ class CompanyForm
         ->unique(ignoreRecord: true)
         ->maxLength(255),
 
+    TextInput::make('owner_name')
+    ->label('Owner Name')
+    ->maxLength(255),
+
     TextInput::make('email')
         ->label('Email Address')
         ->email()
@@ -32,6 +37,14 @@ class CompanyForm
         ->tel()
         ->maxLength(20),
 
+    TextInput::make('gst_number')
+    ->label('GST Number')
+    ->maxLength(15),
+
+    
+Textarea::make('address')
+    ->label('Company Address')
+    ->rows(3),
     Toggle::make('status')
         ->label('Active')
         ->default(true),

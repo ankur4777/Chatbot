@@ -27,6 +27,7 @@ class WebsiteSetting extends Model
         'enable_live_chat',
         'offline_behavior',
         'max_active_chats_per_agent',
+        'max_agents_per_website',
         'offline_message',
         'waiting_message',
 
@@ -39,6 +40,7 @@ class WebsiteSetting extends Model
         'enable_ai_responses' => 'boolean',
         'enable_live_chat' => 'boolean',
         'max_active_chats_per_agent' => 'integer',
+        'max_agents_per_website' => 'integer',
     ];
 
     public function website(): BelongsTo

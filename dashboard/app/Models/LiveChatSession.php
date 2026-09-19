@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LiveChatSession extends Model
 {
+    public const AGENT_CHAT_STATUS_ACTIVE = 'active';
+    public const AGENT_CHAT_STATUS_ON_HOLD = 'on_hold';
+    public const AGENT_CHAT_STATUS_AWAITING_VISITOR = 'awaiting_visitor';
+
     protected $fillable = [
         'conversation_id',
         'agent_id',
@@ -20,6 +24,7 @@ class LiveChatSession extends Model
         'feedback',
         'submitted_at',
         'skipped_at',
+        'agent_chat_status',
     ];
 
     protected $casts = [
@@ -38,5 +43,30 @@ class LiveChatSession extends Model
     public function agent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'agent_id');
+    }
+
+    public static function agentChatStatuses(): array
+    {
+        return [
+            self::AGENT_CHAT_STATUS_ACTIVE,
+            self::AGENT_CHAT_STATUS_ON_HOLD,
+            self::AGENT_CHAT_STATUS_AWAITING_VISITOR,
+        ];
+    }
+
+    public static function agentChatStatusLabels(): array
+    {
+        return [
+            self::AGENT_CHAT_STATUS_ACTIVE => 'Active',
+            self::AGENT_CHAT_STATUS_ON_HOLD => 'On Hold',
+            self::AGENT_CHAT_STATUS_AWAITING_VISITOR => 'Awaiting Response',
+        ];
+    }
+
+    public function agentChatStatusLabel(): string
+    {
+        return self::agentChatStatusLabels()[
+            $this->agent_chat_status ?: self::AGENT_CHAT_STATUS_ACTIVE
+        ] ?? 'Active';
     }
 }

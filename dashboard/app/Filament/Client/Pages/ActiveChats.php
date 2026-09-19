@@ -7,6 +7,7 @@ use App\Filament\Client\Concerns\HasSelectedLiveChatWebsite;
 use App\Filament\Client\Concerns\RequiresLiveChatAccess;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Models\LiveChatSession;
 use App\Support\BrowserTime;
 use BackedEnum;
 use Carbon\Carbon;
@@ -51,14 +52,15 @@ class ActiveChats extends Page implements HasTable
                             $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
                     ),
 
-                TextColumn::make('website.name')
-                    ->label('Website')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('assignedAgent.name')
                     ->label('Agent')
                     ->placeholder('Unassigned'),
+
+                TextColumn::make('agent_chat_status')
+                    ->label('Status')
+                    ->badge()
+                    ->state(fn (ChatConversation $record): string => $this->agentChatStatusLabel($record))
+                    ->color(fn (ChatConversation $record): string => $this->agentChatStatusColor($record)),
 
                 TextColumn::make('live_started_at')
                     ->label('Started At')
@@ -102,7 +104,7 @@ class ActiveChats extends Page implements HasTable
 
         return ChatConversation::query()
             ->select('chat_conversations.*')
-            ->with(['visitor', 'website', 'assignedAgent'])
+            ->with(['visitor', 'website', 'assignedAgent', 'activeLiveChatSession'])
             ->addSelect([
                 'latest_message_text' => ChatMessage::query()
                     ->select('message')
@@ -132,6 +134,7 @@ class ActiveChats extends Page implements HasTable
             )
             ->where('website_id', $this->selectedLiveChatWebsiteId())
             ->where('status', 'live_active')
+            ->where('updated_at', '>=', $this->recentChatCutoff())
             ->when(
                 $selectedAgentId,
                 fn ($query) => $query->where(
@@ -139,6 +142,31 @@ class ActiveChats extends Page implements HasTable
                     $selectedAgentId
                 )
             );
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
+    }
+
+    protected function agentChatStatusLabel(ChatConversation $conversation): string
+    {
+        $status = $conversation->activeLiveChatSession?->agent_chat_status
+            ?: LiveChatSession::AGENT_CHAT_STATUS_ACTIVE;
+
+        return LiveChatSession::agentChatStatusLabels()[$status] ?? 'Active';
+    }
+
+    protected function agentChatStatusColor(ChatConversation $conversation): string
+    {
+        return match (
+            $conversation->activeLiveChatSession?->agent_chat_status
+                ?: LiveChatSession::AGENT_CHAT_STATUS_ACTIVE
+        ) {
+            LiveChatSession::AGENT_CHAT_STATUS_ON_HOLD => 'warning',
+            LiveChatSession::AGENT_CHAT_STATUS_AWAITING_VISITOR => 'info',
+            default => 'success',
+        };
     }
 
     protected function lastActivityAt(ChatConversation $conversation): ?CarbonInterface

@@ -15,7 +15,8 @@ class WebsiteVisitorStats extends StatsOverviewWidget
         $query = Visitor::query()
             ->where('website_id', $this->websiteId)
             ->whereNotNull('visitor_uuid')
-            ->where('visitor_uuid', '!=', '');
+            ->where('visitor_uuid', '!=', '')
+            ->where('last_activity_at', '>=', now()->subDays(30));
 
         /*
         |--------------------------------------------------------------------------
@@ -42,6 +43,7 @@ class WebsiteVisitorStats extends StatsOverviewWidget
                     ->where('website_id', $this->websiteId)
                     ->whereNotNull('visitor_uuid')
                     ->where('visitor_uuid', '!=', '')
+                    ->where('last_activity_at', '>=', now()->subDays(30))
                     ->groupBy('visitor_uuid');
 
             })

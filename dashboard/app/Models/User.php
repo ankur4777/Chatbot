@@ -70,6 +70,11 @@ public function liveChatSessions()
     return $this->hasMany(LiveChatSession::class, 'agent_id');
 }
 
+public function activityLogs()
+{
+    return $this->hasMany(AgentActivityLog::class, 'agent_id');
+}
+
 public function hasLiveChatAccess(): bool
 {
     return app(WebsiteFeatureService::class)

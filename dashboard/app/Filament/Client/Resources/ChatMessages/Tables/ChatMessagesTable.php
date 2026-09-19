@@ -39,6 +39,7 @@ class ChatMessagesTable
                         fn ($record) =>
                             ChatConversation::query()
                                 ->where('website_id', $record->id)
+                                ->where('updated_at', '>=', now()->subDays(30))
                                 ->count()
                     ),
 

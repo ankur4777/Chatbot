@@ -60,6 +60,13 @@ class LiveChatSettingForm
                             ! (bool) $record?->enable_live_chat
                     ),
 
+                TextInput::make('max_agents_per_website')
+                    ->label('Max Agents For This Website')
+                    ->helperText('Controlled by Super Admin.')
+                    ->placeholder('No limit')
+                    ->disabled()
+                    ->dehydrated(false),
+
                 Textarea::make('waiting_message')
                     ->label('Waiting Message')
                     ->helperText('Shown after a visitor requests an agent while agents are online.')

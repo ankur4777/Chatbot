@@ -33,6 +33,10 @@ class LiveChatSettingsTable
 
                 TextColumn::make('max_active_chats_per_agent')
                     ->label('Max Chats / Agent'),
+
+                TextColumn::make('max_agents_per_website')
+                    ->label('Agent Limit')
+                    ->placeholder('No limit'),
             ])
             ->recordActions([
                 EditAction::make(),

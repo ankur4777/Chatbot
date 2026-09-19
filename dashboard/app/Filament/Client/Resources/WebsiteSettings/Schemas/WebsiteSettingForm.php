@@ -4,7 +4,6 @@ namespace App\Filament\Client\Resources\WebsiteSettings\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
@@ -61,11 +60,6 @@ class WebsiteSettingForm
                     ->label('Primary Color')
                     ->required()
                     ->default('#2563eb'),
-
-                Toggle::make('enable_ai_responses')
-                    ->label('Enable AI Responses')
-                    ->helperText('Allow the chatbot to generate AI responses using the configured knowledge base. Turn this off to use chatbot flows and live chat without AI responses.')
-                    ->default(true),
 
                 Textarea::make('system_prompt')
                     ->label('System Prompt')

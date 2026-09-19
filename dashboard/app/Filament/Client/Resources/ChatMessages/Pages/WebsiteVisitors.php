@@ -49,7 +49,11 @@ class WebsiteVisitors extends ListRecords
         return Visitor::query()
             ->where('website_id', $this->websiteId)
             ->whereNotNull('visitor_uuid')
-            ->where('visitor_uuid', '!=', '');
+            ->where('visitor_uuid', '!=', '')
+            ->whereHas(
+                'conversations',
+                fn ($query) => $query->where('updated_at', '>=', $this->recentChatCutoff())
+            );
     }
 
     public function table(Table $table): Table
@@ -96,6 +100,7 @@ class WebsiteVisitors extends ListRecords
                                     'visitor_id',
                                     $record->id
                                 )
+                                ->where('updated_at', '>=', $this->recentChatCutoff())
                                 ->count()
                     ),
 
@@ -147,5 +152,10 @@ class WebsiteVisitors extends ListRecords
                 'last_activity_at',
                 'desc'
             );
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 }

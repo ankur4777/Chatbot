@@ -6,6 +6,7 @@ use App\Filament\Client\Resources\ChatbotLeads\ChatbotLeadResource;
 use App\Models\ChatbotLead;
 use App\Models\Website;
 use App\Support\BrowserTime;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -41,6 +42,19 @@ class ManageChatbotLeads extends ListRecords
     public function getTitle(): string
     {
         return $this->getWebsite()->name . ' Leads';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('downloadLeads')
+                ->label('Download')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->url(fn (): string => route('client.chatbot-leads.download', [
+                    'website' => $this->websiteId,
+                ])),
+        ];
     }
 
     protected function getTableQuery(): Builder

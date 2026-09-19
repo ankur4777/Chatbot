@@ -23,6 +23,7 @@ class VisitorStats extends StatsOverviewWidget
         $websiteIds = Website::query()
             ->where('company_id', $user->company_id)
             ->pluck('id');
+        $cutoff = now()->subDays(30);
 
         /*
         |--------------------------------------------------------------------------
@@ -34,6 +35,7 @@ class VisitorStats extends StatsOverviewWidget
             ->whereIn('website_id', $websiteIds)
             ->whereNotNull('visitor_uuid')
             ->where('visitor_uuid', '!=', '')
+            ->where('last_activity_at', '>=', $cutoff)
             ->select('website_id', 'visitor_uuid')
             ->distinct()
             ->get()
@@ -49,6 +51,7 @@ class VisitorStats extends StatsOverviewWidget
             ->whereIn('website_id', $websiteIds)
             ->whereNotNull('visitor_uuid')
             ->where('visitor_uuid', '!=', '')
+            ->where('last_activity_at', '>=', $cutoff)
             ->whereIn('id', function ($subQuery) use ($websiteIds) {
 
                 $subQuery
@@ -57,6 +60,7 @@ class VisitorStats extends StatsOverviewWidget
                     ->whereIn('website_id', $websiteIds)
                     ->whereNotNull('visitor_uuid')
                     ->where('visitor_uuid', '!=', '')
+                    ->where('last_activity_at', '>=', now()->subDays(30))
                     ->groupBy('website_id', 'visitor_uuid');
 
             })

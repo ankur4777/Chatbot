@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class WebsiteSettingResource extends Resource
 {
@@ -32,7 +33,17 @@ class WebsiteSettingResource extends Resource
 
     protected static ?int $navigationSort = 80;
 
-    protected static ?string $recordTitleAttribute = 'website_id';
+    protected static ?string $recordTitleAttribute = null;
+
+    public static function getRecordTitle(?Model $record): ?string
+    {
+        return $record?->website?->name ?? static::getModelLabel();
+    }
+
+    public static function hasRecordTitle(): bool
+    {
+        return true;
+    }
 
     public static function form(Schema $schema): Schema
     {

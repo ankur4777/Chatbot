@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ChatConversation;
+use App\Models\AgentActivityLog;
 use App\Models\User;
 use App\Models\Website;
 
@@ -78,13 +79,110 @@ class LiveChatAvailabilityService
             throw new \InvalidArgumentException('Invalid availability status.');
         }
 
+        $now = now();
+
+        match ($status) {
+            self::ONLINE => $this->switchToOnline($agent),
+            self::AWAY => $this->switchToBreak($agent),
+            self::OFFLINE => $this->switchToOffline($agent),
+        };
+
         $agent->update([
             'availability_status' => $status,
             'is_online' => $status === self::ONLINE,
-            'last_seen_at' => now(),
+            'last_seen_at' => $now,
         ]);
 
         return $agent->refresh();
+    }
+
+    protected function switchToOnline(User $agent): void
+    {
+        $this->endOpenActivity($agent, 'break');
+        $this->startActivity($agent, 'login');
+    }
+
+    protected function switchToBreak(User $agent): void
+    {
+        $this->endOpenActivity($agent, 'login');
+        $this->startActivity($agent, 'break');
+    }
+
+    protected function switchToOffline(User $agent): void
+    {
+        $this->endOpenActivity($agent, 'break');
+        $this->endOpenActivity($agent, 'login');
+    }
+
+    public function startLoginSession(User $agent): void
+    {
+        $this->recordPointActivity($agent, 'session_login');
+    }
+
+    public function endLoginSession(User $agent): void
+    {
+        $this->endOpenActivity($agent, 'break');
+        $this->endOpenActivity($agent, 'login');
+        $this->recordLogoutActivity($agent);
+    }
+
+    protected function startActivity(User $agent, string $type): void
+    {
+        if (
+            AgentActivityLog::query()
+                ->where('agent_id', $agent->id)
+                ->where('type', $type)
+                ->whereNull('ended_at')
+                ->exists()
+        ) {
+            return;
+        }
+
+        AgentActivityLog::query()->create([
+            'agent_id' => $agent->id,
+            'type' => $type,
+            'started_at' => now(),
+        ]);
+    }
+
+    protected function recordLogoutActivity(User $agent): void
+    {
+        $this->recordPointActivity($agent, 'logout');
+    }
+
+    protected function recordPointActivity(User $agent, string $type): void
+    {
+        $now = now();
+
+        AgentActivityLog::query()->create([
+            'agent_id' => $agent->id,
+            'type' => $type,
+            'started_at' => $now,
+            'ended_at' => $now,
+        ]);
+    }
+
+    protected function endOpenActivity(User $agent, string $type): void
+    {
+        $log = AgentActivityLog::query()
+            ->where('agent_id', $agent->id)
+            ->where('type', $type)
+            ->whereNull('ended_at')
+            ->latest('started_at')
+            ->first();
+
+        if (! $log) {
+            return;
+        }
+
+        $now = now();
+
+        AgentActivityLog::query()
+            ->whereKey($log->id)
+            ->update([
+                'ended_at' => $now,
+                'updated_at' => $now,
+            ]);
     }
 
     public function countActiveChatsForAgent(User $agent): int

@@ -74,7 +74,13 @@ class VisitorConversations extends ListRecords
             ->where(
                 'visitor_id',
                 $this->visitorId
-            );
+            )
+            ->where('updated_at', '>=', $this->recentChatCutoff());
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 
     public function table(Table $table): Table

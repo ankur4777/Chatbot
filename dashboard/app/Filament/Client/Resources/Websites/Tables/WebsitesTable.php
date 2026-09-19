@@ -28,6 +28,12 @@ class WebsitesTable
                     ->searchable()
                     ->copyable()
                     ->toggleable(),
+                    TextColumn::make('live_chat_agents_count')
+    ->label('Agents')
+    ->counts('liveChatAgents')
+    ->badge()
+    ->alignCenter()
+    ->sortable(),
 
                 IconColumn::make('status')
     ->label('Active')

@@ -190,7 +190,8 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
-        $this->availabilityService->setAvailability($user, 'online');
+        $this->availabilityService->startLoginSession($user);
+        $this->availabilityService->setAvailability($user, 'offline');
 
         return redirect()->intended(route('agent.dashboard'));
     }
@@ -206,6 +207,7 @@ class AuthController extends Controller
                 $agent,
                 'offline'
             );
+            $this->availabilityService->endLoginSession($agent);
         }
 
         Auth::logout();

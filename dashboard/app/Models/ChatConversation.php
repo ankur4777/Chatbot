@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ChatConversation extends Model
 {
@@ -64,6 +65,13 @@ class ChatConversation extends Model
     public function liveChatSessions(): HasMany
     {
         return $this->hasMany(LiveChatSession::class, 'conversation_id');
+    }
+
+    public function activeLiveChatSession(): HasOne
+    {
+        return $this->hasOne(LiveChatSession::class, 'conversation_id')
+            ->whereNull('ended_at')
+            ->latestOfMany();
     }
 
     public function lead()

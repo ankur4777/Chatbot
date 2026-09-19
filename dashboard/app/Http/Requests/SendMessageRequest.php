@@ -32,9 +32,10 @@ class SendMessageRequest extends FormRequest
             'nullable',
             'file',
             'max:10240',
-            'mimes:jpg,jpeg,png,webp,pdf,mp4,webm,mov,ogg',
-            'mimetypes:image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/webm,video/quicktime,video/ogg',
+            'mimes:jpg,jpeg,png,webp,pdf,mp4,webm,mov,ogg,m4a,mp3',
+            'mimetypes:image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/webm,video/quicktime,video/ogg,audio/webm,audio/ogg,audio/mpeg,audio/mp4,audio/x-m4a,audio/m4a',
         ],
+        'attachment_duration' => ['nullable', 'integer', 'min:0', 'max:120'],
         
 
         'name' => ['nullable', 'string', 'max:255'],
@@ -48,10 +49,10 @@ class SendMessageRequest extends FormRequest
 public function messages(): array
 {
     return [
-        'attachment.file' => 'Upload an image, PDF, or video up to 10 MB.',
-        'attachment.max' => 'Upload an image, PDF, or video up to 10 MB.',
-        'attachment.mimes' => 'Upload an image, PDF, or video up to 10 MB.',
-        'attachment.mimetypes' => 'Upload an image, PDF, or video up to 10 MB.',
+        'attachment.file' => 'Upload an image, PDF, video, or voice note up to 10 MB.',
+        'attachment.max' => 'Voice note must be under 10 MB.',
+        'attachment.mimes' => 'Upload an image, PDF, video, or voice note up to 10 MB.',
+        'attachment.mimetypes' => 'Upload an image, PDF, video, or voice note up to 10 MB.',
     ];
 }
 

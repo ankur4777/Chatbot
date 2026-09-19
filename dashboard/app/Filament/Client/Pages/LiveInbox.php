@@ -6,6 +6,7 @@ use App\Filament\Client\Concerns\HasSelectedLiveChatWebsite;
 use App\Filament\Client\Concerns\RequiresLiveChatAccess;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Models\LiveChatSession;
 use App\Support\BrowserTime;
 use BackedEnum;
 use Carbon\Carbon;
@@ -49,7 +50,7 @@ class LiveInbox extends Page implements HasTable
     {
         return ChatConversation::query()
             ->select('chat_conversations.*')
-            ->with(['visitor', 'website', 'assignedAgent'])
+            ->with(['visitor', 'website', 'assignedAgent', 'activeLiveChatSession'])
             ->addSelect([
                 'latest_message_text' => ChatMessage::query()
                     ->select('message')
@@ -78,7 +79,13 @@ class LiveInbox extends Page implements HasTable
                 )
             )
             ->where('website_id', $this->selectedLiveChatWebsiteId())
+            ->where('updated_at', '>=', $this->recentChatCutoff())
             ->whereIn('status', ['waiting_agent', 'live_active']);
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 
     protected function columns(): array
@@ -91,11 +98,6 @@ class LiveInbox extends Page implements HasTable
                         $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
                 ),
 
-            TextColumn::make('website.name')
-                ->label('Website')
-                ->searchable()
-                ->sortable(),
-
             TextColumn::make('assignedAgent.name')
                 ->label('Agent')
                 ->placeholder('Unassigned'),
@@ -103,16 +105,16 @@ class LiveInbox extends Page implements HasTable
             TextColumn::make('status')
                 ->badge()
                 ->formatStateUsing(
-                    fn (string $state): string => match ($state) {
+                    fn (string $state, ChatConversation $record): string => match ($state) {
                         'waiting_agent' => 'Waiting',
-                        'live_active' => 'Live',
+                        'live_active' => $this->agentChatStatusLabel($record),
                         default => ucfirst(str_replace('_', ' ', $state)),
                     }
                 )
                 ->color(
-                    fn (string $state): string => match ($state) {
+                    fn (string $state, ChatConversation $record): string => match ($state) {
                         'waiting_agent' => 'warning',
-                        'live_active' => 'success',
+                        'live_active' => $this->agentChatStatusColor($record),
                         default => 'gray',
                     }
                 ),
@@ -158,6 +160,26 @@ class LiveInbox extends Page implements HasTable
         return $conversation->live_started_at
             ?? $conversation->assigned_at
             ?? $conversation->handoff_requested_at;
+    }
+
+    protected function agentChatStatusLabel(ChatConversation $conversation): string
+    {
+        $status = $conversation->activeLiveChatSession?->agent_chat_status
+            ?: LiveChatSession::AGENT_CHAT_STATUS_ACTIVE;
+
+        return LiveChatSession::agentChatStatusLabels()[$status] ?? 'Active';
+    }
+
+    protected function agentChatStatusColor(ChatConversation $conversation): string
+    {
+        return match (
+            $conversation->activeLiveChatSession?->agent_chat_status
+                ?: LiveChatSession::AGENT_CHAT_STATUS_ACTIVE
+        ) {
+            LiveChatSession::AGENT_CHAT_STATUS_ON_HOLD => 'warning',
+            LiveChatSession::AGENT_CHAT_STATUS_AWAITING_VISITOR => 'info',
+            default => 'success',
+        };
     }
 
     protected function lastActivityAt(ChatConversation $conversation): ?CarbonInterface

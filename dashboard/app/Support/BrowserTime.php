@@ -16,7 +16,8 @@ class BrowserTime
             return 'N/A';
         }
 
-        $timezone = FilamentTimezone::get() ?? 'UTC';
+        $timezone = FilamentTimezone::get()
+            ?? config('app.display_timezone', 'Asia/Kolkata');
 
         $date = $value instanceof CarbonInterface
             ? $value->copy()

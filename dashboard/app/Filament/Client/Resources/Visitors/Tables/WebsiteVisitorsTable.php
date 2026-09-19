@@ -15,6 +15,7 @@ class WebsiteVisitorsTable
                 $query
                     ->whereNotNull('visitor_uuid')
                     ->where('visitor_uuid', '!=', '')
+                    ->where('last_activity_at', '>=', now()->subDays(30))
                     ->whereIn('id', function ($subQuery) {
 
                         $subQuery
@@ -22,6 +23,7 @@ class WebsiteVisitorsTable
                             ->selectRaw('MAX(id)')
                             ->whereNotNull('visitor_uuid')
                             ->where('visitor_uuid', '!=', '')
+                            ->where('last_activity_at', '>=', now()->subDays(30))
                             ->groupBy('website_id', 'visitor_uuid');
 
                     });

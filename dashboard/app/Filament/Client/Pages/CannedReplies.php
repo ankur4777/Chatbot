@@ -19,6 +19,8 @@ class CannedReplies extends Page
 
     protected static ?string $navigationLabel = 'Canned Replies';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|\UnitEnum|null $navigationGroup = 'Live Chat';
 
     protected static ?int $navigationSort = 60;
@@ -27,6 +29,11 @@ class CannedReplies extends Page
         Heroicon::OutlinedDocumentText;
 
     protected string $view = 'filament.client.pages.canned-replies';
+
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 
     public ?int $editingId = null;
 

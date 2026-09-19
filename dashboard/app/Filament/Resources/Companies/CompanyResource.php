@@ -41,11 +41,20 @@ class CompanyResource extends Resource
             TextEntry::make('name')
                 ->label('Company Name'),
 
+            TextEntry::make('owner_name')
+    ->label('Owner Name'),
+
             TextEntry::make('email')
                 ->label('Email Address'),
 
             TextEntry::make('phone')
                 ->label('Phone Number'),
+
+            TextEntry::make('gst_number')
+    ->label('GST Number'),
+
+TextEntry::make('address')
+    ->label('Company Address'),
 
             IconEntry::make('status')
                 ->label('Status')

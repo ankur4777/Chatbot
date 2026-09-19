@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Company extends Model
 {
     protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'slug',
-        'logo',
-        'status',
+       'name',
+    'owner_name',
+    'email',
+    'phone',
+    'gst_number',
+    'address',
+    'slug',
+    'logo',
+    'status',
     ];
 
     public function websites(): HasMany

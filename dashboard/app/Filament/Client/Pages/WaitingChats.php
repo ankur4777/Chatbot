@@ -46,11 +46,6 @@ class WaitingChats extends Page implements HasTable
                             $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
                     ),
 
-                TextColumn::make('website.name')
-                    ->label('Website')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('handoff_requested_at')
                     ->label('Waiting Since')
                     ->since()
@@ -86,6 +81,12 @@ class WaitingChats extends Page implements HasTable
                 )
             )
             ->where('website_id', $this->selectedLiveChatWebsiteId())
+            ->where('updated_at', '>=', $this->recentChatCutoff())
             ->where('status', 'waiting_agent');
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 }

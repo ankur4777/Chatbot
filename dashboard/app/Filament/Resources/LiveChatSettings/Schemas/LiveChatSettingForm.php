@@ -61,6 +61,17 @@ class LiveChatSettingForm
                                     ! (bool) $get('enable_live_chat')
                             ),
 
+                        TextInput::make('max_agents_per_website')
+                            ->label('Max Agents For This Website')
+                            ->helperText('Only Super Admin can control how many agents the client may assign to this website. Leave empty for no limit.')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(500)
+                            ->disabled(
+                                fn (Get $get): bool =>
+                                    ! (bool) $get('enable_live_chat')
+                            ),
+
                         Textarea::make('waiting_message')
                             ->label('Waiting Message')
                             ->helperText('Shown after a visitor requests an agent while agents are online.')

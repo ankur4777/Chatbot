@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\ChatConversation;
+use App\Models\ChatbotLead;
+use App\Models\AgentNotification;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +62,11 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
+            AgentNotification::query()
+                ->where('agent_id', $agent->id)
+                ->where('created_at', '<', today())
+                ->delete();
+
             $companyConversations = ChatConversation::query()
                 ->whereHas(
                     'website',
@@ -79,6 +86,44 @@ class AppServiceProvider extends ServiceProvider
                     ->where('status', 'live_active')
                     ->where('assigned_agent_id', $agent->id)
                     ->count(),
+                'agentNavMissedCount' => ChatbotLead::query()
+                    ->where('source', 'live_chat_offline_request')
+                    ->where('assigned_agent_id', $agent->id)
+                    ->whereIn('followup_status', [
+                        'pending',
+                        'assigned',
+                        'follow_up_required',
+                    ])
+                    ->whereHas(
+                        'website',
+                        fn ($query) => $query->where(
+                            'company_id',
+                            $agent->company_id
+                        )
+                    )
+                    ->count(),
+                'agentNavNotificationCount' => AgentNotification::query()
+                    ->where('agent_id', $agent->id)
+                    ->unread()
+                    ->count(),
+                'agentLatestNotifications' => AgentNotification::query()
+                    ->where('agent_id', $agent->id)
+                    ->latest()
+                    ->limit(5)
+                    ->get(),
+                'agentLiveNotificationConversations' => (clone $companyConversations)
+                    ->with('visitor')
+                    ->where('status', 'live_active')
+                    ->where('assigned_agent_id', $agent->id)
+                    ->latest('updated_at')
+                    ->limit(50)
+                    ->get()
+                    ->map(fn (ChatConversation $conversation): array => [
+                        'id' => $conversation->id,
+                        'label' => $conversation->visitor?->displayName() ?? 'Visitor',
+                        'url' => route('agent.chats.show', $conversation),
+                    ])
+                    ->values(),
             ]);
         });
     }

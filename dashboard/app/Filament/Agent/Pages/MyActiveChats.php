@@ -114,6 +114,12 @@ class MyActiveChats extends Page implements HasTable
                 )
             )
             ->where('status', 'live_active')
-            ->where('assigned_agent_id', auth()->id());
+            ->where('assigned_agent_id', auth()->id())
+            ->where('updated_at', '>=', $this->recentChatCutoff());
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 }

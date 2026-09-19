@@ -83,7 +83,11 @@ public function sendMessage(Request $request)
     }
 
     $attachmentData = $attachment
-        ? $this->storeLiveChatAttachment($conversation, $attachment)
+        ? $this->storeLiveChatAttachment(
+            $conversation,
+            $attachment,
+            $request->integer('attachment_duration') ?: null
+        )
         : null;
 
     // Save current user message first
@@ -95,6 +99,7 @@ public function sendMessage(Request $request)
 
     if (! $conversation->isAiActive()) {
         $this->broadcastSafely(new LiveChatMessageSent($visitorMessage));
+        app(AgentNotificationService::class)->visitorMessage($visitorMessage);
 
         return response()->json([
             'success' => true,
@@ -361,9 +366,10 @@ public function saveUserMessage(
     return ChatMessage::create($payload);
 }
 
-protected function storeLiveChatAttachment(
+public function storeLiveChatAttachment(
     ChatConversation $conversation,
-    UploadedFile $file
+    UploadedFile $file,
+    ?int $durationSeconds = null
 ): array {
     $extension = strtolower($file->getClientOriginalExtension());
     $mimeType = $file->getMimeType();
@@ -378,6 +384,8 @@ protected function storeLiveChatAttachment(
         'webm',
         'mov',
         'ogg',
+        'm4a',
+        'mp3',
     ];
 
     $allowedMimeTypes = [
@@ -389,6 +397,12 @@ protected function storeLiveChatAttachment(
         'video/webm',
         'video/quicktime',
         'video/ogg',
+        'audio/webm',
+        'audio/ogg',
+        'audio/mpeg',
+        'audio/mp4',
+        'audio/x-m4a',
+        'audio/m4a',
     ];
 
     if (
@@ -396,15 +410,44 @@ protected function storeLiveChatAttachment(
         || ! in_array($mimeType, $allowedMimeTypes, true)
     ) {
             throw new InvalidArgumentException(
-                'Upload an image, PDF, or video up to 10 MB.'
+                'Upload an image, PDF, video, or voice note up to 10 MB.'
             );
     }
 
-    $type = match (true) {
+    $isVoiceNote =
+    $durationSeconds !== null
+    && in_array($extension, ['webm', 'ogg', 'm4a', 'mp3'], true)
+    && (
+        str_starts_with($mimeType, 'audio/')
+        || in_array(
+            $mimeType,
+            [
+                'video/webm',
+                'video/ogg',
+                'video/mp4',
+            ],
+            true
+        )
+    );
+
+$type = $isVoiceNote
+    ? 'audio'
+    : match (true) {
+        str_starts_with($mimeType, 'audio/') => 'audio',
         str_starts_with($mimeType, 'video/') => 'video',
         $mimeType === 'application/pdf' => 'pdf',
         default => 'image',
     };
+
+$normalizedMimeType = $isVoiceNote
+    ? match ($extension) {
+        'ogg' => 'audio/ogg',
+        'm4a' => 'audio/mp4',
+        'mp3' => 'audio/mpeg',
+        default => 'audio/webm',
+    }
+    : $mimeType;
+
     $path = $file->storeAs(
         'live-chat/' . $conversation->id,
         (string) Str::uuid() . '.' . $extension,
@@ -422,9 +465,10 @@ protected function storeLiveChatAttachment(
         'type' => $type,
         'metadata' => [
             'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $mimeType,
+            'mime_type' => $normalizedMimeType,
             'size' => $file->getSize(),
             'extension' => $extension,
+            'duration' => $durationSeconds,
         ],
     ];
 }
@@ -444,6 +488,7 @@ public function attachmentPayload(
         'type' => $message->attachment_type,
         'mime_type' => $metadata['mime_type'] ?? null,
         'size' => $metadata['size'] ?? null,
+        'duration' => $metadata['duration'] ?? null,
         'view_url' => $viewUrl,
     ];
 }
@@ -461,7 +506,7 @@ protected function aiDisabledMessage(
     $pendingStep = $this->currentPendingFlowStep($conversation, $website);
 
     if ($pendingStep && $pendingStep->options->isNotEmpty()) {
-        return 'Please select an option below.';
+        return 'Please select an option above.';
     }
 
     return 'Your message has been saved.';

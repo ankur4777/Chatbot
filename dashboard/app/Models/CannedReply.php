@@ -10,6 +10,7 @@ class CannedReply extends Model
     protected $fillable = [
         'company_id',
         'website_id',
+        'agent_id',
         'title',
         'message',
         'is_active',
@@ -27,5 +28,10 @@ class CannedReply extends Model
     public function website(): BelongsTo
     {
         return $this->belongsTo(Website::class);
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agent_id');
     }
 }

@@ -45,12 +45,31 @@ class WebsiteConversations extends ListRecords
         return $this->getWebsite()->name . ' Conversations';
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('downloadConversations')
+                ->label('Download All PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->url(fn (): string => route('client.chatbot-conversations.download', [
+                    'website' => $this->websiteId,
+                ])),
+        ];
+    }
+
     protected function getTableQuery(): Builder
     {
         return ChatConversation::query()
             ->where('website_id', $this->websiteId)
+            ->where('updated_at', '>=', $this->recentChatCutoff())
             ->with('visitor')
             ->withCount('messages');
+    }
+
+    protected function recentChatCutoff()
+    {
+        return now()->subDays(30);
     }
 
     private function endInactiveConversations(): void

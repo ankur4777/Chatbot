@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\KnowledgeSources\Schemas;
 
+use App\Support\BrowserTime;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -43,7 +44,7 @@ class KnowledgeSourceInfolist
 
                         TextEntry::make('last_synced_at')
                             ->label('Last Synced')
-                            ->dateTime(),
+                            ->formatStateUsing(fn ($state) => $state ? BrowserTime::format($state) : 'N/A'),
 
                         TextEntry::make('error')
                             ->label('Error')

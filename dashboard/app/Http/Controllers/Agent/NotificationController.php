@@ -131,6 +131,7 @@ class NotificationController extends Controller
             'visitor_messages' => $query->whereIn('type', [
                 AgentNotification::TYPE_NEW_VISITOR_MESSAGE,
                 AgentNotification::TYPE_VISITOR_REPLIED,
+                AgentNotification::TYPE_WAITING_CHAT,
             ]),
             'follow_up_reminders' => $query->where('type', AgentNotification::TYPE_FOLLOW_UP_REMINDER),
             'system' => $query->whereIn('type', [AgentNotification::TYPE_SYSTEM, AgentNotification::TYPE_CONVERSATION_CLOSED]),

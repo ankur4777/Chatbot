@@ -87,7 +87,7 @@ class ConversationMessages extends ListRecords
     $status = ucfirst($conversation->status ?? 'Unknown');
 
     $date = $conversation->started_at
-        ? $conversation->started_at->format('d M Y')
+        ? BrowserTime::format($conversation->started_at, 'd M Y')
         : 'Date N/A';
 
     return "{$visitor} • {$messageCount} Messages • {$status} • {$date}";
@@ -149,7 +149,7 @@ TextColumn::make('message')
 
 TextColumn::make('created_at')
     ->label('Time')
-    ->dateTime('h:i A')
+    ->formatStateUsing(fn ($state) => $state ? BrowserTime::format($state, 'h:i A') : 'N/A')
     ->tooltip(
         fn ($record) =>
             $record->created_at
@@ -200,11 +200,11 @@ TextColumn::make('created_at')
 
                 TextColumn::make('created_at')
     ->label('Time')
-    ->dateTime('h:i A')
+    ->formatStateUsing(fn ($state) => $state ? BrowserTime::format($state, 'h:i A') : 'N/A')
     ->tooltip(
         fn ($record) =>
             $record->created_at
-                ? $record->created_at->format('d M Y, h:i A')
+                ? BrowserTime::format($record->created_at, 'd M Y, h:i A')
                 : 'N/A'
     )
     ->sortable(),

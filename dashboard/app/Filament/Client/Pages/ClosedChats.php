@@ -24,7 +24,7 @@ class ClosedChats extends Page implements HasTable
     use HasSelectedLiveChatWebsite;
     use RequiresLiveChatAccess;
 
-    protected static ?string $title = 'Closed Chats';
+    protected static ?string $title = 'Closed Chats (Last 30 Days)';
 
     protected static ?string $navigationLabel = 'Closed Chats';
 
@@ -52,12 +52,21 @@ class ClosedChats extends Page implements HasTable
                     ])),
             ])
             ->columns([
-                TextColumn::make('conversation.visitor.visitor_uuid')
+                TextColumn::make('conversation.visitor.name')
                     ->label('Visitor')
-                    ->formatStateUsing(
-                        fn ($state) =>
-                            $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
-                    ),
+                    ->state(fn (LiveChatSession $record) => $record->conversation?->visitor?->displayName() ?? 'Unknown'),
+
+                TextColumn::make('conversation.visitor.email')
+                    ->label('Email')
+                    ->placeholder('-')
+                    ->copyable()
+                    ->toggleable(),
+
+                TextColumn::make('conversation.visitor.phone')
+                    ->label('Phone')
+                    ->placeholder('-')
+                    ->copyable()
+                    ->toggleable(),
 
                 TextColumn::make('agent.name')
                     ->label('Agent')

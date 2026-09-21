@@ -5,12 +5,15 @@ namespace App\Console\Commands;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\ChatbotLead;
+use App\Models\LiveChatClosure;
+use App\Models\LiveChatRating;
 use App\Models\LiveChatSession;
 use App\Models\Visitor;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class CleanupExpiredChatData extends Command
 {
@@ -28,14 +31,16 @@ class CleanupExpiredChatData extends Command
         $visitorStats = $this->cleanupVisitors($dryRun);
 
         $message = sprintf(
-            '%s expired data cleanup complete. Closed conversations: %d, closed sessions: %d, chatbot conversations: %d, missed chats: %d, attachments: %d, visitors: %d.',
+            '%s expired data cleanup complete. Conversations deleted: %d, sessions deleted: %d, messages deleted: %d, attachments deleted: %d, visitors deleted: %d, closed counts preserved: %d, ratings preserved: %d, skipped due to preservation failure: %d.',
             $dryRun ? 'Dry-run' : 'Deleted',
-            $closedChatStats['conversations'],
+            $closedChatStats['conversations'] + $chatbotStats['conversations'],
             $closedChatStats['sessions'],
-            $chatbotStats['conversations'],
-            $missedChatStats['missed_chats'],
+            $closedChatStats['messages'] + $chatbotStats['messages'],
             $closedChatStats['attachments'] + $chatbotStats['attachments'],
             $visitorStats['visitors'],
+            $closedChatStats['closures_preserved'],
+            $closedChatStats['ratings_preserved'],
+            $closedChatStats['skipped_rating_preservation_failures'],
         );
 
         $this->info($message);
@@ -57,7 +62,11 @@ class CleanupExpiredChatData extends Command
         $cutoff = now()->subDays($retentionDays);
         $deletedConversations = 0;
         $deletedSessions = 0;
+        $deletedMessages = 0;
         $deletedAttachments = 0;
+        $ratingsPreserved = 0;
+        $closuresPreserved = 0;
+        $skippedPreservationFailures = 0;
 
         $this->info("Closed chat cutoff: {$cutoff->toDateTimeString()}");
 
@@ -72,7 +81,14 @@ class CleanupExpiredChatData extends Command
         $query
             ->select('id')
             ->orderBy('id')
-            ->chunkById($chunkSize, function ($conversations) use ($dryRun, &$deletedConversations, &$deletedAttachments): void {
+            ->chunkById($chunkSize, function ($conversations) use (
+                $dryRun,
+                &$deletedConversations,
+                &$deletedMessages,
+                &$deletedAttachments,
+                &$ratingsPreserved,
+                &$skippedPreservationFailures
+            ): void {
                 $conversationIds = $conversations->pluck('id')->all();
 
                 if ($conversationIds === []) {
@@ -86,13 +102,45 @@ class CleanupExpiredChatData extends Command
                     ->filter()
                     ->unique()
                     ->values();
+                $messageCount = ChatMessage::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->count();
+                $sessionCount = LiveChatSession::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->count();
 
                 if ($dryRun) {
                     $deletedConversations += count($conversationIds);
+                    $deletedMessages += $messageCount;
+                    $deletedSessions += $sessionCount;
                     $deletedAttachments += $attachmentPaths->count();
 
                     return;
                 }
+
+                $preservation = $this->preserveRatingsForConversations($conversationIds);
+                $ratingsPreserved += $preservation['ratings_preserved'];
+                $closuresPreserved += $preservation['closures_preserved'];
+                $skippedPreservationFailures += $preservation['skipped'];
+                $conversationIds = $preservation['safe_conversation_ids'];
+
+                if ($conversationIds === []) {
+                    return;
+                }
+
+                $attachmentPaths = ChatMessage::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->whereNotNull('attachment')
+                    ->pluck('attachment')
+                    ->filter()
+                    ->unique()
+                    ->values();
+                $messageCount = ChatMessage::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->count();
+                $sessionCount = LiveChatSession::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->count();
 
                 foreach ($attachmentPaths as $path) {
                     if (Storage::disk('local')->delete($path)) {
@@ -100,14 +148,31 @@ class CleanupExpiredChatData extends Command
                     }
                 }
 
-                DB::transaction(function () use ($conversationIds, &$deletedConversations): void {
-                    // chat_messages, chatbot_flow_answers, chatbot_leads, and live_chat_sessions
-                    // are cascade-deleted by their foreign keys when the closed conversation is deleted.
-                    $deletedConversations += ChatConversation::query()
-                        ->whereIn('id', $conversationIds)
-                        ->where('status', 'closed')
-                        ->delete();
-                });
+                try {
+                    DB::transaction(function () use (
+                        $conversationIds,
+                        $messageCount,
+                        $sessionCount,
+                        &$deletedConversations,
+                        &$deletedMessages,
+                        &$deletedSessions
+                    ): void {
+                        // chat_messages, chatbot_flow_answers, chatbot_leads, and live_chat_sessions
+                        // are cascade-deleted by their foreign keys when the closed conversation is deleted.
+                        $deletedConversations += ChatConversation::query()
+                            ->whereIn('id', $conversationIds)
+                            ->where('status', 'closed')
+                            ->delete();
+                        $deletedMessages += $messageCount;
+                        $deletedSessions += $sessionCount;
+                    });
+                } catch (Throwable $exception) {
+                    $skippedPreservationFailures += count($conversationIds);
+                    Log::error('Skipped closed conversation cleanup after delete safety check failed.', [
+                        'conversation_ids' => $conversationIds,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
             });
 
         LiveChatSession::query()
@@ -115,7 +180,12 @@ class CleanupExpiredChatData extends Command
             ->whereNotNull('ended_at')
             ->where('ended_at', '<', $cutoff)
             ->orderBy('id')
-            ->chunkById($chunkSize, function ($sessions) use ($dryRun, &$deletedSessions): void {
+            ->chunkById($chunkSize, function ($sessions) use (
+                $dryRun,
+                &$deletedSessions,
+                &$ratingsPreserved,
+                &$skippedPreservationFailures
+            ): void {
                 $sessionIds = $sessions->pluck('id')->all();
 
                 if ($sessionIds === []) {
@@ -128,19 +198,213 @@ class CleanupExpiredChatData extends Command
                     return;
                 }
 
+                $preservation = $this->preserveRatingsForSessions($sessionIds);
+                $ratingsPreserved += $preservation['ratings_preserved'];
+                $closuresPreserved += $preservation['closures_preserved'];
+                $skippedPreservationFailures += $preservation['skipped'];
+                $sessionIds = $preservation['safe_session_ids'];
+
+                if ($sessionIds === []) {
+                    return;
+                }
+
                 // Closed Chats dashboard rows are live_chat_sessions.
                 // Delete only sessions that are already ended and older than retention.
-                $deletedSessions += LiveChatSession::query()
-                    ->whereIn('id', $sessionIds)
-                    ->whereNotNull('ended_at')
-                    ->delete();
+                try {
+                    $deletedSessions += LiveChatSession::query()
+                        ->whereIn('id', $sessionIds)
+                        ->whereNotNull('ended_at')
+                        ->delete();
+                } catch (Throwable $exception) {
+                    $skippedPreservationFailures += count($sessionIds);
+                    Log::error('Skipped live chat session cleanup after delete safety check failed.', [
+                        'live_chat_session_ids' => $sessionIds,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
             });
 
         return [
             'conversations' => $deletedConversations,
             'sessions' => $deletedSessions,
+            'messages' => $deletedMessages,
             'attachments' => $deletedAttachments,
+            'ratings_preserved' => $ratingsPreserved,
+            'closures_preserved' => $closuresPreserved,
+            'skipped_rating_preservation_failures' => $skippedPreservationFailures,
             'retention_days' => $retentionDays,
+        ];
+    }
+
+    protected function preserveRatingsForConversations(array $conversationIds): array
+    {
+        if ($conversationIds === []) {
+            return [
+                'safe_conversation_ids' => [],
+                'ratings_preserved' => 0,
+                'closures_preserved' => 0,
+                'skipped' => 0,
+            ];
+        }
+
+        $unsafeConversationIds = [];
+        $ratingsPreserved = 0;
+        $closuresPreserved = 0;
+
+        LiveChatSession::query()
+            ->with(['agent', 'conversation.website', 'conversation.visitor'])
+            ->whereIn('conversation_id', $conversationIds)
+            ->whereNotNull('ended_at')
+            ->orderBy('id')
+            ->each(function (LiveChatSession $session) use (&$unsafeConversationIds, &$closuresPreserved): void {
+                try {
+                    $closure = LiveChatClosure::preserveFromSession($session);
+
+                    if (! $closure) {
+                        $unsafeConversationIds[] = $session->conversation_id;
+                        Log::error('Skipped conversation cleanup because closed chat count was not preserved.', [
+                            'conversation_id' => $session->conversation_id,
+                            'live_chat_session_id' => $session->id,
+                        ]);
+
+                        return;
+                    }
+
+                    $closuresPreserved++;
+                } catch (Throwable $exception) {
+                    $unsafeConversationIds[] = $session->conversation_id;
+                    Log::error('Skipped conversation cleanup because closed chat count preservation failed.', [
+                        'conversation_id' => $session->conversation_id,
+                        'live_chat_session_id' => $session->id,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            });
+
+        LiveChatSession::query()
+            ->with(['agent', 'conversation.website', 'conversation.visitor'])
+            ->whereIn('conversation_id', $conversationIds)
+            ->where('rating_status', 'submitted')
+            ->whereNotNull('rating')
+            ->orderBy('id')
+            ->each(function (LiveChatSession $session) use (&$unsafeConversationIds, &$ratingsPreserved): void {
+                try {
+                    $rating = LiveChatRating::preserveFromSession($session);
+
+                    if (! $rating) {
+                        $unsafeConversationIds[] = $session->conversation_id;
+                        Log::error('Skipped conversation cleanup because submitted rating was not preserved.', [
+                            'conversation_id' => $session->conversation_id,
+                            'live_chat_session_id' => $session->id,
+                        ]);
+
+                        return;
+                    }
+
+                    $ratingsPreserved++;
+                } catch (Throwable $exception) {
+                    $unsafeConversationIds[] = $session->conversation_id;
+                    Log::error('Skipped conversation cleanup because rating preservation failed.', [
+                        'conversation_id' => $session->conversation_id,
+                        'live_chat_session_id' => $session->id,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            });
+
+        $unsafeConversationIds = array_values(array_unique(array_filter($unsafeConversationIds)));
+
+        return [
+            'safe_conversation_ids' => array_values(array_diff($conversationIds, $unsafeConversationIds)),
+            'ratings_preserved' => $ratingsPreserved,
+            'closures_preserved' => $closuresPreserved,
+            'skipped' => count($unsafeConversationIds),
+        ];
+    }
+
+    protected function preserveRatingsForSessions(array $sessionIds): array
+    {
+        if ($sessionIds === []) {
+            return [
+                'safe_session_ids' => [],
+                'ratings_preserved' => 0,
+                'closures_preserved' => 0,
+                'skipped' => 0,
+            ];
+        }
+
+        $unsafeSessionIds = [];
+        $ratingsPreserved = 0;
+        $closuresPreserved = 0;
+
+        LiveChatSession::query()
+            ->with(['agent', 'conversation.website', 'conversation.visitor'])
+            ->whereIn('id', $sessionIds)
+            ->whereNotNull('ended_at')
+            ->orderBy('id')
+            ->each(function (LiveChatSession $session) use (&$unsafeSessionIds, &$closuresPreserved): void {
+                try {
+                    $closure = LiveChatClosure::preserveFromSession($session);
+
+                    if (! $closure) {
+                        $unsafeSessionIds[] = $session->id;
+                        Log::error('Skipped live chat session cleanup because closed chat count was not preserved.', [
+                            'conversation_id' => $session->conversation_id,
+                            'live_chat_session_id' => $session->id,
+                        ]);
+
+                        return;
+                    }
+
+                    $closuresPreserved++;
+                } catch (Throwable $exception) {
+                    $unsafeSessionIds[] = $session->id;
+                    Log::error('Skipped live chat session cleanup because closed chat count preservation failed.', [
+                        'conversation_id' => $session->conversation_id,
+                        'live_chat_session_id' => $session->id,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            });
+
+        LiveChatSession::query()
+            ->with(['agent', 'conversation.website', 'conversation.visitor'])
+            ->whereIn('id', $sessionIds)
+            ->where('rating_status', 'submitted')
+            ->whereNotNull('rating')
+            ->orderBy('id')
+            ->each(function (LiveChatSession $session) use (&$unsafeSessionIds, &$ratingsPreserved): void {
+                try {
+                    $rating = LiveChatRating::preserveFromSession($session);
+
+                    if (! $rating) {
+                        $unsafeSessionIds[] = $session->id;
+                        Log::error('Skipped live chat session cleanup because submitted rating was not preserved.', [
+                            'conversation_id' => $session->conversation_id,
+                            'live_chat_session_id' => $session->id,
+                        ]);
+
+                        return;
+                    }
+
+                    $ratingsPreserved++;
+                } catch (Throwable $exception) {
+                    $unsafeSessionIds[] = $session->id;
+                    Log::error('Skipped live chat session cleanup because rating preservation failed.', [
+                        'conversation_id' => $session->conversation_id,
+                        'live_chat_session_id' => $session->id,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            });
+
+        $unsafeSessionIds = array_values(array_unique($unsafeSessionIds));
+
+        return [
+            'safe_session_ids' => array_values(array_diff($sessionIds, $unsafeSessionIds)),
+            'ratings_preserved' => $ratingsPreserved,
+            'closures_preserved' => $closuresPreserved,
+            'skipped' => count($unsafeSessionIds),
         ];
     }
 
@@ -156,6 +420,7 @@ class CleanupExpiredChatData extends Command
         ));
         $cutoff = now()->subDays($retentionDays);
         $deletedConversations = 0;
+        $deletedMessages = 0;
         $deletedAttachments = 0;
 
         $this->info("Chatbot conversation cutoff: {$cutoff->toDateTimeString()}");
@@ -175,7 +440,7 @@ class CleanupExpiredChatData extends Command
                 [$cutoff->toDateTimeString()]
             )
             ->orderBy('id')
-            ->chunkById($chunkSize, function ($conversations) use ($dryRun, &$deletedConversations, &$deletedAttachments): void {
+            ->chunkById($chunkSize, function ($conversations) use ($dryRun, &$deletedConversations, &$deletedMessages, &$deletedAttachments): void {
                 $conversationIds = $conversations->pluck('id')->all();
 
                 if ($conversationIds === []) {
@@ -189,9 +454,13 @@ class CleanupExpiredChatData extends Command
                     ->filter()
                     ->unique()
                     ->values();
+                $messageCount = ChatMessage::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->count();
 
                 if ($dryRun) {
                     $deletedConversations += count($conversationIds);
+                    $deletedMessages += $messageCount;
                     $deletedAttachments += $attachmentPaths->count();
 
                     return;
@@ -203,7 +472,7 @@ class CleanupExpiredChatData extends Command
                     }
                 }
 
-                DB::transaction(function () use ($conversationIds, &$deletedConversations): void {
+                DB::transaction(function () use ($conversationIds, $messageCount, &$deletedConversations, &$deletedMessages): void {
                     // chat_messages and chatbot_flow_answers cascade-delete through
                     // chat_conversations. We do not target leads or ratings directly.
                     $deletedConversations += ChatConversation::query()
@@ -215,11 +484,13 @@ class CleanupExpiredChatData extends Command
                                 ->orWhere('mode', 'ai');
                         })
                         ->delete();
+                    $deletedMessages += $messageCount;
                 });
             });
 
         return [
             'conversations' => $deletedConversations,
+            'messages' => $deletedMessages,
             'attachments' => $deletedAttachments,
             'retention_days' => $retentionDays,
         ];

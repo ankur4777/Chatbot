@@ -37,6 +37,36 @@ class ChatConversation extends Model
         'live_ended_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (ChatConversation $conversation): void {
+            $conversation
+                ->liveChatSessions()
+                ->with(['agent', 'conversation.website', 'conversation.visitor'])
+                ->whereNotNull('ended_at')
+                ->each(function (LiveChatSession $session) use ($conversation): void {
+                    if (! LiveChatClosure::preserveFromSession($session)) {
+                        throw new \RuntimeException(
+                            "Cannot delete conversation {$conversation->id}; closed chat count for session {$session->id} was not preserved."
+                        );
+                    }
+                });
+
+            $conversation
+                ->liveChatSessions()
+                ->with(['agent', 'conversation.website', 'conversation.visitor'])
+                ->where('rating_status', 'submitted')
+                ->whereNotNull('rating')
+                ->each(function (LiveChatSession $session) use ($conversation): void {
+                    if (! LiveChatRating::preserveFromSession($session)) {
+                        throw new \RuntimeException(
+                            "Cannot delete conversation {$conversation->id}; submitted rating for session {$session->id} was not preserved."
+                        );
+                    }
+                });
+        });
+    }
+
     public function website(): BelongsTo
     {
         return $this->belongsTo(Website::class);

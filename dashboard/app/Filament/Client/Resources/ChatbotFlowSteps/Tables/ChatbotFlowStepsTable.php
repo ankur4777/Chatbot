@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\ChatbotFlowSteps\Tables;
 
+use App\Support\BrowserTime;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -44,7 +45,7 @@ class ChatbotFlowStepsTable
 
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->dateTime('d M Y')
+                    ->formatStateUsing(fn ($state) => $state ? BrowserTime::format($state, 'd M Y') : 'N/A')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

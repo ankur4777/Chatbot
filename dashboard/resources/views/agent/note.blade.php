@@ -192,7 +192,7 @@
                             <span>{{ $conversation?->website?->name ?? 'Unknown website' }}</span>
                             <span aria-hidden="true">&middot;</span>
                             @if ($session->ended_at)
-                                <span>Closed {{ optional($session->ended_at)->format('d M, h:i A') }}</span>
+                                <span>Closed {{ \App\Support\BrowserTime::format($session->ended_at, 'd M, h:i A') }}</span>
                             @else
                                 <span>Live chat active</span>
                             @endif

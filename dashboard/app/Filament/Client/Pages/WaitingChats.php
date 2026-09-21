@@ -39,12 +39,21 @@ class WaitingChats extends Page implements HasTable
         return $table
             ->query($this->getTableQuery())
             ->columns([
-                TextColumn::make('visitor.visitor_uuid')
+                TextColumn::make('visitor.name')
                     ->label('Visitor')
-                    ->formatStateUsing(
-                        fn ($state) =>
-                            $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
-                    ),
+                    ->state(fn (ChatConversation $record) => $record->visitor?->displayName() ?? 'Unknown'),
+
+                TextColumn::make('visitor.email')
+                    ->label('Email')
+                    ->placeholder('-')
+                    ->copyable()
+                    ->toggleable(),
+
+                TextColumn::make('visitor.phone')
+                    ->label('Phone')
+                    ->placeholder('-')
+                    ->copyable()
+                    ->toggleable(),
 
                 TextColumn::make('handoff_requested_at')
                     ->label('Waiting Since')

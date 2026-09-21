@@ -91,12 +91,21 @@ class LiveInbox extends Page implements HasTable
     protected function columns(): array
     {
         return [
-            TextColumn::make('visitor.visitor_uuid')
+            TextColumn::make('visitor.name')
                 ->label('Visitor')
-                ->formatStateUsing(
-                    fn ($state) =>
-                        $state ? 'Visitor ' . substr($state, 0, 8) : 'Unknown'
-                ),
+                ->state(fn (ChatConversation $record) => $record->visitor?->displayName() ?? 'Unknown'),
+
+            TextColumn::make('visitor.email')
+                ->label('Email')
+                ->placeholder('-')
+                ->copyable()
+                ->toggleable(),
+
+            TextColumn::make('visitor.phone')
+                ->label('Phone')
+                ->placeholder('-')
+                ->copyable()
+                ->toggleable(),
 
             TextColumn::make('assignedAgent.name')
                 ->label('Agent')

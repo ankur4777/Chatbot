@@ -10,6 +10,8 @@
         };
         $average = $ratingStats['average'];
         $ratingCount = $ratingStats['count'];
+        $averageLast30Days = $ratingLast30DaysStats['average'] ?? null;
+        $ratingLast30DaysCount = $ratingLast30DaysStats['count'] ?? 0;
         $lastSeen = $availability === 'online'
     ? 'Active now'
     : ($lastSeenDisplay ?? 'Never');
@@ -78,8 +80,19 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="profile-stat-title">Total Chats Handled</div>
-                        <div class="profile-activity-value">{{ $closedTodayCount ?? 0 }}</div>
+                        <div class="profile-stat-title">Chats Handled in 30 Days</div>
+                        <div class="profile-activity-value">{{ $closedLast30DaysCount ?? 0 }}</div>
+                    </div>
+                </div>
+                <div class="profile-activity-card rating">
+                    <div class="profile-activity-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="profile-stat-title">Avg Rating of 30 Days</div>
+                        <div class="profile-activity-value">{{ $ratingLast30DaysCount > 0 ? number_format((float) $averageLast30Days, 1) . ' / 5' : 'Not Rated' }}</div>
                     </div>
                 </div>
             </div>
@@ -100,23 +113,12 @@
                     <span class="profile-detail-label">
                         <span class="profile-detail-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none">
-                                <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span>Average Rating</span>
-                    </span>
-                    <strong>{{ $ratingCount > 0 ? number_format((float) $average, 1) . ' / 5' : 'Not Rated' }}</strong>
-                </div>
-                <div class="profile-detail-row">
-                    <span class="profile-detail-label">
-                        <span class="profile-detail-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
                                 <path d="M7 3v4M17 3v4M4 8h16M5 5h14v15H5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </span>
                         <span>Member Since</span>
                     </span>
-                    <strong>{{ $agent->created_at?->format('d M Y') ?? 'N/A' }}</strong>
+                    <strong>{{ $agent->created_at ? \App\Support\BrowserTime::format($agent->created_at, 'd M Y') : 'N/A' }}</strong>
                 </div>
                 <div class="profile-detail-row">
                     <span class="profile-detail-label">
@@ -142,7 +144,7 @@
                             </svg>
                         </span>
                         <div>
-                            <div class="profile-stat-title">Closed Chats</div>
+                            <div class="profile-stat-title">Total Closed Chats</div>
                             <div class="profile-stat-value">{{ $closedSessionsCount }}</div>
                         </div>
                     </div>
@@ -155,8 +157,8 @@
                             </svg>
                         </span>
                         <div>
-                            <div class="profile-stat-title">Total Ratings</div>
-                            <div class="profile-stat-value">{{ $ratingCount }}</div>
+                            <div class="profile-stat-title">Average Rating</div>
+                            <div class="profile-stat-value">{{ $ratingCount > 0 ? number_format((float) $average, 1) . ' / 5' : 'Not Rated' }}</div>
                         </div>
                     </div>
                 </div>
@@ -251,19 +253,6 @@
                         </div>
                     </div>
 
-                    <div class="profile-field">
-                        <div class="profile-field-shell">
-                            <span class="profile-field-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none">
-                                    <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <div>
-                                <div class="profile-field-title">Average Rating</div>
-                                <div class="profile-value">{{ $ratingCount > 0 ? number_format((float) $average, 1) . ' / 5' : 'Not Rated' }}</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -343,26 +332,6 @@
                         {{ $activityCalendar['selectedDay']['label'] ?? 'Today' }}
                     </div>
                     <div class="profile-summary-row">
-                        <span class="profile-summary-label chat">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M21 14a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Total Chats</span>
-                        </span>
-                        <strong data-activity-detail-closed>{{ $activityCalendar['selectedDay']['closed_chats_count'] ?? 0 }}</strong>
-                    </div>
-                    <div class="profile-summary-row">
-                        <span class="profile-summary-label missed">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
-                                <path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                                <path d="M12 16h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-                            </svg>
-                            <span>Missed Chats</span>
-                        </span>
-                        <strong data-activity-detail-missed>{{ $activityCalendar['selectedDay']['missed_chats_count'] ?? 0 }}</strong>
-                    </div>
-                    <div class="profile-summary-row">
                         <span class="profile-summary-label online">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
@@ -417,8 +386,6 @@
             const breakTime = detail?.querySelector('[data-activity-detail-break]');
             const loginTime = detail?.querySelector('[data-activity-detail-login]');
             const logoutTime = detail?.querySelector('[data-activity-detail-logout]');
-            const closedChats = detail?.querySelector('[data-activity-detail-closed]');
-            const missedChats = detail?.querySelector('[data-activity-detail-missed]');
             const cards = document.querySelectorAll('[data-activity-live-card]');
 
             const formatDuration = seconds => {
@@ -460,12 +427,6 @@
                     }
                     if (logoutTime) {
                         logoutTime.textContent = button.dataset.logoutTime || 'N/A';
-                    }
-                    if (closedChats) {
-                        closedChats.textContent = button.dataset.closedChats || '0';
-                    }
-                    if (missedChats) {
-                        missedChats.textContent = button.dataset.missedChats || '0';
                     }
                 });
             });

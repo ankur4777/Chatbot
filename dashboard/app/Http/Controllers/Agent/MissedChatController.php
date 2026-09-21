@@ -25,7 +25,7 @@ class MissedChatController extends Controller
             'missedStats' => [
                 'total' => (clone $baseQuery)->count(),
                 'follow_up_required' => (clone $baseQuery)
-                    ->whereIn('followup_status', ['pending', 'assigned', 'follow_up_required'])
+                    ->where('followup_status', 'follow_up_required')
                     ->count(),
                 'contacted' => (clone $baseQuery)
                     ->where('followup_status', 'contacted')
@@ -118,7 +118,7 @@ class MissedChatController extends Controller
 
         return redirect()
             ->route('agent.missed-chats.show', $lead)
-            ->with('status', 'Follow-up updated.');
+            ->with('status', 'Missed chat updated.');
     }
 
     protected function assignedMissedChats(Request $request)
@@ -160,7 +160,7 @@ class MissedChatController extends Controller
     protected function agentFollowupStatusLabels(): array
     {
         return collect(ChatbotLead::followupStatusLabels())
-            ->except(['pending', 'assigned'])
+            ->except(['pending'])
             ->all();
     }
 }

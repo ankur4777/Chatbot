@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\LiveChatSession;
 use App\Models\User;
+use App\Support\BrowserTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -77,7 +78,7 @@ class ClosedChatExportController extends Controller
     {
         $lines = [
             'Closed Chat Transcript',
-            'Generated: ' . now()->format('d M Y, h:i A'),
+            'Generated: ' . BrowserTime::format(now(), 'd M Y, h:i A'),
             '',
         ];
 
@@ -92,8 +93,8 @@ class ClosedChatExportController extends Controller
                 'Website: ' . ($conversation?->website?->name ?? 'N/A'),
                 'Visitor: ' . $visitor,
                 'Agent: ' . ($session->agent?->name ?? 'Unassigned'),
-                'Started: ' . ($session->started_at?->format('d M Y, h:i A') ?? 'N/A'),
-                'Closed: ' . ($session->ended_at?->format('d M Y, h:i A') ?? 'N/A'),
+                'Started: ' . ($session->started_at ? BrowserTime::format($session->started_at, 'd M Y, h:i A') : 'N/A'),
+                'Closed: ' . ($session->ended_at ? BrowserTime::format($session->ended_at, 'd M Y, h:i A') : 'N/A'),
                 'Closed By: ' . ucfirst((string) ($session->ended_by ?? 'N/A')),
                 'Duration: ' . $this->formatDuration($session),
                 'Rating: ' . (
@@ -136,7 +137,7 @@ class ClosedChatExportController extends Controller
                         . '[Attachment: ' . ($message->attachment_type ?: 'file') . ']';
                 }
 
-                $lines[] = '[' . ($message->created_at?->format('d M Y, h:i A') ?? 'N/A') . '] '
+                $lines[] = '[' . ($message->created_at ? BrowserTime::format($message->created_at, 'd M Y, h:i A') : 'N/A') . '] '
                     . $this->senderLabel($message->sender_type) . ':';
 
                 foreach ($this->wrapLine($text ?: 'N/A') as $wrappedLine) {

@@ -43,14 +43,14 @@ class AgentExportController extends Controller
             User::query()
                 ->with('assignedWebsites')
                 ->withAvg([
-                    'liveChatSessions as submitted_rating_average' =>
+                    'liveChatRatings as submitted_rating_average' =>
                         fn (Builder $query) => $this->submittedRatingScope(
                             $query,
                             $owner->company_id
                         ),
                 ], 'rating')
                 ->withCount([
-                    'liveChatSessions as submitted_rating_count' =>
+                    'liveChatRatings as submitted_rating_count' =>
                         fn (Builder $query) => $this->submittedRatingScope(
                             $query,
                             $owner->company_id
@@ -95,13 +95,7 @@ class AgentExportController extends Controller
         int $companyId
     ): Builder {
         return $query
-            ->whereNotNull('ended_at')
-            ->where('rating_status', 'submitted')
-            ->whereNotNull('rating')
-            ->whereHas(
-                'conversation.website',
-                fn (Builder $query) => $query->where('company_id', $companyId)
-            );
+            ->where('company_id', $companyId);
     }
 
     protected function formatAverageRating(User $agent): string

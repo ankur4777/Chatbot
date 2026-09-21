@@ -94,6 +94,42 @@ class AgentNotificationService
         ]);
     }
 
+    public function waitingChat(ChatConversation $conversation): void
+    {
+        $conversation->loadMissing(['visitor', 'website']);
+
+        if ($conversation->status !== 'waiting_agent' || ! $conversation->website) {
+            return;
+        }
+
+        $visitor = $this->visitorLabel($conversation);
+
+        User::query()
+            ->where('role', 'agent')
+            ->where('status', true)
+            ->where('company_id', $conversation->website->company_id)
+            ->whereHas(
+                'assignedWebsites',
+                fn ($query) => $query->whereKey($conversation->website_id)
+            )
+            ->each(function (User $agent) use ($conversation, $visitor): void {
+                $this->create([
+                    'agent_id' => $agent->id,
+                    'company_id' => $agent->company_id,
+                    'website_id' => $conversation->website_id,
+                    'conversation_id' => $conversation->id,
+                    'type' => AgentNotification::TYPE_WAITING_CHAT,
+                    'title' => 'New waiting chat from ' . $visitor,
+                    'message' => 'A visitor is waiting for support.',
+                    'data' => [
+                        'action_label' => 'Open Waiting Chats',
+                        'action_url' => route('agent.chats', [], false),
+                        'visitor' => $visitor,
+                    ],
+                ]);
+            });
+    }
+
     public function followUpReminder(ChatbotLead $lead): ?AgentNotification
     {
         if (! $lead->assigned_agent_id) {

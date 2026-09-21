@@ -2,8 +2,8 @@
 
 @section('content')
     @php
-        $rawStatus = old('followup_status', $lead->followup_status ?? 'follow_up_required');
-        $status = in_array($rawStatus, ['pending', 'assigned'], true) ? 'follow_up_required' : $rawStatus;
+        $rawStatus = old('followup_status', $lead->followup_status ?? 'assigned');
+        $status = $rawStatus === 'pending' ? 'assigned' : $rawStatus;
         $maxDateTime = '2038-01-19T03:14';
         $statusLabel = $statuses[$status] ?? 'Follow-up Required';
         $assignedAt = $lead->assigned_at ? \App\Support\BrowserTime::format($lead->assigned_at, 'd M Y, h:i A') : 'N/A';
@@ -70,6 +70,7 @@
             width: 10px;
         }
         .missed-select-shell .status-dot.contacted { background: #10b981; }
+        .missed-select-shell .status-dot.assigned { background: #2563eb; }
         .missed-select-shell .status-dot.follow_up_required { background: #f59e0b; }
         .missed-select-shell .status-dot.resolved { background: #2563eb; }
         .missed-select-shell .status-dot.unable_to_reach { background: #ef4444; }
@@ -576,7 +577,7 @@
                                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path d="m22 2-7 20-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                Save Follow-up
+                                Save
                             </button>
                         </div>
                     </div>
@@ -597,7 +598,7 @@
         document.querySelectorAll('[data-status-mirror]').forEach(select => {
             const target = document.querySelector('[data-status-target]');
             const dot = select.closest('.missed-select-shell')?.querySelector('[data-status-dot]');
-            const statusClasses = ['contacted', 'follow_up_required', 'resolved', 'unable_to_reach'];
+            const statusClasses = ['assigned', 'contacted', 'follow_up_required', 'resolved', 'unable_to_reach'];
 
             const syncStatusDot = () => {
                 if (!dot) {

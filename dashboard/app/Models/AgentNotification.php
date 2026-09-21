@@ -10,6 +10,7 @@ class AgentNotification extends Model
 {
     public const TYPE_NEW_VISITOR_MESSAGE = 'new_visitor_message';
     public const TYPE_VISITOR_REPLIED = 'visitor_replied';
+    public const TYPE_WAITING_CHAT = 'waiting_chat';
     public const TYPE_FOLLOW_UP_REMINDER = 'follow_up_reminder';
     public const TYPE_MISSED_CHAT_ASSIGNED = 'missed_chat_assigned';
     public const TYPE_CONVERSATION_CLOSED = 'conversation_closed';

@@ -188,7 +188,7 @@ class AgentsTable
 
         return $query
             ->withAvg([
-                'liveChatSessions as submitted_rating_average' =>
+                'liveChatRatings as submitted_rating_average' =>
                     fn (Builder $query) => self::submittedRatingScope(
                         $query,
                         $companyId,
@@ -196,7 +196,7 @@ class AgentsTable
                     ),
             ], 'rating')
             ->withCount([
-                'liveChatSessions as submitted_rating_count' =>
+                'liveChatRatings as submitted_rating_count' =>
                     fn (Builder $query) => self::submittedRatingScope(
                         $query,
                         $companyId,
@@ -211,18 +211,8 @@ class AgentsTable
         ?int $websiteId = null
     ): Builder {
         return $query
-            ->whereNotNull('ended_at')
-            ->where('rating_status', 'submitted')
-            ->whereNotNull('rating')
-            ->whereHas(
-                'conversation.website',
-                fn (Builder $query) => $query
-                    ->where('company_id', $companyId)
-                    ->when(
-                        $websiteId,
-                        fn (Builder $query) => $query->whereKey($websiteId)
-                    )
-            );
+            ->where('company_id', $companyId)
+            ->when($websiteId, fn (Builder $query) => $query->where('website_id', $websiteId));
     }
 
     protected static function formatAverageRating(User $record): string

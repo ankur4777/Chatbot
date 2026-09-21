@@ -201,6 +201,12 @@ class AuthController extends Controller
         $agent = $request->user();
 
         if ($agent?->role === 'agent') {
+            $agent->forceFill([
+                'availability_status' => 'offline',
+                'is_online' => false,
+                'last_seen_at' => now(),
+            ])->save();
+
             $this->closeAssignedLiveChats($agent);
 
             $this->availabilityService->setAvailability(

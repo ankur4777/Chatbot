@@ -1825,10 +1825,18 @@ class Chatbot {
         }
 
         if (event.sender_type === "agent") {
+            const attachment = event.attachment
+                ? {
+                    ...event.attachment,
+                    message_id: event.message_id,
+                    conversation_id: event.conversation_id,
+                }
+                : null;
+
             this.addBotMessage(
                 event.message,
                 event.created_at,
-                event.attachment || null
+                attachment
             );
 
             this.notifyUnreadAgentMessage(event);
@@ -3259,6 +3267,18 @@ class Chatbot {
         return `${this.apiUrl}/attachments/${messageId}?${params}`;
     }
 
+    attachmentUrl(attachment) {
+
+        const messageId =
+            attachment?.message_id || attachment?.id;
+
+        if (messageId) {
+            return this.attachmentViewUrl(messageId);
+        }
+
+        return attachment?.view_url || "#";
+    }
+
     renderAttachment(attachment) {
 
         const wrapper =
@@ -3267,7 +3287,7 @@ class Chatbot {
             "chatbot-message-attachment";
 
         const url =
-            attachment.view_url || "#";
+            this.attachmentUrl(attachment);
 
         if (attachment.type === "image") {
             const link =

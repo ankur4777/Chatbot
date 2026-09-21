@@ -346,7 +346,7 @@
 
     <div class="closed-page-title">
         <h2>Closed Chats</h2>
-        <p>View all closed live chats with visitors.</p>
+        <p>View all closed live chats with visitors. (Last 30 days) </p>
     </div>
 
     <section class="panel">
@@ -421,7 +421,7 @@
                                 $avatar = strtoupper($conversation?->visitor?->initials() ?: 'UV');
                                 $tone = abs(crc32((string) $visitorCode)) % 7;
                                 $closedAt = $session->ended_at
-                                    ? \App\Support\BrowserTime::format($session->ended_xat, 'd M Y, h:i A')
+                                    ? \App\Support\BrowserTime::format($session->ended_at, 'd M Y, h:i A')
                                     : 'N/A';
                             @endphp
 

@@ -24,7 +24,7 @@
 
                 <div>
                     <dt class="text-xs uppercase text-gray-400">Started</dt>
-                    <dd>{{ optional($conversation->started_at)->format('d M Y, h:i A') ?? 'N/A' }}</dd>
+                    <dd>{{ $conversation->started_at ? \App\Support\BrowserTime::format($conversation->started_at, 'd M Y, h:i A') : 'N/A' }}</dd>
                 </div>
             </dl>
 
@@ -74,7 +74,7 @@
                         <div class="max-w-[78%] rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 {{ $alignRight ? 'bg-primary-50 dark:bg-primary-950' : 'bg-gray-50 dark:bg-gray-800' }}">
                             <div class="mb-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <span>{{ $label }}</span>
-                                <span>{{ optional($message->created_at)->format('h:i A') }}</span>
+                                <span>{{ $message->created_at ? \App\Support\BrowserTime::format($message->created_at, 'h:i A') : 'N/A' }}</span>
                             </div>
                             <div class="whitespace-pre-wrap text-gray-950 dark:text-white">{{ $message->message }}</div>
                         </div>

@@ -310,7 +310,7 @@
                     >
                         <div class="bubble">
                             <div class="bubble-meta">
-                                {{ $label }} · {{ optional($message->created_at)->format('d M, h:i A') }}
+                                {{ $label }} · {{ $message->created_at ? \App\Support\BrowserTime::format($message->created_at, 'd M, h:i A') : 'N/A' }}
                             </div>
                             @if (filled($message->message))
                                 <div class="bubble-text">{{ $message->message }}</div>
@@ -503,12 +503,12 @@
                     <div class="closed-detail-row">
                         <span>Started At</span>
                         <span class="closed-detail-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v4M17 3v4M4 8h16M5 5h14v15H5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <strong>{{ optional($liveChatSession->started_at)->format('d M Y, h:i A') ?? 'N/A' }}</strong>
+                        <strong>{{ $liveChatSession->started_at ? \App\Support\BrowserTime::format($liveChatSession->started_at, 'd M Y, h:i A') : 'N/A' }}</strong>
                     </div>
                     <div class="closed-detail-row">
                         <span>Closed At</span>
                         <span class="closed-detail-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v4M17 3v4M4 8h16M5 5h14v15H5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <strong>{{ optional($liveChatSession->ended_at)->format('d M Y, h:i A') ?? 'N/A' }}</strong>
+                        <strong>{{ $liveChatSession->ended_at ? \App\Support\BrowserTime::format($liveChatSession->ended_at, 'd M Y, h:i A') : 'N/A' }}</strong>
                     </div>
                     <div class="closed-detail-row">
                         <span>Duration</span>
@@ -589,7 +589,7 @@
                     </label>
                     @if ($conversation->visitor?->details_updated_at)
                         <div class="visitor-modal-audit">
-                            Last updated {{ $conversation->visitor->details_updated_at->format('d M Y, h:i A') }}
+                            Last updated {{ \App\Support\BrowserTime::format($conversation->visitor->details_updated_at, 'd M Y, h:i A') }}
                             @if ($conversation->visitor->detailsUpdatedBy?->name)
                                 by {{ $conversation->visitor->detailsUpdatedBy->name }}
                             @endif

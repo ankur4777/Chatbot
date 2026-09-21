@@ -34,6 +34,8 @@ class AgentNotificationCreated implements ShouldBroadcastNow
             'type' => $this->notification->type,
             'title' => $this->notification->title,
             'message' => $this->notification->message,
+            'conversation_id' => $this->notification->conversation_id,
+            'missed_chat_id' => $this->notification->missed_chat_id,
             'action_url' => $this->notification->data['action_url'] ?? null,
             'created_at' => optional($this->notification->created_at)->toISOString(),
             'unread_count' => AgentNotification::query()

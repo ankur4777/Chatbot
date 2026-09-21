@@ -208,6 +208,7 @@
             padding: 9px 12px;
             white-space: nowrap;
         }
+        .status-pill.assigned { background: #dbeafe; color: #1d4ed8; }
         .status-pill.follow-up-required { background: #fef3c7; color: #92400e; }
         .status-pill.contacted { background: #dcfce7; color: #166534; }
         .status-pill.resolved { background: #dbeafe; color: #1d4ed8; }
@@ -455,6 +456,7 @@
                     <label for="missed-status-filter">Status</label>
                     <select id="missed-status-filter" data-missed-status-filter>
                         <option value="">All Status</option>
+                        <option value="assigned">Assigned</option>
                         <option value="follow-up-required">Follow-up Required</option>
                         <option value="contacted">Contacted</option>
                         <option value="resolved">Resolved</option>
@@ -481,9 +483,9 @@
                     <tbody data-missed-table>
                         @forelse ($leads as $lead)
                             @php
-                                $normalizedStatus = in_array($lead->followup_status, ['pending', 'assigned'], true)
-                                    ? 'follow_up_required'
-                                    : ($lead->followup_status ?? 'follow_up_required');
+                                $normalizedStatus = ($lead->followup_status ?? 'assigned') === 'pending'
+                                    ? 'assigned'
+                                    : ($lead->followup_status ?? 'assigned');
                                 $statusLabel = \App\Models\ChatbotLead::followupStatusLabels()[$normalizedStatus] ?? 'Follow-up Required';
                                 $statusClass = str_replace('_', '-', $normalizedStatus);
                                 $visitorName = $lead->visitor?->displayName() ?? ($lead->name ?: 'Unknown Visitor');

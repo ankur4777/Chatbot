@@ -1852,14 +1852,14 @@
         }
         .profile-stat-grid {
             display: grid;
-            gap: 14px;
+            gap: 12px;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             margin-top: 18px;
         }
         .profile-activity-cards {
             display: grid;
             gap: 14px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
         }
         .profile-activity-card {
             align-items: center;
@@ -1874,6 +1874,7 @@
         .profile-activity-card.login-time { background: #f0fdf4; border-color: #bbf7d0; }
         .profile-activity-card.break { background: #fffbeb; border-color: #fde68a; }
         .profile-activity-card.handled { background: #fff1f2; border-color: #fecdd3; }
+        .profile-activity-card.rating { background: #fff7ed; border-color: #fed7aa; }
         .profile-activity-icon {
             align-items: center;
             border-radius: 8px;
@@ -1888,6 +1889,7 @@
         .profile-activity-card.login-time .profile-activity-icon { background: #dcfce7; color: #16a34a; }
         .profile-activity-card.break .profile-activity-icon { background: #fef3c7; color: #f59e0b; }
         .profile-activity-card.handled .profile-activity-icon { background: #ffe4e6; color: #e11d48; }
+        .profile-activity-card.rating .profile-activity-icon { background: #ffedd5; color: #f59e0b; }
         .profile-activity-value {
             color: var(--text);
             font-size: clamp(22px, 1.8vw, 30px);
@@ -1901,10 +1903,17 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             min-height: 74px;
-            padding: 14px 16px;
+            padding: 14px 12px;
         }
         .profile-stat-shell {
+            align-items: center;
+            gap: 12px;
             justify-content: center;
+        }
+        .profile-stat-shell > div {
+            flex: 1 1 auto;
+            min-width: 0;
+            text-align: center;
         }
         .profile-field label,
         .profile-field-title,
@@ -1915,7 +1924,14 @@
             font-weight: 600;
             margin-bottom: 6px;
         }
-        .profile-stat .profile-stat-title { white-space: nowrap; }
+        .profile-stat .profile-stat-title {
+            align-items: flex-end;
+            display: flex;
+            justify-content: center;
+            line-height: 1.25;
+            min-height: 32px;
+            white-space: normal;
+        }
         .profile-field input {
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -1929,6 +1945,10 @@
             font-size: 16px;
             font-weight: 600;
             word-break: break-word;
+        }
+        .profile-stat-value {
+            line-height: 1.2;
+            text-align: center;
         }
         .profile-muted { color: var(--muted); font-size: 13px; }
         .status-value {
@@ -3351,6 +3371,83 @@
             const currentOpenConversationId = () =>
                 document.querySelector('.chat-panel[data-conversation-id]')?.dataset.conversationId || null;
 
+            const openConversationStorageKey = config.agentId
+                ? `agent_open_conversation_${config.agentId}`
+                : null;
+
+            const currentTabId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            const openConversationHeartbeatMs = 5000;
+            const openConversationExpiryMs = 15000;
+
+            const storeOpenConversation = () => {
+                const conversationId = currentOpenConversationId();
+
+                if (!openConversationStorageKey || !conversationId) {
+                    return;
+                }
+
+                localStorage.setItem(openConversationStorageKey, JSON.stringify({
+                    conversationId: String(conversationId),
+                    tabId: currentTabId,
+                    updatedAt: Date.now(),
+                }));
+            };
+
+            const storedOpenConversationId = () => {
+                if (!openConversationStorageKey) {
+                    return null;
+                }
+
+                try {
+                    const stored = JSON.parse(localStorage.getItem(openConversationStorageKey) || '{}');
+
+                    if (
+                        !stored?.conversationId
+                        || !stored?.updatedAt
+                        || Date.now() - Number(stored.updatedAt) > openConversationExpiryMs
+                    ) {
+                        return null;
+                    }
+
+                    return String(stored.conversationId);
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const isConversationOpenForAgent = conversationId => {
+                const targetConversationId = String(conversationId || '');
+
+                if (!targetConversationId) {
+                    return false;
+                }
+
+                return String(currentOpenConversationId() || '') === targetConversationId
+                    || String(storedOpenConversationId() || '') === targetConversationId;
+            };
+
+            storeOpenConversation();
+
+            if (currentOpenConversationId()) {
+                setInterval(storeOpenConversation, openConversationHeartbeatMs);
+
+                window.addEventListener('beforeunload', () => {
+                    if (!openConversationStorageKey) {
+                        return;
+                    }
+
+                    try {
+                        const stored = JSON.parse(localStorage.getItem(openConversationStorageKey) || '{}');
+
+                        if (stored?.tabId === currentTabId) {
+                            localStorage.removeItem(openConversationStorageKey);
+                        }
+                    } catch (error) {
+                        localStorage.removeItem(openConversationStorageKey);
+                    }
+                });
+            }
+
             const truncatePreview = (value, length = 70) => {
                 const text = String(value || '').trim();
 
@@ -3715,13 +3812,11 @@
             };
 
             const shouldShowDesktopNotification = conversationId => {
-                const openConversationId = currentOpenConversationId();
-
-                if (String(openConversationId || '') !== String(conversationId || '')) {
-                    return true;
+                if (isConversationOpenForAgent(conversationId)) {
+                    return false;
                 }
 
-                return document.hidden || !document.hasFocus();
+                return true;
             };
 
             const showDesktopVisitorNotification = ({ messageId, conversationId, visitorName, url }) => {
@@ -3767,7 +3862,7 @@
             const showAgentLiveNotification = notification => {
                 const conversationId = String(notification.id || '');
 
-                if (!liveToast || !conversationId) {
+                if (!liveToast || !conversationId || isConversationOpenForAgent(conversationId)) {
                     return;
                 }
 
@@ -4117,7 +4212,36 @@
                 window.AgentEcho = echo;
                 const subscribedNotificationChannels = new Set();
 
+                const markNotificationRead = notificationId => {
+                    if (!notificationId || !config.csrfToken) {
+                        return;
+                    }
+
+                    const body = new FormData();
+                    body.append('action', 'mark_read');
+                    body.append('notifications[]', notificationId);
+
+                    fetch(@json(route('agent.notifications.bulk')), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': config.csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        body,
+                    }).catch(() => {});
+                };
+
                 const showPersistentNotification = event => {
+                    if (
+                        event?.conversation_id
+                        && isConversationOpenForAgent(event.conversation_id)
+                    ) {
+                        markNotificationRead(event.id);
+                        loadLatestNotifications();
+                        return;
+                    }
+
                     persistentUnreadNotifications = Number(event.unread_count || persistentUnreadNotifications + 1);
                     updateTitleBadge();
                     loadLatestNotifications();
@@ -4544,17 +4668,6 @@
                     }
 
                     if (sender === 'visitor') {
-                        playAgentNotificationSound();
-                        showDesktopVisitorNotification({
-                            messageId: event.message_id,
-                            conversationId,
-                            visitorName: 'Visitor',
-                            url: String(config.chatShowUrlTemplate || '').replace(
-                                '__CONVERSATION_ID__',
-                                conversationId
-                            ),
-                        });
-
                         try {
                             liveChannel.whisper('messages_read', {
                                 conversation_id: conversationId,

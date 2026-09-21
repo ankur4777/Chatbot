@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChatbotLead;
+use App\Models\LiveChatClosure;
+use App\Models\LiveChatRating;
 use App\Models\LiveChatSession;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -26,8 +28,9 @@ class ProfileController extends Controller
         
         'activityCalendar' => $activityCalendar,
         'closedSessionsCount' => $this->closedSessionsCount($agent),
-        'closedTodayCount' => $this->closedTodayCount($agent),
+        'closedLast30DaysCount' => $this->closedLast30DaysCount($agent),
         'ratingStats' => $this->ratingStats($agent->id),
+        'ratingLast30DaysStats' => $this->ratingLast30DaysStats($agent),
 
         'lastSeenDisplay' => $agent->last_seen_at
             ? Carbon::parse($agent->last_seen_at)
@@ -55,11 +58,8 @@ class ProfileController extends Controller
 
     protected function ratingStats(int $agentId): array
     {
-        $query = LiveChatSession::query()
-            ->where('agent_id', $agentId)
-            ->where('rating_status', 'submitted')
-            ->whereNotNull('rating')
-            ->whereNotNull('ended_at');
+        $query = LiveChatRating::query()
+            ->where('agent_id', $agentId);
 
         return [
             'average' => (clone $query)->avg('rating'),
@@ -69,29 +69,42 @@ class ProfileController extends Controller
 
     protected function closedSessionsCount($agent): int
     {
-        return LiveChatSession::query()
+        return LiveChatClosure::query()
             ->where('agent_id', $agent->id)
-            ->whereNotNull('ended_at')
-            ->whereHas(
-                'conversation.website',
-                fn ($query) => $query->where('company_id', $agent->company_id)
-            )
+            ->where('company_id', $agent->company_id)
             ->count();
     }
 
-    protected function closedTodayCount($agent): int
+    protected function closedLast30DaysCount($agent): int
     {
-        $todayStart = $this->databaseNow()->copy()->startOfDay()->timezone(config('app.timezone', 'UTC'));
-        $todayEnd = $this->databaseNow()->copy()->endOfDay()->timezone(config('app.timezone', 'UTC'));
+        $cutoff = $this->databaseNow()
+            ->copy()
+            ->subDays(30)
+            ->timezone(config('app.timezone', 'UTC'));
 
-        return LiveChatSession::query()
+        return LiveChatClosure::query()
             ->where('agent_id', $agent->id)
-            ->whereBetween('ended_at', [$todayStart, $todayEnd])
-            ->whereHas(
-                'conversation.website',
-                fn ($query) => $query->where('company_id', $agent->company_id)
-            )
+            ->where('company_id', $agent->company_id)
+            ->where('ended_at', '>=', $cutoff)
             ->count();
+    }
+
+    protected function ratingLast30DaysStats($agent): array
+    {
+        $cutoff = $this->databaseNow()
+            ->copy()
+            ->subDays(30)
+            ->timezone(config('app.timezone', 'UTC'));
+
+        $query = LiveChatRating::query()
+            ->where('agent_id', $agent->id)
+            ->where('company_id', $agent->company_id)
+            ->where('submitted_at', '>=', $cutoff);
+
+        return [
+            'average' => (clone $query)->avg('rating'),
+            'count' => (clone $query)->count(),
+        ];
     }
 
     protected function activityCalendar($agent, ?Carbon $selectedMonth = null): array
@@ -166,7 +179,7 @@ class ProfileController extends Controller
                 }
             });
 
-        DB::table('agent_activity_logs')
+        $activityLogs = DB::table('agent_activity_logs')
             ->where('agent_id', $agent->id)
             ->where('started_at', '<=', $queryEnd)
             ->where(function ($query) use ($queryStart): void {
@@ -174,16 +187,11 @@ class ProfileController extends Controller
                     ->orWhere('ended_at', '>=', $queryStart);
             })
             ->orderBy('started_at')
+            ->orderBy('id')
             ->get()
-            ->each(function ($log) use (&$days, &$hasOpenLogin, &$hasOpenBreak, $agent, $start, $end, $now, $todayKey): void {
-                if ($log->type === 'login' && blank($log->ended_at)) {
-                    $hasOpenLogin = true;
-                }
+            ->values();
 
-                if ($log->type === 'break' && blank($log->ended_at)) {
-                    $hasOpenBreak = true;
-                }
-
+        $activityLogs->each(function ($log, int $index) use ($activityLogs, &$days, &$hasOpenLogin, &$hasOpenBreak, $agent, $start, $end, $now, $todayKey): void {
                 if (in_array($log->type, ['logout', 'session_login'], true)) {
                     $activityAt = $this->databaseTime($log->started_at);
                     $key = $activityAt->toDateString();
@@ -224,29 +232,39 @@ class ProfileController extends Controller
                     return;
                 }
 
-                $periodStart = $this->databaseTime($log->started_at)->max($start);
-                $periodEnd = blank($log->ended_at)
-                    ? $now
-                    : $this->databaseTime($log->ended_at);
-
-                if (
-                    $log->type === 'login'
-                    && blank($log->ended_at)
-                    && $agent->availability_status !== 'online'
-                ) {
-                    $periodEnd = $agent->last_seen_at
-                        ? $this->databaseTime($agent->last_seen_at)
-                        : $this->databaseTime($log->started_at);
+                if (! in_array($log->type, ['login', 'break'], true)) {
+                    return;
                 }
 
-                if (
-                    $log->type === 'break'
-                    && blank($log->ended_at)
-                    && $agent->availability_status !== 'away'
-                ) {
-                    $periodEnd = $agent->last_seen_at
-                        ? $this->databaseTime($agent->last_seen_at)
-                        : $this->databaseTime($log->started_at);
+                $periodStart = $this->databaseTime($log->started_at)->max($start);
+
+                if (blank($log->ended_at)) {
+                    $nextActivity = $activityLogs
+                        ->slice($index + 1)
+                        ->first(fn ($nextLog) => in_array($nextLog->type, ['login', 'break', 'logout', 'session_login'], true));
+
+                    if ($nextActivity) {
+                        $periodEnd = $this->databaseTime($nextActivity->started_at);
+                    } else {
+                        $isCurrentStatus = ($log->type === 'login' && $agent->availability_status === 'online')
+                            || ($log->type === 'break' && $agent->availability_status === 'away');
+
+                        $periodEnd = $isCurrentStatus
+                            ? $now
+                            : ($agent->last_seen_at
+                                ? $this->databaseTime($agent->last_seen_at)
+                                : $this->databaseTime($log->started_at));
+
+                        if ($isCurrentStatus) {
+                            if ($log->type === 'login') {
+                                $hasOpenLogin = true;
+                            } else {
+                                $hasOpenBreak = true;
+                            }
+                        }
+                    }
+                } else {
+                    $periodEnd = $this->databaseTime($log->ended_at);
                 }
 
                 $periodEnd = $periodEnd->min($end);
@@ -279,7 +297,7 @@ class ProfileController extends Controller
 
                     }
 
-                    if (blank($log->ended_at) && $key === $todayKey) {
+                    if (blank($log->ended_at) && ! isset($nextActivity) && $key === $todayKey) {
                         if (
                             $log->type === 'break'
                             && $agent->availability_status === 'away'

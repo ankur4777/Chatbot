@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CannedReply;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Models\LiveChatRating;
 use App\Models\LiveChatSession;
 use App\Models\Website;
 use App\Services\ChatService;
@@ -137,24 +138,20 @@ class LiveChatController extends Controller
                 });
             })
             ->addSelect([
-                'conversation_rating_average' => LiveChatSession::query()
-                    ->from('live_chat_sessions as rated_sessions')
+                'conversation_rating_average' => LiveChatRating::query()
+                    ->from('live_chat_ratings as rated_sessions')
                     ->selectRaw('AVG(rated_sessions.rating)')
                     ->whereColumn(
                         'rated_sessions.conversation_id',
                         'live_chat_sessions.conversation_id'
-                    )
-                    ->where('rated_sessions.rating_status', 'submitted')
-                    ->whereNotNull('rated_sessions.rating'),
-                'conversation_rating_count' => LiveChatSession::query()
-                    ->from('live_chat_sessions as rated_sessions')
+                    ),
+                'conversation_rating_count' => LiveChatRating::query()
+                    ->from('live_chat_ratings as rated_sessions')
                     ->selectRaw('COUNT(rated_sessions.rating)')
                     ->whereColumn(
                         'rated_sessions.conversation_id',
                         'live_chat_sessions.conversation_id'
-                    )
-                    ->where('rated_sessions.rating_status', 'submitted')
-                    ->whereNotNull('rated_sessions.rating'),
+                    ),
             ])
             ->with([
                 'conversation.visitor',
@@ -796,7 +793,7 @@ class LiveChatController extends Controller
 
         $lines = [
             'Closed Chat Transcript',
-            'Generated: ' . now()->format('d M Y, h:i A'),
+            'Generated: ' . \App\Support\BrowserTime::format(now(), 'd M Y, h:i A'),
             '',
             'Conversation #' . ($conversation?->id ?? 'N/A'),
             'Website: ' . ($conversation?->website?->name ?? 'N/A'),
@@ -804,8 +801,8 @@ class LiveChatController extends Controller
             'Visitor Email: ' . ($conversation?->visitor?->email ?: 'N/A'),
             'Visitor Phone: ' . ($conversation?->visitor?->phone ?: 'N/A'),
             'Agent: ' . ($session->agent?->name ?? 'Unassigned'),
-            'Started: ' . ($session->started_at?->format('d M Y, h:i A') ?? 'N/A'),
-            'Closed: ' . ($session->ended_at?->format('d M Y, h:i A') ?? 'N/A'),
+            'Started: ' . ($session->started_at ? \App\Support\BrowserTime::format($session->started_at, 'd M Y, h:i A') : 'N/A'),
+            'Closed: ' . ($session->ended_at ? \App\Support\BrowserTime::format($session->ended_at, 'd M Y, h:i A') : 'N/A'),
             'Closed By: ' . ucfirst((string) ($session->ended_by ?? 'N/A')),
             'Duration: ' . $this->formatClosedSessionDuration($session),
             'Rating: ' . ($session->rating_status === 'submitted' && $session->rating ? $session->rating . '/5' : 'Not Rated'),
@@ -834,7 +831,7 @@ class LiveChatController extends Controller
                     . '[Attachment: ' . ($message->attachment_type ?: 'file') . ']';
             }
 
-            $lines[] = '[' . ($message->created_at?->format('d M Y, h:i A') ?? 'N/A') . '] '
+            $lines[] = '[' . ($message->created_at ? \App\Support\BrowserTime::format($message->created_at, 'd M Y, h:i A') : 'N/A') . '] '
                 . $this->closedSessionSenderLabel($message->sender_type) . ':';
 
             foreach ($this->wrapPdfLine($text ?: 'N/A') as $wrappedLine) {

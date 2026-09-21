@@ -35,6 +35,27 @@ class LiveChatSession extends Model
         'skipped_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (LiveChatSession $session): void {
+            if ($session->ended_at && ! LiveChatClosure::preserveFromSession($session)) {
+                throw new \RuntimeException(
+                    "Cannot delete live chat session {$session->id}; closed chat count was not preserved."
+                );
+            }
+
+            if (
+                $session->rating_status === 'submitted'
+                && $session->rating
+                && ! LiveChatRating::preserveFromSession($session)
+            ) {
+                throw new \RuntimeException(
+                    "Cannot delete live chat session {$session->id}; submitted rating was not preserved."
+                );
+            }
+        });
+    }
+
     public function conversation(): BelongsTo
     {
         return $this->belongsTo(ChatConversation::class, 'conversation_id');

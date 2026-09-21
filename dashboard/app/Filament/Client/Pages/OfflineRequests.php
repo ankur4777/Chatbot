@@ -6,6 +6,7 @@ use App\Filament\Client\Concerns\HasSelectedLiveChatWebsite;
 use App\Filament\Client\Concerns\RequiresLiveChatAccess;
 use App\Models\ChatbotLead;
 use App\Models\User;
+use App\Services\AgentNotificationService;
 use App\Support\BrowserTime;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -24,7 +25,7 @@ class OfflineRequests extends Page implements HasTable
     use HasSelectedLiveChatWebsite;
     use RequiresLiveChatAccess;
 
-    protected static ?string $title = 'Missed Chats';
+    protected static ?string $title = 'Missed Chats (Last 30 Days)';
 
     protected static ?string $navigationLabel = 'Missed Chats';
 
@@ -85,7 +86,7 @@ class OfflineRequests extends Page implements HasTable
                     ->sortable(),
 
                 TextColumn::make('followup_status')
-                    ->label('Follow-up Status')
+                    ->label('Status')
                     ->badge()
                     ->formatStateUsing(
                         fn (?string $state): string =>
@@ -248,6 +249,8 @@ class OfflineRequests extends Page implements HasTable
             )
             ->firstOrFail();
 
+        $previousAgentId = $lead->assigned_agent_id;
+
         $lead->forceFill([
             'assigned_agent_id' => $agent->id,
             'assigned_by' => auth()->id(),
@@ -256,6 +259,10 @@ class OfflineRequests extends Page implements HasTable
                 ? 'assigned'
                 : $lead->followup_status,
         ])->save();
+
+        if ((int) $previousAgentId !== (int) $agent->id) {
+            app(AgentNotificationService::class)->missedChatAssigned($lead->refresh());
+        }
     }
 
     protected function clientOwnsMissedChat(ChatbotLead $lead): bool

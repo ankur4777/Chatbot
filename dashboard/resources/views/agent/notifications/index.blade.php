@@ -49,7 +49,8 @@
             width: 48px;
         }
         .notification-icon.new_visitor_message,
-        .notification-icon.visitor_replied { background: #dbeafe; color: #2563eb; }
+        .notification-icon.visitor_replied,
+        .notification-icon.waiting_chat { background: #dbeafe; color: #2563eb; }
         .notification-icon.follow_up_reminder { background: #fef3c7; color: #d97706; }
         .notification-icon.missed_chat_assigned { background: #ede9fe; color: #7c3aed; }
         .notification-icon.conversation_closed { background: #dcfce7; color: #16a34a; }
@@ -103,6 +104,7 @@
         $icons = [
             'new_visitor_message' => '💬',
             'visitor_replied' => '↩',
+            'waiting_chat' => '💬',
             'follow_up_reminder' => '⏰',
             'missed_chat_assigned' => '📋',
             'conversation_closed' => '✓',
@@ -150,7 +152,7 @@
                                 @if ($notification->missed_chat_id)
                                     <span>Missed #{{ $notification->missed_chat_id }}</span>
                                 @endif
-                                <time title="{{ $notification->created_at?->format('d M Y, h:i A') }}">{{ $notification->created_at?->diffForHumans() }}</time>
+                                <time title="{{ $notification->created_at ? \App\Support\BrowserTime::format($notification->created_at, 'd M Y, h:i A') : '' }}">{{ $notification->created_at?->diffForHumans() }}</time>
                             </div>
                         </div>
                         <div class="notification-side">

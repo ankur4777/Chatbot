@@ -99,12 +99,22 @@ class LiveChatAvailabilityService
     protected function switchToOnline(User $agent): void
     {
         $this->endOpenActivity($agent, 'break');
+
+        if ($agent->availability_status !== self::ONLINE) {
+            $this->endOpenActivity($agent, 'login');
+        }
+
         $this->startActivity($agent, 'login');
     }
 
     protected function switchToBreak(User $agent): void
     {
         $this->endOpenActivity($agent, 'login');
+
+        if ($agent->availability_status !== self::AWAY) {
+            $this->endOpenActivity($agent, 'break');
+        }
+
         $this->startActivity($agent, 'break');
     }
 
@@ -128,6 +138,10 @@ class LiveChatAvailabilityService
 
     protected function startActivity(User $agent, string $type): void
     {
+        $oppositeType = $type === 'login' ? 'break' : 'login';
+
+        $this->endOpenActivity($agent, $oppositeType);
+
         if (
             AgentActivityLog::query()
                 ->where('agent_id', $agent->id)
@@ -164,21 +178,20 @@ class LiveChatAvailabilityService
 
     protected function endOpenActivity(User $agent, string $type): void
     {
-        $log = AgentActivityLog::query()
+        $openLogIds = AgentActivityLog::query()
             ->where('agent_id', $agent->id)
             ->where('type', $type)
             ->whereNull('ended_at')
-            ->latest('started_at')
-            ->first();
+            ->pluck('id');
 
-        if (! $log) {
+        if ($openLogIds->isEmpty()) {
             return;
         }
 
         $now = now();
 
         AgentActivityLog::query()
-            ->whereKey($log->id)
+            ->whereIn('id', $openLogIds)
             ->update([
                 'ended_at' => $now,
                 'updated_at' => $now,

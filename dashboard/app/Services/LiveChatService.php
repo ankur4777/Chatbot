@@ -7,6 +7,8 @@ use App\Events\LiveChatClosed;
 use App\Events\LiveChatMessageSent;
 use App\Events\LiveChatRequested;
 use App\Models\ChatConversation;
+use App\Models\LiveChatClosure;
+use App\Models\LiveChatRating;
 use App\Models\LiveChatSession;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -55,6 +57,7 @@ class LiveChatService
 
         $conversation = $conversation->refresh();
 
+        app(AgentNotificationService::class)->waitingChat($conversation);
         $this->broadcastSafely(new LiveChatRequested($conversation));
 
         return $conversation;
@@ -257,6 +260,8 @@ class LiveChatService
                 'submitted_at' => now(),
                 'skipped_at' => null,
             ]);
+
+            LiveChatRating::preserveFromSession($session->refresh());
 
             return $session->refresh();
         });
@@ -539,6 +544,8 @@ class LiveChatService
             'ended_by' => $endedBy,
             'agent_chat_status' => null,
         ]);
+
+        LiveChatClosure::preserveFromSession($session->refresh());
 
         return $session->refresh();
     }

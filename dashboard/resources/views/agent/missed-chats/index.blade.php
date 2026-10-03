@@ -38,7 +38,7 @@
         .missed-stat-card.total { background: #fff1f0; border-color: #ffc4bf; }
         .missed-stat-card.pending { background: #fffbeb; border-color: #fde68a; }
         .missed-stat-card.contacted { background: #f0fdf4; border-color: #bbf7d0; }
-        .missed-stat-card.resolved { background: #fff1f0; border-color: #ffc4bf; }
+        .missed-stat-card.resolved { background: #eff6ff; border-color: #bfdbfe; }
         .missed-stat-icon {
             align-items: center;
             border-radius: 10px;
@@ -52,7 +52,7 @@
         .missed-stat-card.total .missed-stat-icon { background: #ffe2df; color: #FF3B30; }
         .missed-stat-card.pending .missed-stat-icon { background: #fef3c7; color: #d97706; }
         .missed-stat-card.contacted .missed-stat-icon { background: #dcfce7; color: #16a34a; }
-        .missed-stat-card.resolved .missed-stat-icon { background: #ffe2df; color: #DF2F25; }
+        .missed-stat-card.resolved .missed-stat-icon { background: #dbeafe; color: #2563eb; }
         .missed-stat-title {
             color: #475569;
             font-size: 14.5px;
@@ -211,7 +211,7 @@
         .status-pill.assigned { background: #ffe2df; color: #DF2F25; }
         .status-pill.follow-up-required { background: #fef3c7; color: #92400e; }
         .status-pill.contacted { background: #dcfce7; color: #166534; }
-        .status-pill.resolved { background: #ffe2df; color: #DF2F25; }
+        .status-pill.resolved { background: #dbeafe; color: #1d4ed8; }
         .status-pill.unable-to-reach { background: #fee2e2; color: #991b1b; }
         .status-pill-dot {
             background: currentColor;

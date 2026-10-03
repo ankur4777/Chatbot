@@ -72,7 +72,7 @@
         .missed-select-shell .status-dot.contacted { background: #10b981; }
         .missed-select-shell .status-dot.assigned { background: #FF3B30; }
         .missed-select-shell .status-dot.follow_up_required { background: #f59e0b; }
-        .missed-select-shell .status-dot.resolved { background: #FF3B30; }
+        .missed-select-shell .status-dot.resolved { background: #2563eb; }
         .missed-select-shell .status-dot.unable_to_reach { background: #ef4444; }
         .missed-top-field select {
             background: #fff;
@@ -85,6 +85,20 @@
             font-weight: 600;
             padding: 9px 34px 9px 36px;
             width: 100%;
+        }
+        .missed-top-field select:focus {
+            border-color: #FF3B30;
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, .14);
+            outline: 0;
+        }
+        .missed-top-field select option {
+            background: #fff;
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .missed-top-field select option:checked {
+            background: #FF3B30;
+            color: #fff;
         }
         .missed-summary-grid {
             display: grid;

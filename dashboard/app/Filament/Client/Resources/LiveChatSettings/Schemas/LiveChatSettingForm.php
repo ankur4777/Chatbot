@@ -83,8 +83,6 @@ class LiveChatSettingForm
                     ])
                     ->maxSize(2048)
                     ->previewable(false)
-                    ->downloadable()
-                    ->openable()
                     ->disabled(
                         fn (?WebsiteSetting $record): bool =>
                             ! (bool) $record?->enable_live_chat

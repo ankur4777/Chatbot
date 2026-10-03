@@ -35,7 +35,7 @@
             gap: 12px;
         }
         .closed-panel-title svg {
-            color: #2563eb;
+            color: #FF3B30;
             height: 28px;
             width: 28px;
         }
@@ -105,7 +105,7 @@
         .closed-avatar {
             align-items: center;
             border-radius: 999px;
-            color: #4c1d95;
+            color: #9f1f19;
             display: inline-flex;
             flex: 0 0 auto;
             font-size: 16px;
@@ -114,10 +114,10 @@
             justify-content: center;
             width: 48px;
         }
-        .closed-avatar.tone-0 { background: #ede9fe; }
+        .closed-avatar.tone-0 { background: #fff1f0; }
         .closed-avatar.tone-1 { background: #dcfce7; color: #166534; }
         .closed-avatar.tone-2 { background: #ffe4e6; color: #be123c; }
-        .closed-avatar.tone-3 { background: #dbeafe; color: #1d4ed8; }
+        .closed-avatar.tone-3 { background: #ffe2df; color: #DF2F25; }
         .closed-avatar.tone-4 { background: #fae8ff; color: #86198f; }
         .closed-avatar.tone-5 { background: #ffedd5; color: #9a3412; }
         .closed-avatar.tone-6 { background: #ccfbf1; color: #0f766e; }
@@ -175,7 +175,7 @@
             width: 17px;
         }
         .closed-action.open {
-            background: #eaf3ff;
+            background: #fff1f0;
             color: #0f172a;
         }
         .closed-action.note {
@@ -202,15 +202,15 @@
             align-items: center;
             border: 1px solid var(--border);
             border-radius: 8px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             height: 42px;
             justify-content: center;
             min-width: 42px;
         }
         .closed-page-btn.current {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: #FF3B30;
+            border-color: #FF3B30;
             color: #fff;
             font-weight: 600;
         }

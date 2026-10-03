@@ -64,15 +64,15 @@
         }
 
         input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, .14);
+            border-color: #FF3B30;
+            box-shadow: 0 0 0 4px rgba(255, 59, 48, .14);
         }
 
         button {
-            background: #2563eb;
+            background: #FF3B30;
             border: 0;
             border-radius: 10px;
-            box-shadow: 0 10px 18px rgba(37, 99, 235, .18);
+            box-shadow: 0 10px 18px rgba(255, 59, 48, .18);
             color: #fff;
             cursor: pointer;
             font: inherit;
@@ -83,7 +83,7 @@
         }
 
         button:hover {
-            background: #1d4ed8;
+            background: #DF2F25;
             transform: translateY(-1px);
         }
 
@@ -114,7 +114,7 @@
         }
 
         .remember input {
-            accent-color: #2563eb;
+            accent-color: #FF3B30;
             height: 16px;
             margin: 0;
             width: 16px;
@@ -127,7 +127,7 @@
         }
 
         .links a {
-            color: #2563eb;
+            color: #FF3B30;
             font-size: 14px;
             font-weight: 700;
             text-decoration: none;

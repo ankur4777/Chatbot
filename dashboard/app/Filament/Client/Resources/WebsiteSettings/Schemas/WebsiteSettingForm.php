@@ -59,7 +59,7 @@ class WebsiteSettingForm
                 TextInput::make('primary_color')
                     ->label('Primary Color')
                     ->required()
-                    ->default('#2563eb'),
+                    ->default('#FF3B30'),
 
                 Textarea::make('system_prompt')
                     ->label('System Prompt')

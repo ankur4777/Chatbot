@@ -163,6 +163,9 @@ Route::prefix('agent')
             Route::get('/', [AgentLiveChatController::class, 'dashboard'])
                 ->name('dashboard');
 
+            Route::get('/dashboard-logo', [AgentLiveChatController::class, 'dashboardLogo'])
+                ->name('dashboard-logo');
+
             Route::get('/waiting', [AgentLiveChatController::class, 'waiting'])
                 ->name('waiting');
 

@@ -28,6 +28,7 @@ class WebsiteSetting extends Model
         'offline_behavior',
         'max_active_chats_per_agent',
         'max_agents_per_website',
+        'agent_dashboard_logo',
         'offline_message',
         'waiting_message',
 

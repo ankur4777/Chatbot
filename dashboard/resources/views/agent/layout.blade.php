@@ -12,8 +12,8 @@
             --border: #dde3ea;
             --text: #17202a;
             --muted: #657282;
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
+            --primary: #FF3B30;
+            --primary-dark: #DF2F25;
             --danger: #dc2626;
             --success: #15803d;
             --warning: #b45309;
@@ -70,6 +70,14 @@
             height: 24px;
             width: 24px;
         }
+        .brand-logo {
+            border-radius: 4px;
+            flex: 0 0 auto;
+            height: 50px;
+            object-fit: contain;
+            object-position: center;
+            width: 50px;
+        }
         .brand-title { font-size: 18px; font-weight: 700; line-height: 1.1; }
         .brand-subtitle { color: #94a3b8; font-size: 12px; margin-top: 3px; }
         .nav { display: grid; gap: 6px; }
@@ -93,11 +101,11 @@
             white-space: nowrap;
         }
         .nav a.active {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background: linear-gradient(135deg, #FF3B30, #DF2F25);
             color: #fff;
         }
         .nav a:hover, .nav button:hover { background: #1e293b; color: #fff; }
-        .nav a.active:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .nav a.active:hover { background: linear-gradient(135deg, #FF3B30, #DF2F25); }
         .nav-label {
             align-items: center;
             display: inline-flex;
@@ -113,7 +121,7 @@
         }
         .nav-badge {
             align-items: center;
-            background: #2563eb;
+            background: #FF3B30;
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 999px;
             color: #fff;
@@ -127,7 +135,7 @@
         }
         .nav a.active .nav-badge,
         .nav a:hover .nav-badge {
-            background: #3b82f6;
+            background: #FF6B62;
         }
         .nav .disabled { color: #64748b; cursor: default; padding: 10px 12px; }
         .logout-modal-backdrop {
@@ -292,7 +300,7 @@
         .agent-notification-dropdown-header button {
             background: transparent;
             border: 0;
-            color: #2563eb;
+            color: #FF3B30;
             cursor: pointer;
             font: inherit;
             font-size: 12px;
@@ -308,12 +316,12 @@
             padding: 10px;
             text-decoration: none;
         }
-        .agent-notification-mini.unread { background: #c2dbfc; border-color: #bfdbfe; }
+        .agent-notification-mini.unread { background: #ffe2df; border-color: #ffc4bf; }
         .agent-notification-mini strong { color: #0f172a; font-size: 13px; }
         .agent-notification-mini span { color: #64748b; font-size: 12px; line-height: 1.35; }
         .agent-notification-dropdown-footer {
             border-top: 1px solid var(--border);
-            color: #2563eb;
+            color: #FF3B30;
             font-size: 13px;
             font-weight: 700;
             padding: 10px 4px 2px;
@@ -366,13 +374,13 @@
             text-decoration: none;
         }
         .pagination nav[role="navigation"] > div:last-child > div:last-child a:hover {
-            background: #eff6ff;
-            border-color: #93c5fd;
-            color: #2563eb;
+            background: #fff1f0;
+            border-color: #ff9d96;
+            color: #FF3B30;
         }
         .pagination nav[role="navigation"] > div:last-child > div:last-child span[aria-current] > span {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: #FF3B30;
+            border-color: #FF3B30;
             color: #fff;
         }
         .pagination nav[role="navigation"] > div:last-child > div:last-child span[aria-disabled] > span {
@@ -583,9 +591,9 @@
         }
         .item-avatar {
             align-items: center;
-            background: #f3e8ff;
+            background: #ffe2df;
             border-radius: 999px;
-            color: #6d28d9;
+            color: #DF2F25;
             display: inline-flex;
             flex: 0 0 auto;
             font-size: 16px;
@@ -603,10 +611,10 @@
         a.item { cursor: pointer; }
         a.item:hover {
             background: #f8fafc;
-            border-color: #93c5fd;
+            border-color: #ff9d96;
         }
         a.item:focus-visible {
-            outline: 2px solid #2563eb;
+            outline: 2px solid #FF3B30;
             outline-offset: 2px;
         }
         .item-main { min-width: 0; }
@@ -653,7 +661,7 @@
         }
         .agent-chat-status-badge.active { background: #dcfce7; color: #166534; }
         .agent-chat-status-badge.on_hold { background: #fef3c7; color: #92400e; }
-        .agent-chat-status-badge.awaiting_visitor { background: #dbeafe; color: #1d4ed8; }
+        .agent-chat-status-badge.awaiting_visitor { background: #ffe2df; color: #DF2F25; }
         .agent-chat-status-control {
             align-items: center;
             background: #fff;
@@ -666,7 +674,7 @@
         }
         .agent-chat-status-control.active { background: #fff; border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74, 222, 128, .16); }
         .agent-chat-status-control.on_hold { background: #fffbeb; border-color: #facc15; box-shadow: 0 6px 16px rgba(146, 64, 14, .08); }
-        .agent-chat-status-control.awaiting_visitor { background: #eff6ff; border-color: #93c5fd; box-shadow: 0 6px 16px rgba(29, 78, 216, .08); }
+        .agent-chat-status-control.awaiting_visitor { background: #fff1f0; border-color: #ff9d96; box-shadow: 0 6px 16px rgba(223, 47, 37, .08); }
         .agent-chat-status-control label {
             align-items: center;
             align-self: stretch;
@@ -701,10 +709,10 @@
             width: 9px;
         }
         .agent-chat-status-control.on_hold .agent-chat-status-dot { background: #f59e0b; }
-        .agent-chat-status-control.awaiting_visitor .agent-chat-status-dot { background: #2563eb; }
+        .agent-chat-status-control.awaiting_visitor .agent-chat-status-dot { background: #FF3B30; }
         .agent-chat-status-trigger:hover { transform: translateY(-1px); }
         .agent-chat-status-trigger:focus {
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, .18);
             outline: 0;
         }
         .agent-chat-status-trigger:disabled {
@@ -736,7 +744,7 @@
         }
         .agent-chat-status-control.active .agent-chat-status-trigger { color: #166534; }
         .agent-chat-status-control.on_hold .agent-chat-status-trigger { color: #92400e; }
-        .agent-chat-status-control.awaiting_visitor .agent-chat-status-trigger { color: #1d4ed8; }
+        .agent-chat-status-control.awaiting_visitor .agent-chat-status-trigger { color: #DF2F25; }
         .agent-chat-status-menu {
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -795,7 +803,7 @@
         .agent-chat-status-option[aria-selected="true"] .agent-chat-status-check { display: block; }
         .agent-chat-status-option.active { color: #166534; }
         .agent-chat-status-option.on_hold { color: #92400e; }
-        .agent-chat-status-option.awaiting_visitor { color: #1d4ed8; }
+        .agent-chat-status-option.awaiting_visitor { color: #DF2F25; }
         .agent-chat-status-error {
             color: var(--danger);
             font-size: 12px;
@@ -926,9 +934,9 @@
         .conversation-avatar {
             align-items: center;
             align-self: start;
-            background: #f3e8ff;
+            background: #ffe2df;
             border-radius: 999px;
-            color: #4f46e5;
+            color: #DF2F25;
             display: inline-flex;
             font-size: 16px;
             font-weight: 800;
@@ -972,11 +980,11 @@
         }
         .conversation-link.active {
             background: #1e3a5f;
-            border-left: 3px solid #2563eb;
+            border-left: 3px solid #FF3B30;
         }
         .conversation-link:hover {
             background: #f8fbff;
-            box-shadow: inset 3px 0 0 #93c5fd;
+            box-shadow: inset 3px 0 0 #ff9d96;
             transform: translateX(2px);
         }
         .conversation-link.active:hover {
@@ -1004,8 +1012,8 @@
             color: #bbf7d0;
         }
         .conversation-link.active .agent-chat-status-badge.awaiting_visitor {
-            background: rgba(96, 165, 250, .2);
-            color: #bfdbfe;
+            background: rgba(255, 59, 48, .2);
+            color: #ffc4bf;
         }
         .chat-panel {
             display: grid;
@@ -1046,9 +1054,9 @@
         }
         .closed-back-btn {
             align-items: center;
-            background: #eaf3ff;
+            background: #fff1f0;
             border-radius: 8px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             flex: 0 0 auto;
             font-weight: 600;
@@ -1117,13 +1125,13 @@
             white-space: nowrap;
         }
         .closed-download-btn:hover {
-            background: #eff6ff;
-            border-color: #93c5fd;
-            color: #1d4ed8;
+            background: #fff1f0;
+            border-color: #ff9d96;
+            color: #DF2F25;
             transform: translateY(-1px);
         }
         .closed-download-btn:focus-visible {
-            outline: 2px solid #2563eb;
+            outline: 2px solid #FF3B30;
             outline-offset: 2px;
         }
         .closed-detail-panel {
@@ -1140,7 +1148,7 @@
             gap: 10px;
         }
         .closed-section-title svg {
-            color: #2563eb;
+            color: #FF3B30;
             height: 21px;
             width: 21px;
         }
@@ -1161,9 +1169,9 @@
         }
         .closed-detail-icon {
             align-items: center;
-            background: #eff6ff;
+            background: #fff1f0;
             border-radius: 999px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             height: 32px;
             justify-content: center;
@@ -1200,7 +1208,7 @@
             gap: 8px;
         }
         .closed-summary-title svg {
-            color: #2563eb;
+            color: #FF3B30;
             flex: 0 0 auto;
             height: 16px;
             width: 16px;
@@ -1231,9 +1239,9 @@
         }
         .closed-summary-icon {
             align-items: center;
-            background: #dbeafe;
+            background: #ffe2df;
             border-radius: 999px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             flex: 0 0 auto;
             height: 42px;
@@ -1282,9 +1290,9 @@
         }
         .chat-conversation-avatar {
             align-items: center;
-            background: #f3e8ff;
+            background: #ffe2df;
             border-radius: 999px;
-            color: #6d28d9;
+            color: #DF2F25;
             display: inline-flex;
             font-size: 17px;
             font-weight: 800;
@@ -1396,11 +1404,11 @@
         }
         .chat-new-messages {
             align-items: center;
-            background: #2563eb;
+            background: #FF3B30;
             border: 0;
             border-radius: 999px;
             bottom: 112px;
-            box-shadow: 0 16px 34px rgba(37, 99, 235, .24);
+            box-shadow: 0 16px 34px rgba(255, 59, 48, .24);
             color: #fff;
             cursor: pointer;
             display: inline-flex;
@@ -1416,7 +1424,7 @@
         .chat-new-messages[hidden] { display: none; }
         .conversation-unread-count {
             align-items: center;
-            background: #2563eb;
+            background: #FF3B30;
             border-radius: 999px;
             color: #fff;
             display: inline-flex;
@@ -1517,7 +1525,7 @@
             position: relative;
         }
         .voice-progress {
-            background: #bfdbfe;
+            background: #ffc4bf;
             bottom: 0;
             left: 0;
             position: absolute;
@@ -1606,10 +1614,10 @@
         }
         .typing-row {
             align-items: center;
-            background: #dbeafe;
-            border: 1px solid #bfdbfe;
+            background: #ffe2df;
+            border: 1px solid #ffc4bf;
             border-radius: 999px;
-            color: #1d4ed8;
+            color: #DF2F25;
             display: inline-flex;
             font-size: 14px;
             font-weight: 700;
@@ -1697,9 +1705,9 @@
         }
         .profile-calendar-heading-icon {
             align-items: center;
-            background: #dbeafe;
+            background: #ffe2df;
             border-radius: 12px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             flex: 0 0 auto;
             height: 48px;
@@ -1740,7 +1748,7 @@
             background: #fff;
             border: 1px solid var(--border);
             border-radius: 10px;
-            color: #0775be;
+            color: #DF2F25;
             display: inline-flex;
             font-size: 13px;
             font-weight: 800;
@@ -1750,9 +1758,9 @@
             padding: 0 14px;
         }
         .profile-calendar-today-button {
-            background: #eff6ff;
-            border-color: #dbeafe;
-            color: #2563eb;
+            background: #fff1f0;
+            border-color: #ffe2df;
+            color: #FF3B30;
             font-size: 15px;
         }
         .profile-calendar-nav-button svg {
@@ -1761,7 +1769,7 @@
         }
         .profile-calendar-nav-button:hover,
         .profile-calendar-today-button:hover {
-            border-color: #93c5fd;
+            border-color: #ff9d96;
             color: var(--primary);
         }
         .profile-summary { margin-top: 0; }
@@ -1839,9 +1847,9 @@
             height: 18px;
             width: 18px;
         }
-        .profile-detail-icon { background: #f8fafc; color: #2563eb; }
-        .profile-field-icon { background: #eff6ff; color: #2563eb; }
-        .profile-stat-icon.chat { background: #eff6ff; color: #2563eb; }
+        .profile-detail-icon { background: #f8fafc; color: #FF3B30; }
+        .profile-field-icon { background: #fff1f0; color: #FF3B30; }
+        .profile-stat-icon.chat { background: #fff1f0; color: #FF3B30; }
         .profile-stat-icon.rating { background: #fff7ed; color: #f59e0b; }
         .profile-detail-row span { color: var(--muted); font-size: 14px; font-weight: 600; }
         .profile-detail-row strong { color: var(--text); font-size: 15px; text-align: right; }
@@ -1870,7 +1878,7 @@
             padding: 16px;
             min-width: 0;
         }
-        .profile-activity-card.login { background: #eff6ff; border-color: #bfdbfe; }
+        .profile-activity-card.login { background: #fff1f0; border-color: #ffc4bf; }
         .profile-activity-card.login-time { background: #f0fdf4; border-color: #bbf7d0; }
         .profile-activity-card.break { background: #fffbeb; border-color: #fde68a; }
         .profile-activity-card.handled { background: #fff1f2; border-color: #fecdd3; }
@@ -1885,7 +1893,7 @@
             width: 42px;
         }
         .profile-activity-icon svg { height: 22px; width: 22px; }
-        .profile-activity-card.login .profile-activity-icon { background: #dbeafe; color: #2563eb; }
+        .profile-activity-card.login .profile-activity-icon { background: #ffe2df; color: #FF3B30; }
         .profile-activity-card.login-time .profile-activity-icon { background: #dcfce7; color: #16a34a; }
         .profile-activity-card.break .profile-activity-icon { background: #fef3c7; color: #f59e0b; }
         .profile-activity-card.handled .profile-activity-icon { background: #ffe4e6; color: #e11d48; }
@@ -1958,10 +1966,10 @@
         }
         .website-chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .website-chip {
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
+            background: #fff1f0;
+            border: 1px solid #ffc4bf;
             border-radius: 999px;
-            color: #3730a3;
+            color: #9f1f19;
             font-size: 12px;
             font-weight: 800;
             padding: 6px 9px;
@@ -2002,9 +2010,9 @@
         .profile-calendar-day:hover,
         .profile-calendar-day.selected {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, .12);
         }
-        .profile-calendar-day.today { background: #eff6ff; border-color: #93c5fd; }
+        .profile-calendar-day.today { background: #fff1f0; border-color: #ff9d96; }
         .profile-calendar-day span { font-size: 18px; font-weight: 600; }
         .profile-calendar-day small {
             align-self: end;
@@ -2029,9 +2037,9 @@
         }
         .profile-calendar-detail-icon {
             align-items: center;
-            background: #dbeafe;
+            background: #ffe2df;
             border-radius: 12px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             flex: 0 0 auto;
             height: 46px;
@@ -2043,7 +2051,7 @@
             width: 24px;
         }
         .profile-calendar-detail-date {
-            color: #2563eb;
+            color: #FF3B30;
             font-size: 15px;
             font-weight: 600;
             margin: -18px 0 16px 58px;
@@ -2075,7 +2083,7 @@
         }
         .profile-summary-label.chat svg { background: #dcfce7; color: #16a34a; }
         .profile-summary-label.missed svg { background: #fef3c7; color: #f59e0b; }
-        .profile-summary-label.online svg { background: #dbeafe; color: #2563eb; }
+        .profile-summary-label.online svg { background: #ffe2df; color: #FF3B30; }
         .profile-summary-label.break svg { background: #ffedd5; color: #f97316; }
         .profile-summary-label.login svg { background: #dcfce7; color: #22c55e; }
         .profile-summary-label.logout svg { background: #fee2e2; color: #ef4444; }
@@ -2783,7 +2791,7 @@
                 padding: 0 13px;
             }
             .chat-list-toggle svg {
-                color: #2563eb;
+                color: #FF3B30;
                 height: 18px;
                 width: 18px;
             }
@@ -2918,9 +2926,13 @@
     <div class="shell">
         <aside class="sidebar">
             <div class="brand">
-                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7.5 18.5 3 21v-4.5A8.5 8.5 0 0 1 4.5 5h12A4.5 4.5 0 0 1 21 9.5v3A4.5 4.5 0 0 1 16.5 17h-8a4.5 4.5 0 0 1-1-.1Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                @if (! empty($agentDashboardLogoUrl))
+                    <img class="brand-logo" src="{{ $agentDashboardLogoUrl }}" alt="{{ auth()->user()->company?->name ?? 'Company' }} logo">
+                @else
+                    <svg class="brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7.5 18.5 3 21v-4.5A8.5 8.5 0 0 1 4.5 5h12A4.5 4.5 0 0 1 21 9.5v3A4.5 4.5 0 0 1 16.5 17h-8a4.5 4.5 0 0 1-1-.1Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                @endif
                 <div>
                     <div class="brand-title">Support Agent</div>
                     <div class="brand-subtitle">{{ auth()->user()->company?->name }}</div>

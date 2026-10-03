@@ -32,9 +32,9 @@
         }
         .my-chats-panel-icon {
             align-items: center;
-            background: #eff6ff;
+            background: #fff1f0;
             border-radius: 8px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             flex: 0 0 auto;
             height: 36px;
@@ -50,7 +50,7 @@
         }
         .my-chats-count {
             align-items: center;
-            background: #2563eb;
+            background: #FF3B30;
             border-radius: 999px;
             color: #fff;
             display: inline-flex;
@@ -112,7 +112,7 @@
             padding: 18px;
         }
         .my-chat-card:hover {
-            border-color: #bfdbfe;
+            border-color: #ffc4bf;
             box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
         }
         .my-chat-card[hidden],
@@ -128,7 +128,7 @@
         }
         .my-chat-avatar {
             align-items: center;
-            background: #ede9fe;
+            background: #fff1f0;
             border-radius: 999px;
             color: #5b21b6;
             display: inline-flex;
@@ -162,7 +162,7 @@
         }
         .my-chat-status.active { background: #dcfce7; color: #15803d; }
         .my-chat-status.on_hold { background: #fef3c7; color: #b45309; }
-        .my-chat-status.awaiting_visitor { background: #dbeafe; color: #1d4ed8; }
+        .my-chat-status.awaiting_visitor { background: #ffe2df; color: #DF2F25; }
         .my-chat-site,
         .my-chat-preview,
         .my-chat-date {
@@ -204,7 +204,7 @@
         }
         .my-chat-open {
             align-items: center;
-            background: #2563eb;
+            background: #FF3B30;
             border-radius: 8px;
             color: #fff;
             display: inline-flex;

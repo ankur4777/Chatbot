@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
@@ -94,6 +95,19 @@ class LiveChatController extends Controller
                 ->latest('updated_at')
                 ->paginate(20),
         ]);
+    }
+
+    public function dashboardLogo(Request $request): Response
+    {
+        $website = $this->liveChatWebsiteForAgent($request->user());
+        $path = $website?->settings?->agent_dashboard_logo;
+
+        abort_unless(
+            $path && Storage::disk('public')->exists($path),
+            404
+        );
+
+        return response()->file(Storage::disk('public')->path($path));
     }
 
     public function closed(Request $request): View

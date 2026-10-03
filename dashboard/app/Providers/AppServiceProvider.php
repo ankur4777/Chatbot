@@ -77,8 +77,21 @@ class AppServiceProvider extends ServiceProvider
                             fn ($query) => $query->whereKey($agent->id)
                         )
                 );
+            $liveChatWebsite = $agent->assignedWebsites()
+                ->where('websites.company_id', $agent->company_id)
+                ->whereHas(
+                    'settings',
+                    fn ($query) => $query->where('enable_live_chat', true)
+                )
+                ->with('settings')
+                ->orderBy('websites.name')
+                ->first();
+            $agentDashboardLogo = $liveChatWebsite?->settings?->agent_dashboard_logo;
 
             $view->with([
+                'agentDashboardLogoUrl' => $agentDashboardLogo
+                    ? route('agent.dashboard-logo')
+                    : null,
                 'agentNavWaitingCount' => (clone $companyConversations)
                     ->where('status', 'waiting_agent')
                     ->count(),

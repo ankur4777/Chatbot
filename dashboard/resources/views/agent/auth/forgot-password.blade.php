@@ -12,10 +12,10 @@
         p { color: #657282; margin: 0 0 22px; }
         label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
         input { border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; margin-bottom: 14px; padding: 10px; width: 100%; }
-        button { background: #2563eb; border: 0; border-radius: 8px; color: #fff; cursor: pointer; font: inherit; font-weight: 700; padding: 10px 14px; width: 100%; }
+        button { background: #FF3B30; border: 0; border-radius: 8px; color: #fff; cursor: pointer; font: inherit; font-weight: 700; padding: 10px 14px; width: 100%; }
         .errors { background: #fee2e2; border-radius: 8px; color: #991b1b; margin-bottom: 14px; padding: 10px; }
         .status { background: #dcfce7; border-radius: 8px; color: #166534; margin-bottom: 14px; padding: 10px; }
-        .back { display: block; color: #2563eb; font-size: 14px; font-weight: 700; margin-top: 16px; text-align: center; text-decoration: none; }
+        .back { display: block; color: #FF3B30; font-size: 14px; font-weight: 700; margin-top: 16px; text-align: center; text-decoration: none; }
         @media (max-width: 575px) {
             body { align-items: flex-start; padding: 16px; }
             .card { padding: 22px; width: 100%; }

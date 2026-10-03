@@ -43,9 +43,9 @@
         }
         .note-visitor-avatar {
             align-items: center;
-            background: #ede9fe;
+            background: #fff1f0;
             border-radius: 999px;
-            color: #4c1d95;
+            color: #9f1f19;
             display: inline-flex;
             flex: 0 0 auto;
             font-size: 18px;
@@ -111,7 +111,7 @@
             line-height: 1.2;
         }
         .note-section-title svg {
-            color: #2563eb;
+            color: #FF3B30;
             flex: 0 0 auto;
         }
         .note-help {

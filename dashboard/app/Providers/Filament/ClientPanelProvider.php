@@ -31,7 +31,7 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('client')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#FF3B30'),
             ])
             ->navigationGroups([
                 NavigationGroup::make('Chatbot')

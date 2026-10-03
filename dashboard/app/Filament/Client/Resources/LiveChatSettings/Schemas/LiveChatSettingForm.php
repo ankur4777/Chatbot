@@ -3,6 +3,7 @@
 namespace App\Filament\Client\Resources\LiveChatSettings\Schemas;
 
 use App\Models\WebsiteSetting;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -66,6 +67,28 @@ class LiveChatSettingForm
                     ->placeholder('No limit')
                     ->disabled()
                     ->dehydrated(false),
+
+                FileUpload::make('agent_dashboard_logo')
+                    ->label('Agent Dashboard Logo')
+                    ->helperText('Optional. Shown above Support Agent in the agent sidebar.')
+                    ->disk('public')
+                    ->directory('live-chat/logos')
+                    ->visibility('public')
+                    ->acceptedFileTypes([
+                        'image/jpeg',
+                        'image/png',
+                        'image/webp',
+                        'image/gif',
+                        'image/svg+xml',
+                    ])
+                    ->maxSize(2048)
+                    ->previewable(false)
+                    ->downloadable()
+                    ->openable()
+                    ->disabled(
+                        fn (?WebsiteSetting $record): bool =>
+                            ! (bool) $record?->enable_live_chat
+                    ),
 
                 Textarea::make('waiting_message')
                     ->label('Waiting Message')

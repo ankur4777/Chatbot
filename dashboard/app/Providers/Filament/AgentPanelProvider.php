@@ -32,7 +32,7 @@ class AgentPanelProvider extends PanelProvider
             ->id('agent')
             ->path('agent')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#FF3B30'),
             ])
             ->login()
             ->passwordReset()

@@ -21,9 +21,9 @@
         }
         .missed-back {
             align-items: center;
-            background: #eaf3ff;
+            background: #fff1f0;
             border-radius: 8px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             font-weight: 600;
             gap: 8px;
@@ -70,9 +70,9 @@
             width: 10px;
         }
         .missed-select-shell .status-dot.contacted { background: #10b981; }
-        .missed-select-shell .status-dot.assigned { background: #2563eb; }
+        .missed-select-shell .status-dot.assigned { background: #FF3B30; }
         .missed-select-shell .status-dot.follow_up_required { background: #f59e0b; }
-        .missed-select-shell .status-dot.resolved { background: #2563eb; }
+        .missed-select-shell .status-dot.resolved { background: #FF3B30; }
         .missed-select-shell .status-dot.unable_to_reach { background: #ef4444; }
         .missed-top-field select {
             background: #fff;
@@ -100,10 +100,10 @@
             min-width: 0;
             padding: 14px;
         }
-        .missed-summary-card.assigned { background: #eff6ff; border-color: #bfdbfe; }
+        .missed-summary-card.assigned { background: #fff1f0; border-color: #ffc4bf; }
         .missed-summary-card.contacted { background: #f0fdf4; border-color: #bbf7d0; }
         .missed-summary-card.next { background: #fffbeb; border-color: #fde68a; }
-        .missed-summary-card.status { background: #faf5ff; border-color: #e9d5ff; }
+        .missed-summary-card.status { background: #fff1f0; border-color: #ffc4bf; }
         .missed-summary-icon {
             align-items: center;
             border-radius: 10px;
@@ -114,10 +114,10 @@
             width: 52px;
         }
         .missed-summary-icon svg { height: 26px; width: 26px; }
-        .assigned .missed-summary-icon { background: #dbeafe; color: #2563eb; }
+        .assigned .missed-summary-icon { background: #ffe2df; color: #FF3B30; }
         .contacted .missed-summary-icon { background: #dcfce7; color: #16a34a; }
         .next .missed-summary-icon { background: #fef3c7; color: #f59e0b; }
-        .status .missed-summary-icon { background: #f3e8ff; color: #a855f7; }
+        .status .missed-summary-icon { background: #ffe2df; color: #DF2F25; }
         .missed-summary-title {
             color: #475569;
             font-size: 14px;
@@ -153,7 +153,7 @@
             padding: 14px 16px;
         }
         .missed-card-header svg {
-            color: #2563eb;
+            color: #FF3B30;
             height: 24px;
             width: 24px;
         }
@@ -173,7 +173,7 @@
             font-weight: 600;
         }
         .visitor-info-icon {
-            color: #2563eb;
+            color: #FF3B30;
             height: 20px;
             width: 20px;
         }

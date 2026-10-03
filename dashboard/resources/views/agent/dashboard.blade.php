@@ -54,8 +54,8 @@
         }
         .dashboard-stat-icon svg { height: 25px; width: 25px; }
         .dashboard-stat-card.availability .dashboard-stat-icon { background: #dcfce7; color: #16a34a; }
-        .dashboard-stat-card.waiting .dashboard-stat-icon { background: #dbeafe; color: #2563eb; }
-        .dashboard-stat-card.active .dashboard-stat-icon { background: #ede9fe; color: #6d28d9; }
+        .dashboard-stat-card.waiting .dashboard-stat-icon { background: #ffe2df; color: #FF3B30; }
+        .dashboard-stat-card.active .dashboard-stat-icon { background: #fff1f0; color: #DF2F25; }
         .dashboard-stat-card.closed .dashboard-stat-icon { background: #ffedd5; color: #ea580c; }
         .dashboard-stat-label {
             color: #243654;
@@ -140,7 +140,7 @@
         }
         .dashboard-panel-link {
             align-items: center;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             font-size: 14px;
             font-weight: 650;
@@ -200,9 +200,9 @@
         }
         .dashboard-chat-avatar {
             align-items: center;
-            background: #f3e8ff;
+            background: #ffe2df;
             border-radius: 999px;
-            color: #6d28d9;
+            color: #DF2F25;
             display: inline-flex;
             font-size: 16px;
             font-weight: 800;
@@ -288,7 +288,7 @@
             color: #07142f;
         }
         .dashboard-accept-btn {
-            background: #2563eb;
+            background: #FF3B30;
             color: #fff;
         }
         .dashboard-open-btn svg,

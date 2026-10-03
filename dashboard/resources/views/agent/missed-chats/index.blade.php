@@ -35,10 +35,10 @@
             min-width: 0;
             padding: clamp(11px, 1.1vw, 16px);
         }
-        .missed-stat-card.total { background: #eff6ff; border-color: #bfdbfe; }
+        .missed-stat-card.total { background: #fff1f0; border-color: #ffc4bf; }
         .missed-stat-card.pending { background: #fffbeb; border-color: #fde68a; }
         .missed-stat-card.contacted { background: #f0fdf4; border-color: #bbf7d0; }
-        .missed-stat-card.resolved { background: #faf5ff; border-color: #e9d5ff; }
+        .missed-stat-card.resolved { background: #fff1f0; border-color: #ffc4bf; }
         .missed-stat-icon {
             align-items: center;
             border-radius: 10px;
@@ -49,10 +49,10 @@
             width: 56px;
         }
         .missed-stat-icon svg { height: 28px; width: 28px; }
-        .missed-stat-card.total .missed-stat-icon { background: #dbeafe; color: #2563eb; }
+        .missed-stat-card.total .missed-stat-icon { background: #ffe2df; color: #FF3B30; }
         .missed-stat-card.pending .missed-stat-icon { background: #fef3c7; color: #d97706; }
         .missed-stat-card.contacted .missed-stat-icon { background: #dcfce7; color: #16a34a; }
-        .missed-stat-card.resolved .missed-stat-icon { background: #f3e8ff; color: #7c3aed; }
+        .missed-stat-card.resolved .missed-stat-icon { background: #ffe2df; color: #DF2F25; }
         .missed-stat-title {
             color: #475569;
             font-size: 14.5px;
@@ -78,9 +78,9 @@
         }
         .missed-panel-icon {
             align-items: center;
-            background: #eaf3ff;
+            background: #fff1f0;
             border-radius: 999px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             height: 48px;
             justify-content: center;
@@ -195,7 +195,7 @@
             width: 16px;
         }
         .message-muted { color: #64748b; }
-        .message-line { color: #2563eb; display: block; margin-top: 4px; }
+        .message-line { color: #FF3B30; display: block; margin-top: 4px; }
         .assigned-date strong { display: block; font-weight: 600; }
         .assigned-date span { color: #64748b; display: block; font-size: 15px; font-weight: 600; margin-top: 4px; }
         .status-pill {
@@ -208,10 +208,10 @@
             padding: 9px 12px;
             white-space: nowrap;
         }
-        .status-pill.assigned { background: #dbeafe; color: #1d4ed8; }
+        .status-pill.assigned { background: #ffe2df; color: #DF2F25; }
         .status-pill.follow-up-required { background: #fef3c7; color: #92400e; }
         .status-pill.contacted { background: #dcfce7; color: #166534; }
-        .status-pill.resolved { background: #dbeafe; color: #1d4ed8; }
+        .status-pill.resolved { background: #ffe2df; color: #DF2F25; }
         .status-pill.unable-to-reach { background: #fee2e2; color: #991b1b; }
         .status-pill-dot {
             background: currentColor;
@@ -221,10 +221,10 @@
         }
         .open-btn {
             align-items: center;
-            background: #eaf3ff;
+            background: #fff1f0;
             border: 0;
             border-radius: 8px;
-            color: #2563eb;
+            color: #FF3B30;
             display: inline-flex;
             font-size: 16px;
             font-weight: 600;

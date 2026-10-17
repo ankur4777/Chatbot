@@ -57,6 +57,7 @@ class WidgetService
         'placeholder'      => $website->settings?->placeholder,
         'enable_live_chat' => $enableLiveChat,
         'enable_ai_responses' => $website->settings?->enable_ai_responses !== false,
+        'enable_image_gallery' => $website->settings?->enable_image_gallery !== false,
         'show_live_chat_entry' => $showLiveChatEntry,
         'can_request_live_chat' => $showLiveChatEntry,
         'live_chat_available' => $enableLiveChat && $hasAvailableAgents,

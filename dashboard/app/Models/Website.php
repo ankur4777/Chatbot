@@ -83,6 +83,11 @@ class Website extends Model
     return $this->hasMany(KnowledgeSource::class);
 }
 
+public function galleryImages(): HasMany
+{
+    return $this->hasMany(WebsiteGalleryImage::class);
+}
+
 public function chatbotLeads()
 {
     return $this->hasMany(\App\Models\ChatbotLead::class, 'website_id');

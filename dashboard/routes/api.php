@@ -25,6 +25,8 @@ Route::post('/widget/live-chat-rating/skip', [WidgetController::class, 'skipLive
     ->middleware('throttle:widget-live-chat');
 Route::get('/widget/attachments/{message}', [WidgetController::class, 'showAttachment'])
     ->middleware('throttle:widget-realtime');
+Route::get('/widget/gallery-images/{image}', [WidgetController::class, 'showGalleryImage'])
+    ->middleware('throttle:widget-realtime');
 Route::post('/widget/flow-answer', [WidgetController::class, 'saveFlowAnswer'])
     ->middleware('throttle:widget-message');
 Route::post('/widget/end-chat', [WidgetController::class, 'endChat'])

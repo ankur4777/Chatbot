@@ -1298,7 +1298,10 @@ class Chatbot {
 
             if (aiResponse) {
                 this.addBotMessage(
-                    aiResponse
+                    aiResponse,
+                    null,
+                    null,
+                    data.gallery_results || []
                 );
             } else if (data.message_saved && !isLiveChatSend) {
                 this.addStatusMessage(
@@ -1614,6 +1617,12 @@ class Chatbot {
         if (message.attachment) {
             div.appendChild(
                 this.renderAttachment(message.attachment)
+            );
+        }
+
+        if (Array.isArray(message.gallery_results) && message.gallery_results.length > 0) {
+            div.appendChild(
+                this.renderGalleryResults(message.gallery_results)
             );
         }
 
@@ -3618,7 +3627,7 @@ class Chatbot {
         });
     }
 
-    addBotMessage(message, timestamp = null, attachment = null) {
+    addBotMessage(message, timestamp = null, attachment = null, galleryResults = []) {
 
         const div =
             document.createElement("div");
@@ -3640,6 +3649,12 @@ class Chatbot {
             );
         }
 
+        if (Array.isArray(galleryResults) && galleryResults.length > 0) {
+            div.appendChild(
+                this.renderGalleryResults(galleryResults)
+            );
+        }
+
         const browserTimestamp =
             this.formatBrowserTimestamp(timestamp);
 
@@ -3652,6 +3667,110 @@ class Chatbot {
         );
 
         this.scrollBottom();
+    }
+
+    renderGalleryResults(results) {
+
+        const list =
+            document.createElement("div");
+
+        list.className =
+            "chatbot-gallery-results";
+
+        results.forEach(result => {
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "chatbot-gallery-card";
+
+            const title =
+                document.createElement("div");
+
+            title.className =
+                "chatbot-gallery-title";
+
+            title.textContent =
+                result?.title || "Gallery image";
+
+            if (result?.available && result?.image_url) {
+
+                const link =
+                    document.createElement("a");
+
+                link.href =
+                    result.image_url;
+
+                link.target =
+                    "_blank";
+
+                link.rel =
+                    "noopener noreferrer";
+
+                link.className =
+                    "chatbot-gallery-image-link";
+
+                const image =
+                    document.createElement("img");
+
+                image.src =
+                    result.image_url;
+
+                image.alt =
+                    result?.title || "Gallery image";
+
+                image.loading =
+                    "lazy";
+
+                image.addEventListener("error", () => {
+                    link.replaceWith(
+                        this.galleryUnavailableElement()
+                    );
+                });
+
+                link.appendChild(image);
+                card.appendChild(link);
+
+            } else {
+                card.appendChild(
+                    this.galleryUnavailableElement()
+                );
+            }
+
+            card.appendChild(title);
+
+            if (result?.description) {
+                const description =
+                    document.createElement("div");
+
+                description.className =
+                    "chatbot-gallery-description";
+
+                description.textContent =
+                    result.description;
+
+                card.appendChild(description);
+            }
+
+            list.appendChild(card);
+        });
+
+        return list;
+    }
+
+    galleryUnavailableElement() {
+
+        const unavailable =
+            document.createElement("div");
+
+        unavailable.className =
+            "chatbot-gallery-unavailable";
+
+        unavailable.textContent =
+            "Image unavailable";
+
+        return unavailable;
     }
 
     addStatusMessage(message, timestamp = null) {

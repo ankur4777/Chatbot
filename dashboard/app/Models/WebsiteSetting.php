@@ -24,6 +24,7 @@ class WebsiteSetting extends Model
 
         'enable_chatbot',
         'enable_ai_responses',
+        'enable_image_gallery',
         'enable_live_chat',
         'offline_behavior',
         'max_active_chats_per_agent',
@@ -39,6 +40,7 @@ class WebsiteSetting extends Model
         'temperature' => 'float',
         'enable_chatbot' => 'boolean',
         'enable_ai_responses' => 'boolean',
+        'enable_image_gallery' => 'boolean',
         'enable_live_chat' => 'boolean',
         'max_active_chats_per_agent' => 'integer',
         'max_agents_per_website' => 'integer',

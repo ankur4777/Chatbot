@@ -113,6 +113,11 @@ class WebsiteSettingForm
                     ->helperText('Allow the chatbot to generate AI responses using the configured knowledge base. Turn this off to use chatbot flows and live chat without AI responses.')
                     ->default(true),
 
+                Toggle::make('enable_image_gallery')
+                    ->label('Enable Image Gallery')
+                    ->helperText('Allow this website chatbot to search and show matching gallery images.')
+                    ->default(true),
+
                 Toggle::make('enable_live_chat')
                     ->label('Enable Live Chat')
                     ->live()

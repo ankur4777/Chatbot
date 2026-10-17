@@ -33,6 +33,10 @@ class WebsiteSettingsTable
                     ->boolean()
                     ->label('AI Responses'),
 
+                IconColumn::make('enable_image_gallery')
+                    ->boolean()
+                    ->label('Image Gallery'),
+
                 IconColumn::make('enable_live_chat')
                     ->boolean()
                     ->label('Live Chat'),

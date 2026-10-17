@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use App\Services\WebsiteFeatureService;
+use App\Services\GalleryImageSearchService;
 
 class ChatService
 {
@@ -33,16 +34,19 @@ class ChatService
     protected AIService $aiService;
 protected WidgetService $widgetService;
 protected WebsiteFeatureService $websiteFeatureService;
+protected GalleryImageSearchService $galleryImageSearchService;
 
 public function __construct(
     AIService $aiService,
     WidgetService $widgetService,
-    WebsiteFeatureService $websiteFeatureService
+    WebsiteFeatureService $websiteFeatureService,
+    GalleryImageSearchService $galleryImageSearchService
 )
 {
     $this->aiService = $aiService;
     $this->widgetService = $widgetService;
     $this->websiteFeatureService = $websiteFeatureService;
+    $this->galleryImageSearchService = $galleryImageSearchService;
 }
 
 public function sendMessage(Request $request)
@@ -135,6 +139,59 @@ public function sendMessage(Request $request)
             'message_id' => $visitorMessage->id,
             'ai_responses_enabled' => false,
             'message' => $this->aiDisabledMessage($conversation, $website),
+        ]);
+    }
+
+    $galleryImages = $this->websiteFeatureService->isImageGalleryEnabledForWebsite($website)
+        ? $this->galleryImageSearchService->search($website, $messageText)
+        : collect();
+
+    if ($galleryImages->isNotEmpty()) {
+        $galleryPayload = $galleryImages
+            ->map(fn ($image): array => $this->galleryImagePayload($image, $request))
+            ->values()
+            ->all();
+
+        $response = 'Here are the matching images I found.';
+
+        $this->saveBotMessage($conversation, $response, [
+            'gallery_results' => $galleryPayload,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'conversation_id' => $conversation->id,
+            'response' => $response,
+            'gallery_results' => $galleryPayload,
+            'response_type' => 'gallery_results',
+            'status' => $conversation->status,
+            'mode' => $conversation->mode,
+            'message_saved' => true,
+            'message_id' => $visitorMessage->id,
+        ]);
+    }
+
+    if (
+        $this->websiteFeatureService->isImageGalleryEnabledForWebsite($website)
+        && $this->galleryImageSearchService->explicitImageRequest($messageText)
+    ) {
+        $response = 'I could not find any matching images in this website gallery.';
+
+        $this->saveBotMessage($conversation, $response, [
+            'gallery_results' => [],
+            'gallery_no_match' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'conversation_id' => $conversation->id,
+            'response' => $response,
+            'gallery_results' => [],
+            'response_type' => 'gallery_results',
+            'status' => $conversation->status,
+            'mode' => $conversation->mode,
+            'message_saved' => true,
+            'message_id' => $visitorMessage->id,
         ]);
     }
 
@@ -490,6 +547,28 @@ public function attachmentPayload(
         'size' => $metadata['size'] ?? null,
         'duration' => $metadata['duration'] ?? null,
         'view_url' => $viewUrl,
+    ];
+}
+
+public function galleryImagePayload($image, Request $request): array
+{
+    $query = [
+        'widget_key' => $request->widget_key,
+        'domain' => $request->domain,
+        'visitor_uuid' => $request->visitor_uuid,
+        'session_id' => $request->session_id,
+    ];
+
+    if ($request->conversation_id) {
+        $query['conversation_id'] = $request->conversation_id;
+    }
+
+    return [
+        'id' => $image->id,
+        'title' => $image->title,
+        'description' => $image->description,
+        'image_url' => url('/api/widget/gallery-images/' . $image->id) . '?' . http_build_query($query),
+        'available' => $image->is_active && $image->fileExists(),
     ];
 }
 

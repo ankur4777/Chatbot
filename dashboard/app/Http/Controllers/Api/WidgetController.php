@@ -13,8 +13,10 @@ use App\Services\WebsiteFeatureService;
 use App\Models\ChatbotLead;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Models\WebsiteGalleryImage;
 use InvalidArgumentException;
 use Pusher\Pusher;
+use Illuminate\Support\Facades\Storage;
 
 class WidgetController extends Controller
 {
@@ -616,6 +618,7 @@ protected function conversationTranscriptPayload(
             $message,
             $this->widgetAttachmentUrl($request, $message)
         ),
+        'gallery_results' => $this->galleryResultsPayload($message, $request),
         'created_at' => optional($message->created_at)->toISOString(),
         'sort_time' => optional($message->created_at)->getTimestamp() ?? 0,
         'sort_order' => $message->id * 10,
@@ -922,6 +925,92 @@ public function showAttachment(Request $request, ChatMessage $message)
     abort_unless($authorized, 403);
 
     return $this->chatService->attachmentResponse($message);
+}
+
+public function showGalleryImage(Request $request, WebsiteGalleryImage $image)
+{
+    $request->validate([
+        'widget_key' => ['required', 'string'],
+        'domain' => ['nullable', 'string'],
+        'visitor_uuid' => ['required', 'string'],
+        'session_id' => ['required', 'string'],
+        'conversation_id' => ['nullable', 'integer'],
+    ]);
+
+    $website = $this->widgetService->verifyWebsite($request);
+
+    abort_unless($website, 404);
+    abort_unless($image->company_id === $website->company_id, 404);
+    abort_unless($image->website_id === $website->id, 404);
+    abort_unless($image->is_active, 404);
+
+    $visitorQuery = \App\Models\Visitor::query()
+        ->where('website_id', $website->id)
+        ->where('visitor_uuid', $request->visitor_uuid)
+        ->whereHas(
+            'sessions',
+            fn ($query) => $query->where('session_id', $request->session_id)
+        );
+
+    abort_unless($visitorQuery->exists(), 403);
+
+    if ($request->filled('conversation_id')) {
+        abort_unless(
+            ChatConversation::query()
+                ->whereKey($request->integer('conversation_id'))
+                ->where('website_id', $website->id)
+                ->whereHas(
+                    'visitor',
+                    fn ($query) => $query
+                        ->where('visitor_uuid', $request->visitor_uuid)
+                        ->whereHas(
+                            'sessions',
+                            fn ($sessionQuery) => $sessionQuery->where('session_id', $request->session_id)
+                        )
+                )
+                ->exists(),
+            403
+        );
+    }
+
+    $disk = Storage::disk(config('gallery.storage_disk', 'public'));
+
+    abort_unless($image->image_path && $disk->exists($image->image_path), 404);
+
+    return $disk->response($image->image_path, basename($image->image_path), [
+        'Content-Type' => $image->mime_type ?: 'application/octet-stream',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+}
+
+protected function galleryResultsPayload(ChatMessage $message, Request $request): array
+{
+    $results = $message->metadata['gallery_results'] ?? [];
+
+    if (! is_array($results) || $results === []) {
+        return [];
+    }
+
+    return collect($results)
+        ->map(function ($result) use ($request): array {
+            $image = WebsiteGalleryImage::query()
+                ->whereKey($result['id'] ?? null)
+                ->first();
+
+            if (! $image || ! $image->is_active || ! $image->fileExists()) {
+                return [
+                    'id' => $result['id'] ?? null,
+                    'title' => $result['title'] ?? 'Image unavailable',
+                    'description' => $result['description'] ?? null,
+                    'image_url' => null,
+                    'available' => false,
+                ];
+            }
+
+            return $this->chatService->galleryImagePayload($image, $request);
+        })
+        ->values()
+        ->all();
 }
 
 protected function widgetAttachmentUrl(

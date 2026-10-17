@@ -28,6 +28,9 @@ class WebsiteSettingsTable
                 IconColumn::make('enable_ai_responses')
                  ->label('AI Responses')
                     ->boolean(),
+                IconColumn::make('enable_image_gallery')
+                 ->label('Image Gallery')
+                    ->boolean(),
                 IconColumn::make('enable_live_chat')
                  ->label('Live Chat')
                     ->boolean(),

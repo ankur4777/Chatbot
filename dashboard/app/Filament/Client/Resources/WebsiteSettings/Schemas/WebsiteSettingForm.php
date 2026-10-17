@@ -5,6 +5,7 @@ namespace App\Filament\Client\Resources\WebsiteSettings\Schemas;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class WebsiteSettingForm
@@ -60,6 +61,11 @@ class WebsiteSettingForm
                     ->label('Primary Color')
                     ->required()
                     ->default('#FF3B30'),
+
+                Toggle::make('enable_image_gallery')
+                    ->label('Enable Image Gallery')
+                    ->helperText('Allow this website chatbot to search and show matching gallery images.')
+                    ->default(true),
 
                 Textarea::make('system_prompt')
                     ->label('System Prompt')

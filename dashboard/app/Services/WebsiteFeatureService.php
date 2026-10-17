@@ -23,6 +23,11 @@ class WebsiteFeatureService
         return $website->settings?->enable_ai_responses !== false;
     }
 
+    public function isImageGalleryEnabledForWebsite(Website $website): bool
+    {
+        return $website->settings?->enable_image_gallery !== false;
+    }
+
     public function isAiResponsesEnabledForCompany(Company|int $company): bool
     {
         $companyId = $company instanceof Company

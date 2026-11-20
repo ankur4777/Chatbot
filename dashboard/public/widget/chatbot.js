@@ -3135,7 +3135,7 @@ class Chatbot {
         if (!step) {
 
             this.addBotMessage(
-                "Great! I have all the trip details I need."
+                "Great! I have all the details I need."
             );
 
             this.showLeadForm();

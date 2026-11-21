@@ -7,7 +7,7 @@
     <div class="cw-powered-card" aria-label="Powered by Shabdd Innovations">
         <span class="cw-powered-label">Powered by</span>
         <img
-            src="{{ asset('images/shabdd-innovations-footer.png') }}"
+            src="{{ asset('images/shabdd-innovations-footer.png') . '?v=2' }}"
             alt="Shabdd logo"
             width="130"
             height="38"

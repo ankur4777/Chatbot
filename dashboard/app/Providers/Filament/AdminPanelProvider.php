@@ -6,15 +6,13 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use App\Filament\Admin\AdminDashboard;
 use Filament\Panel;
 use App\Http\Middleware\SetBrowserTimezone;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -30,21 +28,20 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->darkMode(false)
+            ->brandName('Admin Workspace')
             ->login()
             ->passwordReset()
             ->colors([
-                'primary' => Color::hex('#FF3B30'),
+                'primary' => Color::hex('#FA4D55'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
-                Dashboard::class,
+                AdminDashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -60,6 +57,14 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn (): string => view('filament.client.partials.powered-by')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => view('filament.admin.partials.theme')->render(),
+            )
             ->renderHook(
     PanelsRenderHook::BODY_END,
     fn (): string => Blade::render(<<<'BLADE'

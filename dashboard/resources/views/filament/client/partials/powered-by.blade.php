@@ -1,4 +1,9 @@
-<div class="cw-powered-footer" x-show="$store.sidebar.isOpen">
+<div
+    class="cw-powered-footer"
+    @if (filament()->isSidebarCollapsibleOnDesktop() || filament()->isSidebarFullyCollapsibleOnDesktop())
+        x-show="$store.sidebar.isOpen"
+    @endif
+>
     <div class="cw-powered-card" aria-label="Powered by Shabdd Innovations">
         <span class="cw-powered-label">Powered by</span>
         <img

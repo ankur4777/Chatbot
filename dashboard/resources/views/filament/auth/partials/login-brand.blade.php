@@ -103,6 +103,7 @@
                     </svg>
                     <span class="shabdd-login-mascot-caption">Your friendly AI assistant</span>
                 </div>
+                </div>
             </div>
 
             <div class="shabdd-login-aside-bottom">

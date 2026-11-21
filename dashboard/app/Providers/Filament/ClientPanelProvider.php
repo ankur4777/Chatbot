@@ -64,7 +64,7 @@ class ClientPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->renderHook(
-                PanelsRenderHook::SIDEBAR_FOOTER,
+                PanelsRenderHook::SIDEBAR_NAV_END,
                 fn (): string => view('filament.client.partials.powered-by')->render(),
             )
             ->renderHook(

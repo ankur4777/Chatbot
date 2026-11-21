@@ -7,7 +7,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
-use Filament\Pages\Dashboard;
+use App\Filament\Client\ClientDashboard;
 use Filament\Panel;
 use App\Http\Middleware\SetBrowserTimezone;
 use Filament\View\PanelsRenderHook;
@@ -30,8 +30,9 @@ class ClientPanelProvider extends PanelProvider
         return $panel
             ->id('client')
             ->path('client')
+            ->brandName('Client Workspace')
             ->colors([
-                'primary' => Color::hex('#FF3B30'),
+                'primary' => Color::hex('#E9493E'),
             ])
             ->navigationGroups([
                 NavigationGroup::make('Chatbot')
@@ -44,12 +45,11 @@ class ClientPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->pages([
-                Dashboard::class,
+                ClientDashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Client/Widgets'), for: 'App\Filament\Client\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -66,6 +66,10 @@ class ClientPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => view('filament.client.partials.theme')->render(),
+            )
             ->renderHook(
     PanelsRenderHook::BODY_END,
     fn (): string => Blade::render(<<<'BLADE'

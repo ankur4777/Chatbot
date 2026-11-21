@@ -68,12 +68,18 @@ class KnowledgeSourceForm
                     ->maxLength(255),
 
                 FileUpload::make('source')
-                    ->label('Upload PDF')
+                    ->label('Upload PDF (Max 20 MB)')
+                    ->helperText('You can upload a PDF file up to 20 MB.')
                     ->disk('public')
                     ->directory('knowledge')
                     ->preserveFilenames()
                     ->acceptedFileTypes([
                         'application/pdf',
+                    ])
+                    ->maxSize(20480)
+                    ->validationMessages([
+                        'max' => 'PDF upload failed. Please upload a PDF file up to 20 MB only.',
+                        'mimetypes' => 'PDF upload failed. Please select a valid PDF file.',
                     ])
                     ->required(),
 

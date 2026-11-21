@@ -58,6 +58,14 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => view('filament.auth.partials.login-theme')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): string => view('filament.auth.partials.login-brand')->render(),
+            )
+            ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_END,
                 fn (): string => view('filament.client.partials.powered-by')->render(),
             )

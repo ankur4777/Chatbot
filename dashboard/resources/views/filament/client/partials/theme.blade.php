@@ -129,4 +129,40 @@ html, body, .fi-body, .fi-layout, .fi-main-ctn, .fi-main {
 @media (max-width: 760px) { .cw-header { flex-direction: column; align-items: flex-start; } .cw-side-stack { grid-template-columns: 1fr; } }
 @media (max-width: 500px) { .cw-stats { gap: 10px; } .cw-stat { padding: 16px; } .cw-panel { padding: 18px; } .cw-header-actions { width: 100%; } .cw-button { flex: 1; } .cw-status { max-width: 90px; overflow: hidden; text-overflow: ellipsis; } }
 @media (prefers-reduced-motion: reduce) { .cw-button, .fi-sidebar .fi-sidebar-item-btn { transition: none !important; } }
+
+/* Sidebar attribution: display the supplied brand artwork on white. */
+.fi-main-sidebar .cw-powered-footer {
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding: 12px 15px 17px;
+    border-top: 1px solid rgba(255,255,255,.10);
+}
+.fi-main-sidebar .cw-powered-card {
+    background: #ffffff;
+    border-radius: 11px;
+    padding: 12px 12px 10px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.fi-main-sidebar .cw-powered-label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .055em;
+    line-height: 1.4;
+    color: #677285;
+}
+.fi-main-sidebar .cw-powered-card img {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-inline: auto;
+    object-fit: contain;
+}
+@media (max-width: 640px) {
+    .fi-main-sidebar .cw-powered-footer { padding: 9px 12px 12px; }
+}
 </style>

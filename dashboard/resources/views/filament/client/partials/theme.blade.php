@@ -130,39 +130,43 @@ html, body, .fi-body, .fi-layout, .fi-main-ctn, .fi-main {
 @media (max-width: 500px) { .cw-stats { gap: 10px; } .cw-stat { padding: 16px; } .cw-panel { padding: 18px; } .cw-header-actions { width: 100%; } .cw-button { flex: 1; } .cw-status { max-width: 90px; overflow: hidden; text-overflow: ellipsis; } }
 @media (prefers-reduced-motion: reduce) { .cw-button, .fi-sidebar .fi-sidebar-item-btn { transition: none !important; } }
 
-/* Sidebar attribution: display the supplied brand artwork on white. */
+/* Compact, transparent Shabdd attribution at the bottom of the client sidebar. */
 .fi-main-sidebar .cw-powered-footer {
     width: 100%;
     flex-shrink: 0;
     margin-top: auto;
-    padding: 12px 15px 17px;
-    border-top: 1px solid rgba(255,255,255,.10);
+    padding: 8px 14px 14px;
+    border: 0;
+    background: transparent;
 }
 .fi-main-sidebar .cw-powered-card {
-    background: #ffffff;
-    border-radius: 11px;
-    padding: 12px 12px 10px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    box-shadow: none;
 }
 .fi-main-sidebar .cw-powered-label {
     display: block;
-    margin-bottom: 2px;
-    font-size: 11px;
-    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 10px;
+    font-weight: 600;
     letter-spacing: .055em;
-    line-height: 1.4;
-    color: #677285;
+    line-height: 1.35;
+    color: rgba(255,255,255,.70);
 }
 .fi-main-sidebar .cw-powered-card img {
     display: block;
-    width: 100%;
-    max-width: 200px;
+    width: 130px;
+    max-width: 100%;
     height: auto;
     margin-inline: auto;
     object-fit: contain;
+    background: transparent;
+    box-shadow: none;
 }
 @media (max-width: 640px) {
-    .fi-main-sidebar .cw-powered-footer { padding: 9px 12px 12px; }
+    .fi-main-sidebar .cw-powered-footer { padding: 8px 12px 12px; }
 }
 </style>

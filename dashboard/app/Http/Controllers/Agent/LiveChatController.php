@@ -527,7 +527,7 @@ class LiveChatController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:30', 'regex:/^(?=(?:\D*\d){10,15}\D*$)\+?[0-9\s().-]+$/'],
         ]);
 
         $conversation->visitor->forceFill([

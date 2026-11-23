@@ -3,6 +3,7 @@
 namespace App\Filament\Client;
 
 use App\Filament\Client\Pages\LiveInbox;
+use App\Filament\Client\Pages\ActiveChats;
 use App\Filament\Client\Resources\ChatbotLeads\ChatbotLeadResource;
 use App\Filament\Client\Resources\ChatConversations\ChatConversationResource;
 use App\Filament\Client\Resources\Visitors\VisitorResource;
@@ -63,6 +64,8 @@ class ClientDashboard extends Dashboard
                 'leads' => ChatbotLeadResource::getUrl('index', panel: 'client'),
                 'visitors' => VisitorResource::getUrl('index', panel: 'client'),
                 'inbox' => $hasLiveChat ? LiveInbox::getUrl(panel: 'client') : null,
+                'activeChats' => $hasLiveChat ? ActiveChats::getUrl(panel: 'client') : null,
+                'waitingChats' => $hasLiveChat ? \App\Filament\Client\Pages\WaitingChats::getUrl(panel: 'client') : null,
             ],
         ];
     }

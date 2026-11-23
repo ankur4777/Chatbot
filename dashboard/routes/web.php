@@ -14,6 +14,7 @@ use App\Http\Controllers\Client\ChatbotLeadExportController;
 use App\Http\Controllers\Client\ClosedChatExportController;
 use App\Http\Controllers\Client\VisitorExportController;
 use App\Http\Controllers\Client\WebsiteExportController;
+use App\Http\Controllers\Client\PasswordController;
 use App\Services\ChatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,10 @@ use App\Http\Middleware\SetBrowserTimezone;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/client/password/first-login', [PasswordController::class, 'updateFirstLogin'])
+    ->middleware('auth')
+    ->name('client.password.first-login');
 
 Route::get('/admin/users/{user}/view-client-dashboard', function (Request $request, User $user) {
     $admin = Auth::guard('web')->user();

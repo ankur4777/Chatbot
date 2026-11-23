@@ -57,7 +57,7 @@ class AuthController extends Controller
                     $user->role !== 'agent'
                     || ! $user->status
                     || ! $user->company_id
-                    || ! $user->company?->status
+                    || ! $user->company?->hasActiveSubscription()
                 ) {
                     return;
                 }
@@ -103,7 +103,7 @@ class AuthController extends Controller
         if (
             ! $agent
             || ! $agent->company_id
-            || ! $agent->company?->status
+            || ! $agent->company?->hasActiveSubscription()
         ) {
             return back()
                 ->withErrors([
@@ -126,7 +126,7 @@ class AuthController extends Controller
                     $user->role !== 'agent'
                     || ! $user->status
                     || ! $user->company_id
-                    || ! $user->company?->status
+                    || ! $user->company?->hasActiveSubscription()
                 ) {
                     return;
                 }
@@ -177,7 +177,7 @@ class AuthController extends Controller
             $user->role !== 'agent'
             || ! $user->status
             || ! $user->company_id
-            || ! $user->company?->status
+            || ! $user->company?->hasActiveSubscription()
         ) {
             Auth::logout();
             $request->session()->invalidate();

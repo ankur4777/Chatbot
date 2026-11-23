@@ -13,8 +13,8 @@ class CompanyForm
     {
         return $schema
             ->components([
-    TextInput::make('name')
-        ->label('Company Name')
+    TextInput::make('legal_name')
+        ->label('Legal Name')
         ->required()
         ->maxLength(255),
 
@@ -35,7 +35,8 @@ class CompanyForm
     TextInput::make('phone')
         ->label('Phone Number')
         ->tel()
-        ->maxLength(20),
+        ->maxLength(30)
+        ->regex('/^(?=(?:\\D*\\d){10,15}\\D*$)\\+?[0-9\\s().-]+$/'),
 
     TextInput::make('gst_number')
     ->label('GST Number')
@@ -45,6 +46,31 @@ class CompanyForm
 Textarea::make('address')
     ->label('Company Address')
     ->rows(3),
+
+    TextInput::make('county_name')
+        ->label('County Name')
+        ->maxLength(255),
+
+    TextInput::make('country_code')
+        ->label('Country Code')
+        ->placeholder('+91, IN, US')
+        ->maxLength(8)
+        ->regex('/^(?:\\+[1-9][0-9]{0,3}|[A-Za-z]{2,8})$/'),
+
+    TextInput::make('subscription_expires_at')
+        ->label('Subscription Expires At')
+        ->type('datetime-local')
+        ->helperText('Leave empty for no expiry.'),
+
+    TextInput::make('conversation_retention_months')
+        ->label('Conversation History Retention')
+        ->numeric()
+        ->minValue(1)
+        ->maxValue(6)
+        ->suffix('months')
+        ->default(1)
+        ->required(),
+
     Toggle::make('status')
         ->label('Active')
         ->default(true),

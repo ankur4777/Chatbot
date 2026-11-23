@@ -218,8 +218,18 @@ class GalleryImageSearchService
             ->map(fn (string $token): string => trim($token))
             ->filter(fn (string $token): bool => strlen($token) >= 2)
             ->reject(fn (string $token): bool => ! $includeGeneric && in_array($token, self::STOP_WORDS, true))
+            ->map(fn (string $token): string => $this->normalizeTerm($token))
             ->unique()
             ->values()
             ->all();
+    }
+
+    protected function normalizeTerm(string $term): string
+    {
+        $term = Str::lower(trim($term));
+
+        return strlen($term) > 3 && str_ends_with($term, 's')
+            ? substr($term, 0, -1)
+            : $term;
     }
 }

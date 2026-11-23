@@ -25,7 +25,7 @@ class CompanyResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'legal_name';
 
     protected static ?string $modelLabel = 'Company';
 
@@ -38,8 +38,8 @@ class CompanyResource extends Resource
 {
     return $schema
         ->components([
-            TextEntry::make('name')
-                ->label('Company Name'),
+            TextEntry::make('legal_name')
+                ->label('Legal Name'),
 
             TextEntry::make('owner_name')
     ->label('Owner Name'),
@@ -55,6 +55,20 @@ class CompanyResource extends Resource
 
 TextEntry::make('address')
     ->label('Company Address'),
+
+            TextEntry::make('county_name')
+                ->label('County Name'),
+
+            TextEntry::make('country_code')
+                ->label('Country Code'),
+
+            TextEntry::make('subscription_expires_at')
+                ->label('Subscription Expires At')
+                ->dateTime('d M Y, h:i A'),
+
+            TextEntry::make('conversation_retention_months')
+                ->label('Conversation Retention')
+                ->suffix(' months'),
 
             IconEntry::make('status')
                 ->label('Status')

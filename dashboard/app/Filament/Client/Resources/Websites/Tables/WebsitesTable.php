@@ -5,6 +5,7 @@ use Filament\Actions\EditAction;
 use App\Support\BrowserTime;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class WebsitesTable
@@ -35,9 +36,9 @@ class WebsitesTable
     ->alignCenter()
     ->sortable(),
 
-                IconColumn::make('status')
+                ToggleColumn::make('status')
     ->label('Active')
-    ->boolean(),
+    ->sortable(),
 
                 TextColumn::make('created_at')
     ->label('Created At')

@@ -10,22 +10,28 @@ class WebsiteFeatureService
 {
     public function isChatbotEnabledForWebsite(Website $website): bool
     {
-        return $website->settings?->enable_chatbot !== false;
+        return $website->status
+            && $website->company?->hasActiveSubscription()
+            && $website->settings?->enable_chatbot !== false;
     }
 
     public function isLiveChatEnabledForWebsite(Website $website): bool
     {
-        return $website->settings?->enable_live_chat === true;
+        return $website->status
+            && $website->company?->hasActiveSubscription()
+            && $website->settings?->enable_live_chat === true;
     }
 
     public function isAiResponsesEnabledForWebsite(Website $website): bool
     {
-        return $website->settings?->enable_ai_responses !== false;
+        return $this->isChatbotEnabledForWebsite($website)
+            && $website->settings?->enable_ai_responses !== false;
     }
 
     public function isImageGalleryEnabledForWebsite(Website $website): bool
     {
-        return $website->settings?->enable_image_gallery !== false;
+        return $this->isChatbotEnabledForWebsite($website)
+            && $website->settings?->enable_image_gallery !== false;
     }
 
     public function isAiResponsesEnabledForCompany(Company|int $company): bool
@@ -39,6 +45,10 @@ class WebsiteFeatureService
             ->exists();
 
         if (! $hasWebsites) {
+            return false;
+        }
+
+        if (! $this->companyHasActiveSubscription($companyId)) {
             return false;
         }
 
@@ -69,6 +79,10 @@ class WebsiteFeatureService
         $companyId = $company instanceof Company
             ? $company->getKey()
             : $company;
+
+        if (! $this->companyHasActiveSubscription($companyId)) {
+            return false;
+        }
 
         return Website::query()
             ->where('company_id', $companyId)
@@ -106,10 +120,22 @@ class WebsiteFeatureService
             return false;
         }
 
-        if (! $user->company_id || ! $user->company?->status) {
+        if (! $user->company_id || ! $user->company?->hasActiveSubscription()) {
             return false;
         }
 
         return $this->isLiveChatEnabledForAuthenticatedUserCompany($user);
+    }
+
+    protected function companyHasActiveSubscription(int $companyId): bool
+    {
+        return Company::query()
+            ->whereKey($companyId)
+            ->where('status', true)
+            ->where(function ($query): void {
+                $query->whereNull('subscription_expires_at')
+                    ->orWhere('subscription_expires_at', '>', now());
+            })
+            ->exists();
     }
 }

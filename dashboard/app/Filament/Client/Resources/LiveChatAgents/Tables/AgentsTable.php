@@ -10,6 +10,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -60,9 +61,9 @@ class AgentsTable
                     ->separator(', ')
                     ->placeholder('No website assigned'),
 
-                IconColumn::make('status')
+                ToggleColumn::make('status')
                     ->label('Active')
-                    ->boolean(),
+                    ->sortable(),
 
                 TextColumn::make('availability_status')
                     ->label('Availability')

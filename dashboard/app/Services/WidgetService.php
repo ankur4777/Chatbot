@@ -87,6 +87,7 @@ public function verifyWebsite(Request $request){
     
     $website = Website::with([
         'settings',
+        'company',
     ])
     ->where('widget_key', $request->widget_key)
     ->first();
@@ -96,6 +97,10 @@ public function verifyWebsite(Request $request){
     }
  // Website must be active
     if (! $website->status) {
+        return null;
+    }
+
+    if (! $website->company?->hasActiveSubscription()) {
         return null;
     }
     // Verify domain only if it is sent. Ignore scheme/port for local testing.

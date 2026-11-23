@@ -82,7 +82,8 @@ class LiveChatSettingForm
                         'image/svg+xml',
                     ])
                     ->maxSize(2048)
-                    ->previewable(false)
+                    ->imagePreviewHeight('120')
+                    ->panelLayout('integrated')
                     ->disabled(
                         fn (?WebsiteSetting $record): bool =>
                             ! (bool) $record?->enable_live_chat

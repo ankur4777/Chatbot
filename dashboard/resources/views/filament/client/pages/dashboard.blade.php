@@ -30,9 +30,19 @@
             </a>
             @if ($hasLiveChat)
                 <a class="cw-stat" href="{{ $links['inbox'] }}">
-                    <div class="cw-stat-top"><span class="cw-stat-label">Active live chats</span><span class="cw-stat-icon" aria-hidden="true">◉</span></div>
+                    <div class="cw-stat-top"><span class="cw-stat-label">Live inbox</span><span class="cw-stat-icon" aria-hidden="true">•</span></div>
+                    <strong class="cw-stat-value">{{ number_format($activeChatCount + $waitingCount) }}</strong>
+                    <span class="cw-stat-meta">All waiting and live conversations</span>
+                </a>
+                <a class="cw-stat" href="{{ $links['activeChats'] }}">
+                    <div class="cw-stat-top"><span class="cw-stat-label">Active live chats</span><span class="cw-stat-icon" aria-hidden="true">•</span></div>
                     <strong class="cw-stat-value">{{ number_format($activeChatCount) }}</strong>
-                    <span class="cw-stat-meta">{{ number_format($waitingCount) }} conversations waiting</span>
+                    <span class="cw-stat-meta">Agent-connected conversations</span>
+                </a>
+                <a class="cw-stat" href="{{ $links['waitingChats'] }}">
+                    <div class="cw-stat-top"><span class="cw-stat-label">Waiting chats</span><span class="cw-stat-icon" aria-hidden="true">â—·</span></div>
+                    <strong class="cw-stat-value">{{ number_format($waitingCount) }}</strong>
+                    <span class="cw-stat-meta">Waiting for an available agent</span>
                 </a>
             @else
                 <a class="cw-stat" href="{{ $links['visitors'] }}">

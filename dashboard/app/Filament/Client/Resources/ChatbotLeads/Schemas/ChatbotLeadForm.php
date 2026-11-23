@@ -46,7 +46,8 @@ class ChatbotLeadForm
                 TextInput::make('phone')
                     ->label('Phone')
                     ->tel()
-                    ->maxLength(20),
+                    ->maxLength(30)
+                    ->regex('/^(?=(?:\D*\d){10,15}\D*$)\+?[0-9\s().-]+$/'),
 
                 Textarea::make('notes')
                     ->label('Notes')

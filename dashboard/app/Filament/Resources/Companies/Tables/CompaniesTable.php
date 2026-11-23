@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use App\Support\BrowserTime;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -18,8 +19,8 @@ class CompaniesTable
         return $table
             ->columns([
                 
-                TextColumn::make('name')
-                    ->label('Company')
+                TextColumn::make('legal_name')
+                    ->label('Legal Name')
                     ->searchable()
                     ->sortable(),
 
@@ -37,6 +38,23 @@ class CompaniesTable
                     ->searchable()
                     ->copyable(),
 
+                TextColumn::make('county_name')
+                    ->label('County')
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('country_code')
+                    ->label('Country Code')
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('subscription_expires_at')
+                    ->label('Subscription')
+                    ->dateTime('d M Y, h:i A')
+                    ->placeholder('No expiry')
+                    ->sortable()
+                    ->toggleable(),
+
                 TextColumn::make('websites.name')
     ->label('Websites')
     ->listWithLineBreaks()
@@ -53,9 +71,9 @@ TextColumn::make('address')
     ->limit(40)
     ->tooltip(fn ($record) => $record->address),
 
-                IconColumn::make('status')
+                ToggleColumn::make('status')
                     ->label('Status')
-                    ->boolean(),
+                    ->sortable(),
 
                 TextColumn::make('created_at')
     ->label('Created At')

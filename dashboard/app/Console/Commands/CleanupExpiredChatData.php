@@ -59,7 +59,7 @@ class CleanupExpiredChatData extends Command
     {
         $retentionDays = (int) config('data-retention.closed_chats.retention_days', 30);
         $chunkSize = max(1, (int) config('data-retention.closed_chats.chunk_size', 100));
-        $cutoff = now()->subDays($retentionDays);
+        $cutoff = now()->subDays(30);
         $deletedConversations = 0;
         $deletedSessions = 0;
         $deletedMessages = 0;
@@ -79,7 +79,17 @@ class CleanupExpiredChatData extends Command
             );
 
         $query
-            ->select('id')
+            ->with('website.company')
+            ->select([
+                'id',
+                'website_id',
+                'status',
+                'started_at',
+                'ended_at',
+                'live_ended_at',
+                'updated_at',
+                'created_at',
+            ])
             ->orderBy('id')
             ->chunkById($chunkSize, function ($conversations) use (
                 $dryRun,
@@ -89,7 +99,10 @@ class CleanupExpiredChatData extends Command
                 &$ratingsPreserved,
                 &$skippedPreservationFailures
             ): void {
-                $conversationIds = $conversations->pluck('id')->all();
+                $conversationIds = $conversations
+                    ->filter(fn (ChatConversation $conversation): bool => $this->conversationRetentionExpired($conversation, $retentionDays))
+                    ->pluck('id')
+                    ->all();
 
                 if ($conversationIds === []) {
                     return;
@@ -176,7 +189,8 @@ class CleanupExpiredChatData extends Command
             });
 
         LiveChatSession::query()
-            ->select('id')
+            ->with('conversation.website.company')
+            ->select(['id', 'conversation_id', 'ended_at'])
             ->whereNotNull('ended_at')
             ->where('ended_at', '<', $cutoff)
             ->orderBy('id')
@@ -186,7 +200,10 @@ class CleanupExpiredChatData extends Command
                 &$ratingsPreserved,
                 &$skippedPreservationFailures
             ): void {
-                $sessionIds = $sessions->pluck('id')->all();
+                $sessionIds = $sessions
+                    ->filter(fn (LiveChatSession $session): bool => $this->sessionRetentionExpired($session, $retentionDays))
+                    ->pluck('id')
+                    ->all();
 
                 if ($sessionIds === []) {
                     return;
@@ -418,7 +435,7 @@ class CleanupExpiredChatData extends Command
             'data-retention.chatbot_conversations.chunk_size',
             100
         ));
-        $cutoff = now()->subDays($retentionDays);
+        $cutoff = now()->subDays(30);
         $deletedConversations = 0;
         $deletedMessages = 0;
         $deletedAttachments = 0;
@@ -426,7 +443,15 @@ class CleanupExpiredChatData extends Command
         $this->info("Chatbot conversation cutoff: {$cutoff->toDateTimeString()}");
 
         ChatConversation::query()
-            ->select('id')
+            ->with('website.company')
+            ->select([
+                'id',
+                'website_id',
+                'status',
+                'ended_at',
+                'updated_at',
+                'created_at',
+            ])
             // Normal chatbot conversations are ended by chatbot:end-inactive.
             // Resolved is also safe here. Keep active/live/waiting statuses out.
             ->whereIn('status', ['ended', 'resolved'])
@@ -441,7 +466,10 @@ class CleanupExpiredChatData extends Command
             )
             ->orderBy('id')
             ->chunkById($chunkSize, function ($conversations) use ($dryRun, &$deletedConversations, &$deletedMessages, &$deletedAttachments): void {
-                $conversationIds = $conversations->pluck('id')->all();
+                $conversationIds = $conversations
+                    ->filter(fn (ChatConversation $conversation): bool => $this->conversationRetentionExpired($conversation, $retentionDays))
+                    ->pluck('id')
+                    ->all();
 
                 if ($conversationIds === []) {
                     return;
@@ -494,6 +522,29 @@ class CleanupExpiredChatData extends Command
             'attachments' => $deletedAttachments,
             'retention_days' => $retentionDays,
         ];
+    }
+
+    protected function conversationRetentionExpired(ChatConversation $conversation, int $fallbackDays): bool
+    {
+        $months = $conversation->website?->company?->conversationRetentionMonths();
+        $cutoff = $months
+            ? now()->subMonths($months)
+            : now()->subDays($fallbackDays);
+        $timestamp = $conversation->status === 'closed'
+            ? ($conversation->live_ended_at ?? $conversation->ended_at ?? $conversation->updated_at)
+            : ($conversation->ended_at ?? $conversation->updated_at ?? $conversation->created_at);
+
+        return $timestamp && $timestamp->lt($cutoff);
+    }
+
+    protected function sessionRetentionExpired(LiveChatSession $session, int $fallbackDays): bool
+    {
+        $months = $session->conversation?->website?->company?->conversationRetentionMonths();
+        $cutoff = $months
+            ? now()->subMonths($months)
+            : now()->subDays($fallbackDays);
+
+        return $session->ended_at && $session->ended_at->lt($cutoff);
     }
 
     protected function cleanupMissedChats(bool $dryRun): array

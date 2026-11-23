@@ -40,7 +40,7 @@ class SendMessageRequest extends FormRequest
 
         'name' => ['nullable', 'string', 'max:255'],
 'email' => ['nullable', 'email', 'max:255'],
-'phone' => ['nullable', 'string', 'max:30'],
+'phone' => ['nullable', 'string', 'max:30', 'regex:/^(?=(?:\D*\d){10,15}\D*$)\+?[0-9\s().-]+$/'],
 'notes' => ['nullable', 'string'],
 'session_id' => ['required', 'string'],
     ];

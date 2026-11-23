@@ -34,7 +34,7 @@ class AgentForm
                     ->tel()
                     ->required()
                     ->maxLength(30)
-                    ->regex('/^\+?[0-9\s\-()]{7,30}$/'),
+                    ->regex('/^(?=(?:\D*\d){10,15}\D*$)\+?[0-9\s().-]+$/'),
 
                 TextInput::make('password')
                     ->label('Password')

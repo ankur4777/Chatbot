@@ -21,7 +21,7 @@ class EnsureAgent
             $user->role !== 'agent'
             || ! $user->status
             || ! $user->company_id
-            || ! $user->company?->status
+            || ! $user->company?->hasActiveSubscription()
         ) {
             abort(403);
         }

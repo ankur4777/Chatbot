@@ -10,6 +10,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -47,7 +48,11 @@ class GalleryImagesTable
                     ->badge()
                     ->separator(',')
                     ->searchable(query: function ($query, string $search) {
-                        return $query->where('tags', 'like', '%' . $search . '%');
+                        return $query->where(function ($tagsQuery) use ($search): void {
+                            $tagsQuery
+                                ->whereJsonContains('tags', $search)
+                                ->orWhere('tags', 'like', '%' . $search . '%');
+                        });
                     }),
 
                 TextColumn::make('website.name')
@@ -55,9 +60,9 @@ class GalleryImagesTable
                     ->searchable()
                     ->sortable(),
 
-                IconColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label('Active')
-                    ->boolean(),
+                    ->sortable(),
 
                 TextColumn::make('updated_at')
                     ->label('Updated')

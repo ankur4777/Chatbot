@@ -71,6 +71,9 @@
             text-decoration: none;
             white-space: nowrap;
         }
+        .notification-dismiss-form { margin: 0; }
+        .notification-dismiss { align-items: center; background: transparent; border: 1px solid #d9dee8; border-radius: 999px; color: #64748b; cursor: pointer; display: inline-flex; font-size: 16px; height: 30px; justify-content: center; line-height: 1; width: 30px; }
+        .notification-dismiss:hover { background: #fff1f0; border-color: #ff9d96; color: #d92d20; }
         .notifications-empty {
             background: #fff;
             border: 1px solid #dce6f3;
@@ -157,6 +160,11 @@
                         </div>
                         <div class="notification-side">
                             <a class="notification-action-link" href="{{ $actionUrl }}">{{ $actionLabel }}</a>
+                            <form class="notification-dismiss-form" method="POST" action="{{ route('agent.notifications.destroy', $notification) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="notification-dismiss" type="submit" title="Dismiss notification" aria-label="Dismiss notification">×</button>
+                            </form>
                         </div>
                     </article>
                 @empty

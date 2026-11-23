@@ -23,6 +23,7 @@ use App\Services\WebsiteFeatureService;
     'password',
     'role',
     'status',
+    'must_change_password',
     'is_online',
     'availability_status',
     'last_seen_at',
@@ -46,6 +47,7 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
 
         'status' => 'boolean',
+        'must_change_password' => 'boolean',
         'is_online' => 'boolean',
         'last_seen_at' => 'datetime',
     ];
@@ -103,7 +105,7 @@ public function canAccessPanel(Panel $panel): bool
 
     // Company users must belong to an active company.
     if (in_array($this->role, ['owner', 'agent'], true)) {
-        if (! $this->company || ! $this->company->status) {
+        if (! $this->company || ! $this->company->hasActiveSubscription()) {
             return false;
         }
     }

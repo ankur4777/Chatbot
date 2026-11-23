@@ -267,7 +267,7 @@ public function saveOfflineLiveChatRequest(Request $request)
         'conversation_id' => ['required', 'integer'],
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'email', 'max:255'],
-        'phone' => ['required', 'string', 'max:30', 'regex:/^\+?[0-9]{7,15}$/'],
+        'phone' => ['required', 'string', 'max:30', 'regex:/^(?=(?:\D*\d){10,15}\D*$)\+?[0-9\s().-]+$/'],
         'message' => ['nullable', 'string', 'max:5000'],
     ]);
 
@@ -1123,7 +1123,8 @@ public function saveLead(Request $request)
     'phone' => [
         'required',
         'string',
-        'regex:/^\+?[0-9]{7,15}$/',
+        'max:30',
+        'regex:/^(?=(?:\D*\d){10,15}\D*$)\+?[0-9\s().-]+$/',
     ],
 
     'notes' => [

@@ -117,6 +117,10 @@ class ClientPanelProvider extends PanelProvider
             })();
         </script>
     BLADE),
-);
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.client.partials.password-reset-modal')->render(),
+            );
     }
 }

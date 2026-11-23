@@ -13,7 +13,7 @@ class WebsiteForm
             ->components([
 
                 TextInput::make('name')
-                    ->label('Website Name')
+                    ->label('Website Title')
                     ->required()
                     ->maxLength(255),
 

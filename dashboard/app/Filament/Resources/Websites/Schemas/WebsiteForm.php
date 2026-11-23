@@ -23,7 +23,7 @@ class WebsiteForm
                     ->visible(fn () => auth()->user()?->role === 'super_admin'),
 
                 TextInput::make('name')
-                    ->label('Website Name')
+                    ->label('Website Title')
                     ->required()
                     ->maxLength(255),
 

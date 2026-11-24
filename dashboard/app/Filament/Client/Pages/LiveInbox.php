@@ -7,6 +7,7 @@ use App\Filament\Client\Concerns\RequiresLiveChatAccess;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\LiveChatSession;
+use App\Services\LiveInboxMetrics;
 use App\Support\BrowserTime;
 use BackedEnum;
 use Carbon\Carbon;
@@ -36,14 +37,29 @@ class LiveInbox extends Page implements HasTable
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedInbox;
 
-    protected string $view = 'filament.client.pages.table-page';
+    protected string $view = 'filament.client.pages.live-inbox';
+
+    protected function getViewData(): array
+    {
+        abort_unless(static::canAccess(), 403);
+
+        $websiteId = $this->selectedLiveChatWebsiteId();
+
+        return [
+            'metrics' => app(LiveInboxMetrics::class)->forWebsite(auth('client')->user(), $websiteId),
+            'websiteOptions' => $this->liveChatWebsiteOptions(),
+            'websiteId' => $websiteId,
+        ];
+    }
 
     public function table(Table $table): Table
     {
         return $table
             ->query($this->getTableQuery())
             ->columns($this->columns())
-            ->defaultSort('latest_activity_message_created_at', 'desc');
+            ->defaultSort('latest_activity_message_created_at', 'desc')
+            ->defaultPaginationPageOption(10)
+            ->poll('15s');
     }
 
     protected function getTableQuery(): Builder

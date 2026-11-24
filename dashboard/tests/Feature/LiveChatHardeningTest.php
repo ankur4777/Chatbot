@@ -709,6 +709,47 @@ class LiveChatHardeningTest extends TestCase
         $this->assertSame('offline', $agent->availability_status);
     }
 
+    public function test_live_inbox_metrics_are_scoped_to_the_selected_website(): void
+    {
+        $this->freezeTime(function (): void {
+            [$company, $website] = $this->websiteFixture('Inbox Metrics', 'inbox-metrics.test');
+            [, $otherWebsite] = $this->websiteFixture('Other Inbox', 'other-inbox.test');
+            $owner = $this->agentFixture($company, ['role' => 'owner']);
+            $agent = $this->agentFixture($company, ['availability_status' => 'online', 'is_online' => true]);
+            $offline = $this->agentFixture($company);
+            $agent->assignedWebsites()->attach($website->id);
+            $offline->assignedWebsites()->attach($website->id);
+            $this->conversationFixture($website, [
+                'status' => 'waiting_agent', 'handoff_requested_at' => now()->subMinutes(2),
+            ], 'inbox-wait');
+            [, $active] = $this->conversationFixture($website, [
+                'status' => 'live_active', 'mode' => 'live', 'assigned_agent_id' => $agent->id,
+                'live_started_at' => now()->subMinutes(5),
+            ], 'inbox-active');
+            $this->conversationFixture($otherWebsite, ['status' => 'waiting_agent'], 'other-wait');
+            LiveChatSession::create(['conversation_id' => $active->id, 'agent_id' => $agent->id, 'started_at' => now()->subMinutes(5)]);
+            $message = new ChatMessage(['conversation_id' => $active->id, 'sender_type' => 'agent', 'sender_id' => $agent->id, 'message' => 'Hello']);
+            $message->created_at = now()->subMinutes(4);
+            $message->save();
+
+            $service = app(\App\Services\LiveInboxMetrics::class);
+            $metrics = $service->forWebsite($owner, $website->id);
+            $this->assertSame(1, $metrics['waiting']);
+            $this->assertSame(1, $metrics['active']);
+            $this->assertSame(1, $metrics['online']);
+            $this->assertSame(1, $metrics['offline']);
+            $this->assertSame(120, $metrics['average_wait']);
+            $this->assertSame(60, $metrics['average_response']);
+            $this->assertSame(1, $metrics['agents']->first()['chats']);
+            $this->assertSame(0, $metrics['unassigned_active']);
+            $this->assertSame('1m 0s', $service::duration(60));
+            $this->assertSame('—', $service::duration(null));
+
+            $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+            $service->forWebsite($owner, $otherWebsite->id);
+        });
+    }
+
     protected function websiteFixture(
         string $companyName = 'Acme',
         string $domain = 'example.test'

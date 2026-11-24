@@ -25,8 +25,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/client/password/first-login', [PasswordController::class, 'updateFirstLogin'])
+Route::get('/client/password/first-login', [PasswordController::class, 'showFirstLogin'])
     ->middleware('auth')
+    ->name('client.password.first-login.show');
+
+Route::post('/client/password/first-login', [PasswordController::class, 'updateFirstLogin'])
+    ->middleware(['auth', 'throttle:10,1'])
     ->name('client.password.first-login');
 
 Route::get('/admin/users/{user}/view-client-dashboard', function () {

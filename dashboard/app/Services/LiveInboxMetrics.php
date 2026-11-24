@@ -3,11 +3,8 @@
 namespace App\Services;
 
 use App\Models\ChatConversation;
-use App\Models\ChatMessage;
-use App\Models\LiveChatSession;
 use App\Models\User;
 use App\Models\Website;
-use Carbon\Carbon;
 
 class LiveInboxMetrics
 {
@@ -48,37 +45,9 @@ class LiveInboxMetrics
             }
         }
 
-        // First human reply after the agent accepts a live session, not an AI reply.
-        // Include current and completed sessions started in the last seven days.
-        $firstReply = ChatMessage::query()->selectRaw('MIN(chat_messages.created_at)')
-            ->whereColumn('chat_messages.conversation_id', 'live_chat_sessions.conversation_id')
-            ->where('sender_type', 'agent')
-            ->whereColumn('chat_messages.sender_id', 'live_chat_sessions.agent_id')
-            ->whereColumn('chat_messages.created_at', '>=', 'live_chat_sessions.started_at')
-            ->where(function ($query) {
-                $query->whereNull('live_chat_sessions.ended_at')
-                    ->orWhereColumn('chat_messages.created_at', '<=', 'live_chat_sessions.ended_at');
-            });
-
-        $sessions = LiveChatSession::query()
-            ->whereHas('conversation', fn ($query) => $query->where('website_id', $website->id))
-            ->whereHas('agent', fn ($query) => $query->where('company_id', $owner->company_id))
-            ->whereBetween('started_at', [$now->copy()->subDays(7), $now])
-            ->select(['live_chat_sessions.id', 'started_at'])
-            ->addSelect(['first_reply_at' => $firstReply]);
-
-        $responseTotal = 0;
-        $responseSamples = 0;
-        foreach ($sessions->lazyById(500, 'live_chat_sessions.id', 'id') as $session) {
-            if ($session->first_reply_at === null) {
-                continue;
-            }
-            $seconds = Carbon::parse($session->first_reply_at)->getTimestamp() - $session->started_at->getTimestamp();
-            if ($seconds >= 0) {
-                $responseTotal += $seconds;
-                $responseSamples++;
-            }
-        }
+        $performance = app(AgentPerformanceMetrics::class)->forOwnerWebsite($owner, (int) $website->id);
+        $responseTotal = array_sum(array_column($performance, 'response_total'));
+        $responseSamples = array_sum(array_column($performance, 'response_samples'));
 
         $workloads = (clone $active)->whereNotNull('assigned_agent_id')
             ->selectRaw('assigned_agent_id, COUNT(*) as chat_count')
@@ -87,13 +56,14 @@ class LiveInboxMetrics
         $agents = User::query()->where('company_id', $owner->company_id)->where('role', 'agent')
             ->whereHas('assignedWebsites', fn ($query) => $query->whereKey($website->id))
             ->orderBy('name')->get(['id', 'name', 'status', 'availability_status'])
-            ->map(function (User $agent) use ($workloads): array {
+            ->map(function (User $agent) use ($workloads, $performance): array {
                 $status = ! $agent->status ? 'disabled' : match ($agent->availability_status) {
                     'online' => 'online', 'away' => 'away', default => 'offline',
                 };
 
                 return ['id' => $agent->id, 'name' => $agent->name,
-                    'status' => $status, 'chats' => (int) ($workloads[$agent->id] ?? 0)];
+                    'status' => $status, 'chats' => (int) ($workloads[$agent->id] ?? 0),
+                    'performance' => $performance[$agent->id] ?? AgentPerformanceMetrics::emptyMetrics()];
             });
 
         $counts = $agents->countBy('status');

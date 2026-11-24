@@ -102,14 +102,16 @@ class LiveChatService
                 );
             }
 
+            $acceptedAt = now();
+
             $updated = ChatConversation::query()
                 ->whereKey($lockedConversation->getKey())
                 ->where('status', 'waiting_agent')
                 ->whereNull('assigned_agent_id')
                 ->update([
                     'assigned_agent_id' => $agent->id,
-                    'assigned_at' => now(),
-                    'live_started_at' => now(),
+                    'assigned_at' => $acceptedAt,
+                    'live_started_at' => $acceptedAt,
                     'status' => 'live_active',
                     'mode' => 'live',
                 ]);
@@ -123,7 +125,8 @@ class LiveChatService
             LiveChatSession::create([
                 'conversation_id' => $lockedConversation->id,
                 'agent_id' => $agent->id,
-                'started_at' => now(),
+                'handoff_requested_at' => $lockedConversation->handoff_requested_at,
+                'started_at' => $acceptedAt,
                 'rating_status' => 'pending',
                 'agent_chat_status' => LiveChatSession::AGENT_CHAT_STATUS_ACTIVE,
             ]);
@@ -540,6 +543,7 @@ class LiveChatService
         }
 
         $session->update([
+            'handoff_requested_at' => $session->handoff_requested_at ?? $conversation->handoff_requested_at,
             'ended_at' => now(),
             'ended_by' => $endedBy,
             'agent_chat_status' => null,

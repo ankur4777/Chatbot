@@ -727,7 +727,7 @@ class LiveChatHardeningTest extends TestCase
                 'live_started_at' => now()->subMinutes(5),
             ], 'inbox-active');
             $this->conversationFixture($otherWebsite, ['status' => 'waiting_agent'], 'other-wait');
-            LiveChatSession::create(['conversation_id' => $active->id, 'agent_id' => $agent->id, 'started_at' => now()->subMinutes(5)]);
+            LiveChatSession::create(['conversation_id' => $active->id, 'agent_id' => $agent->id, 'started_at' => now()->subMinutes(5), 'handoff_requested_at' => now()->subMinutes(7)]);
             $message = new ChatMessage(['conversation_id' => $active->id, 'sender_type' => 'agent', 'sender_id' => $agent->id, 'message' => 'Hello']);
             $message->created_at = now()->subMinutes(4);
             $message->save();
@@ -741,6 +741,20 @@ class LiveChatHardeningTest extends TestCase
             $this->assertSame(120, $metrics['average_wait']);
             $this->assertSame(60, $metrics['average_response']);
             $this->assertSame(1, $metrics['agents']->first()['chats']);
+            $performance = $metrics['agents']->first()['performance'];
+            $this->assertSame(120, $performance['average_wait']);
+            $this->assertSame(60, $performance['average_response']);
+            $this->assertNull($performance['average_handle']);
+            $this->assertNull($metrics['agents']->last()['performance']['average_wait']);
+
+            $personal = app(\App\Services\AgentPerformanceMetrics::class)->forAgent($agent);
+            $this->assertSame($performance, $personal);
+
+            LiveChatSession::query()->where('conversation_id', $active->id)->update(['ended_at' => now()]);
+            $personal = app(\App\Services\AgentPerformanceMetrics::class)->forAgent($agent);
+            $this->assertSame(300, $personal['average_handle']);
+            $this->assertSame(1, $personal['handle_samples']);
+            $this->assertSame(0, app(\App\Services\AgentPerformanceMetrics::class)->forAgent($offline)['handle_samples']);
             $this->assertSame(0, $metrics['unassigned_active']);
             $this->assertSame('1m 0s', $service::duration(60));
             $this->assertSame('—', $service::duration(null));

@@ -14,6 +14,7 @@ class LiveChatSession extends Model
     protected $fillable = [
         'conversation_id',
         'agent_id',
+        'handoff_requested_at',
         'started_at',
         'ended_at',
         'ended_by',
@@ -28,6 +29,7 @@ class LiveChatSession extends Model
     ];
 
     protected $casts = [
+        'handoff_requested_at' => 'datetime',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'note_updated_at' => 'datetime',

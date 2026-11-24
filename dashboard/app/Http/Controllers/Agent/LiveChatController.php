@@ -39,6 +39,7 @@ class LiveChatController extends Controller
         $maxActiveChats = $this->maxActiveChatsForAgent($agent);
 
         return view('agent.dashboard', [
+            'performance' => app(\App\Services\AgentPerformanceMetrics::class)->forAgent($agent),
             'availabilityStats' => $this->availabilityStatsForAgent($agent),
             'maxActiveChats' => $maxActiveChats,
             'availabilityStatus' => $agent->availability_status ?? 'offline',

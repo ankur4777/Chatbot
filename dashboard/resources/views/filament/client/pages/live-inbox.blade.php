@@ -34,12 +34,12 @@
 
             <section class="cw-inbox-panel" aria-labelledby="cw-inbox-agents">
                 <div class="cw-inbox-panel-head">
-                    <div><h2 id="cw-inbox-agents">Agent workload</h2><p>Active chats by agent assigned to this website.</p></div>
+                    <div><h2 id="cw-inbox-agents">Agent workload &amp; performance</h2><p>Current workload and individual performance over the last 7 days for this website.</p></div>
                     <span>{{ $metrics['agents']->count() }} agents</span>
                 </div>
                 <div class="cw-inbox-table-wrap">
                     <table class="cw-inbox-table">
-                        <thead><tr><th scope="col">Agent</th><th scope="col">Availability</th><th scope="col">Active chats</th><th scope="col">Workload</th></tr></thead>
+                        <thead><tr><th scope="col">Agent</th><th scope="col">Availability</th><th scope="col">Active chats</th><th scope="col">Workload</th><th scope="col">Avg. handle time</th><th scope="col">Avg. first response</th><th scope="col">Avg. waiting time</th></tr></thead>
                         <tbody>
                             @forelse ($metrics['agents'] as $agent)
                                 <tr wire:key="inbox-agent-{{ $agent['id'] }}">
@@ -47,13 +47,20 @@
                                     <td><span class="cw-inbox-status cw-inbox-{{ $agent['status'] }}">{{ ucfirst($agent['status']) }}</span></td>
                                     <td>{{ $agent['chats'] }}</td>
                                     <td><div class="cw-inbox-bar" role="img" aria-label="{{ $agent['chats'] }} of {{ $metrics['active'] }} active chats"><span style="width: {{ $metrics['active'] ? min(100, 100 * $agent['chats'] / $metrics['active']) : 0 }}%"></span></div></td>
+                                    @foreach (['handle', 'response', 'wait'] as $key)
+                                        <td>
+                                            <strong>{{ \App\Services\LiveInboxMetrics::duration($agent['performance']['average_' . $key]) }}</strong>
+                                            <small style="display:block;color:var(--cw-muted);font-size:.72rem;margin-top:4px;">{{ $agent['performance'][$key . '_samples'] }} sessions</small>
+                                        </td>
+                                    @endforeach
                                 </tr>
                             @empty
-                                <tr><td colspan="4" class="cw-inbox-empty">No agents assigned to this website.</td></tr>
+                                <tr><td colspan="7" class="cw-inbox-empty">No agents assigned to this website.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+                <p class="cw-inbox-footnote">Handle: acceptance to closure (including holds). First response: acceptance to first agent reply. Waiting: request to acceptance for chats taken by that agent. Missing data is excluded. The queue waiting card above measures visitors still waiting.</p>
                 @if ($metrics['unassigned_active'] > 0)
                     <p class="cw-inbox-footnote">{{ $metrics['unassigned_active'] }} active chats are unassigned or assigned outside the current website agent roster.</p>
                 @endif

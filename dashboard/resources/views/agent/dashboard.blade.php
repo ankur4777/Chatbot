@@ -341,6 +341,15 @@
                 justify-items: start;
             }
         }
+        .dashboard-performance-heading h2 { color:#07142f; font-size:19px; font-weight:700; margin:0 0 5px; }
+        .dashboard-performance-heading p,.dashboard-performance-note { color:#526381; font-size:12px; margin:0 0 12px; }
+        .dashboard-performance-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+        .dashboard-performance-card { background:#fff; border:1px solid #dce6f3; border-radius:8px; padding:18px; min-width:0; box-shadow:0 10px 28px rgba(15,23,42,.05); }
+        .dashboard-performance-card span { display:block; color:#243654; font-weight:650; font-size:13px; }
+        .dashboard-performance-card strong { display:block; color:#df2f25; font-size:26px; font-weight:760; margin:10px 0; }
+        .dashboard-performance-card small { display:block; font-size:12px; color:#526381; margin-top:5px; }
+        .dashboard-performance-note { margin:10px 0 0; }
+        @media(max-width:640px) { .dashboard-performance-grid { grid-template-columns:1fr; } }
     </style>
 
     @php
@@ -413,6 +422,28 @@
                     </svg>
                 </span>
             </a>
+        </section>
+
+        <section aria-labelledby="agent-performance-title">
+            <div class="dashboard-performance-heading">
+                <h2 id="agent-performance-title">My performance</h2>
+                <p>Last 7 days · Your live sessions across all company websites</p>
+            </div>
+            <div class="dashboard-performance-grid">
+                @foreach ([
+                    ['Average handle time', 'handle', 'Acceptance to chat closure'],
+                    ['Average first response', 'response', 'Acceptance to first human reply'],
+                    ['Average waiting time', 'wait', 'Visitor request to your acceptance'],
+                ] as [$label, $key, $description])
+                    <div class="dashboard-performance-card">
+                        <span>{{ $label }}</span>
+                        <strong>{{ \App\Services\LiveInboxMetrics::duration($performance['average_' . $key]) }}</strong>
+                        <small>{{ $description }}</small>
+                        <small>{{ $performance[$key . '_samples'] }} measured sessions</small>
+                    </div>
+                @endforeach
+            </div>
+            <p class="dashboard-performance-note">Handle time includes time on hold. Missing timestamps or replies are excluded, not counted as zero.</p>
         </section>
 
         <section class="dashboard-panel-grid">

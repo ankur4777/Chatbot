@@ -144,6 +144,7 @@ class LiveChatHardeningTest extends TestCase
         [, $conversation] = $this->conversationFixture($website, [
             'status' => 'waiting_agent',
             'mode' => 'ai',
+            'handoff_requested_at' => now()->subMinutes(3),
         ]);
 
         $accepted = app(LiveChatService::class)
@@ -151,6 +152,7 @@ class LiveChatHardeningTest extends TestCase
 
         $this->assertSame('live_active', $accepted->status);
         $this->assertSame($agent->id, $accepted->assigned_agent_id);
+        $this->assertEquals($conversation->handoff_requested_at, $accepted->activeLiveChatSession()->firstOrFail()->handoff_requested_at);
 
         $this->expectException(\InvalidArgumentException::class);
 

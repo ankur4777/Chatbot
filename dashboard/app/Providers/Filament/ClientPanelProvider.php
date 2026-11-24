@@ -65,7 +65,7 @@ class ClientPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class, AuthenticatePortal::class])
+            ->persistentMiddleware([SetBrowserTimezone::class, SelectPortalGuard::class, PortalAuthenticateSession::class, AuthenticatePortal::class])
             ->authMiddleware([
                 AuthenticatePortal::class,
                 \App\Http\Middleware\RequireClientPasswordChange::class,

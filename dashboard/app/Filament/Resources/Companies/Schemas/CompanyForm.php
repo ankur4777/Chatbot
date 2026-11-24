@@ -60,9 +60,7 @@ class CompanyForm
     TextInput::make('phone')
         ->label('Phone Number')
         ->inputMode('numeric')
-        ->extraInputAttributes([
-            'x-on:input.capture' => '$event.target.value = $event.target.value.replace(/[^0-9]/g, "")',
-        ])
+        ->mask(fn (Get $get): string => str_repeat('9', max(self::phoneLengths($get('country_code')) ?: [15])))
         ->disabled(fn (Get $get): bool => self::phoneLengths($get('country_code')) === [])
         ->maxLength(fn (Get $get): int => max(self::phoneLengths($get('country_code')) ?: [15]))
         ->regex(fn (Get $get): string => '/\\A(?:' . implode('|', array_map(

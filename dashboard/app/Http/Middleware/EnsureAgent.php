@@ -11,7 +11,7 @@ class EnsureAgent
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::guard('web')->user();
+        $user = Auth::guard('agent')->user();
 
         if (! $user) {
             return redirect()->route('agent.login');
@@ -25,6 +25,8 @@ class EnsureAgent
         ) {
             abort(403);
         }
+
+        Auth::shouldUse('agent');
 
         return $next($request);
     }

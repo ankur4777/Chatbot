@@ -10,7 +10,12 @@ class RequireClientPasswordChange
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        // Only a client request may be subject to the owner's password gate.
+        if (! $request->is('client', 'client/*') && ! $request->routeIs('filament.client.*')) {
+            return $next($request);
+        }
+
+        $user = $request->user('client');
 
         if ($user?->role !== 'owner' || ! $user->must_change_password) {
             return $next($request);

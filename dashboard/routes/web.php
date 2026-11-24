@@ -26,11 +26,11 @@ Route::get('/', function () {
 });
 
 Route::get('/client/password/first-login', [PasswordController::class, 'showFirstLogin'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.password.first-login.show');
 
 Route::post('/client/password/first-login', [PasswordController::class, 'updateFirstLogin'])
-    ->middleware(['auth', 'throttle:10,1'])
+    ->middleware(['auth:client', 'throttle:10,1'])
     ->name('client.password.first-login');
 
 Route::get('/admin/users/{user}/view-client-dashboard', function () {
@@ -38,34 +38,34 @@ Route::get('/admin/users/{user}/view-client-dashboard', function () {
 })->name('admin.users.view-client-dashboard');
 
 Route::get('/admin/download/companies', [DashboardExportController::class, 'companies'])
-    ->middleware('auth')
+    ->middleware('auth:admin')
     ->name('admin.companies.download');
 
 Route::get('/admin/download/websites', [DashboardExportController::class, 'websites'])
-    ->middleware('auth')
+    ->middleware('auth:admin')
     ->name('admin.websites.download');
 
 Route::get('/admin/download/users', [DashboardExportController::class, 'users'])
-    ->middleware('auth')
+    ->middleware('auth:admin')
     ->name('admin.users.download');
 
 Route::get('/client/agents/{user}/view-agent-dashboard', function (Request $request, User $user) {
-    $owner = Auth::guard('web')->user();
+    $owner = Auth::guard('client')->user();
 
-    abort_unless($owner?->role === 'owner' && $owner->company_id, 403);
+    abort_unless($owner?->role === 'owner' && $owner->status && ! $owner->must_change_password && $owner->company_id && $owner->company?->hasActiveSubscription(), 403);
     abort_unless(
         $user->role === 'agent'
         && $user->status
         && $user->company_id === $owner->company_id
-        && $user->company?->status,
+        && $user->company?->hasActiveSubscription(),
         403
     );
 
     $request->session()->put('impersonator_id', $owner->getKey());
 
-    Auth::guard('web')->login($user);
+    Auth::guard('agent')->login($user);
     $request->session()->regenerate();
-    $request->session()->put('password_hash_web', $user->getAuthPassword());
+    $request->session()->put('password_hash_agent', $user->getAuthPassword());
 
     return redirect('/agent');
 })
@@ -89,43 +89,43 @@ Route::get('/client/chat-attachments/{message}', function (Request $request, Cha
 
     return $chatService->attachmentResponse($message);
 })
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.chat-attachments.show');
 
 Route::get('/client/closed-chats/download', [ClosedChatExportController::class, 'downloadAll'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.closed-chats.download-all');
 
 Route::get('/client/closed-chats/{session}/download', [ClosedChatExportController::class, 'download'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.closed-chats.download');
 
 Route::get('/client/agents/download', [AgentExportController::class, 'download'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.agents.download');
 
 Route::get('/client/websites/download', [WebsiteExportController::class, 'download'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.websites.download');
 
 Route::get('/client/visitors/download', [VisitorExportController::class, 'download'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.visitors.download');
 
 Route::get('/client/chatbot-leads/download', [ChatbotLeadExportController::class, 'download'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.chatbot-leads.download');
 
 Route::get('/client/missed-chats/download', [ChatbotLeadExportController::class, 'downloadMissedChats'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.missed-chats.download');
 
 Route::get('/client/chatbot-conversations/download', [ChatbotConversationExportController::class, 'download'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.chatbot-conversations.download');
 
 Route::get('/client/chatbot-conversations/{conversation}/download', [ChatbotConversationExportController::class, 'downloadConversation'])
-    ->middleware('auth')
+    ->middleware('auth:client')
     ->name('client.chatbot-conversations.download-one');
 
 Route::prefix('agent')

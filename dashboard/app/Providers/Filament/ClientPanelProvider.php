@@ -3,7 +3,8 @@
 namespace App\Providers\Filament;
 
 use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
+use App\Http\Middleware\PortalAuthenticateSession;
+use App\Http\Middleware\SelectPortalGuard;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
@@ -28,6 +29,7 @@ class ClientPanelProvider extends PanelProvider
         return $panel
             ->id('client')
             ->path('client')
+            ->authGuard('client')
             ->darkMode(false)
             ->brandName('Client Workspace')
             ->colors([
@@ -53,13 +55,15 @@ class ClientPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 SetBrowserTimezone::class,
-                AuthenticateSession::class,
+                SelectPortalGuard::class,
+                PortalAuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class])
             ->authMiddleware([
                 Authenticate::class,
                 \App\Http\Middleware\RequireClientPasswordChange::class,

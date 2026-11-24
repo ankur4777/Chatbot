@@ -3,7 +3,8 @@
 namespace App\Providers\Filament;
 
 use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
+use App\Http\Middleware\PortalAuthenticateSession;
+use App\Http\Middleware\SelectPortalGuard;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use App\Filament\Admin\AdminDashboard;
@@ -28,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->authGuard('admin')
             ->darkMode(false)
             ->brandName('Admin Workspace')
             ->login()
@@ -47,13 +49,15 @@ class AdminPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 SetBrowserTimezone::class,
-                AuthenticateSession::class,
+                SelectPortalGuard::class,
+                PortalAuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class])
             ->authMiddleware([
                 Authenticate::class,
             ])

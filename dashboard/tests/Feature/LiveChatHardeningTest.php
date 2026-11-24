@@ -448,7 +448,7 @@ class LiveChatHardeningTest extends TestCase
             'ended_by' => 'visitor',
         ]);
 
-        $this->actingAs($agent)
+        $this->actingAs($agent, 'agent')
             ->get('/agent/closed')
             ->assertOk()
             ->assertSee('Closed by Agent')
@@ -622,11 +622,11 @@ class LiveChatHardeningTest extends TestCase
             'message' => 'Other reply',
         ]);
 
-        $this->actingAs($onlineAgent)
+        $this->actingAs($onlineAgent, 'agent')
             ->get('/agent/chats')
             ->assertOk();
 
-        $this->actingAs($otherAgent)
+        $this->actingAs($otherAgent, 'agent')
             ->get('/agent/chats/' . ChatConversation::where('website_id', $website->id)->first()->id)
             ->assertNotFound();
 

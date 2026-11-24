@@ -8,7 +8,8 @@ use App\Filament\Agent\Pages\ConversationView;
 use App\Filament\Agent\Pages\MyActiveChats;
 use App\Filament\Agent\Pages\WaitingChats;
 use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
+use App\Http\Middleware\PortalAuthenticateSession;
+use App\Http\Middleware\SelectPortalGuard;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
@@ -31,6 +32,7 @@ class AgentPanelProvider extends PanelProvider
         return $panel
             ->id('agent')
             ->path('agent')
+            ->authGuard('agent')
             ->colors([
                 'primary' => Color::hex('#FF3B30'),
             ])
@@ -50,13 +52,15 @@ class AgentPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 SetBrowserTimezone::class,
-                AuthenticateSession::class,
+                SelectPortalGuard::class,
+                PortalAuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class])
             ->authMiddleware([
                 Authenticate::class,
             ])

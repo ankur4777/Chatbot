@@ -41,7 +41,7 @@ class PasswordController extends Controller
         ])->save();
 
         $request->session()->regenerate();
-        $request->session()->put('password_hash_web', $user->getAuthPassword());
+        $request->session()->put('password_hash_client', $user->getAuthPassword());
 
         return redirect('/client')->with('status', 'Your password has been updated successfully.');
     }

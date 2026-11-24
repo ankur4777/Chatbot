@@ -27,6 +27,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->app->bind(
+            \Filament\Auth\Http\Controllers\LogoutController::class,
+            \App\Http\Controllers\PortalLogoutController::class
+        );
+        $this->app->bind(
+            \Filament\Auth\Http\Responses\Contracts\LoginResponse::class,
+            \App\Http\Responses\PortalLoginResponse::class
+        );
+
         RateLimiter::for('widget-init', function (Request $request): Limit {
             return Limit::perMinute(60)->by(
                 $this->widgetRateLimitKey($request)
@@ -52,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('agent.*', function ($view): void {
-            $agent = Auth::user();
+            $agent = Auth::guard('agent')->user();
 
             if (
                 ! $agent

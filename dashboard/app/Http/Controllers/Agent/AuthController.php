@@ -28,7 +28,7 @@ class AuthController extends Controller
 
     public function showLogin(): View|RedirectResponse
     {
-        if (Auth::check() && Auth::user()->role === 'agent') {
+        if (Auth::guard('agent')->check() && Auth::guard('agent')->user()->role === 'agent') {
             return redirect()->route('agent.dashboard');
         }
 
@@ -161,7 +161,14 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::guard('agent')->attemptWhen(
+            $credentials,
+            fn (User $user): bool => $user->role === 'agent'
+                && $user->status
+                && $user->company_id
+                && $user->company?->hasActiveSubscription(),
+            $request->boolean('remember')
+        )) {
             return back()
                 ->withErrors([
                     'email' => 'The provided credentials are invalid.',
@@ -171,7 +178,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
+        $user = Auth::guard('agent')->user();
 
         if (
             $user->role !== 'agent'
@@ -179,9 +186,8 @@ class AuthController extends Controller
             || ! $user->company_id
             || ! $user->company?->hasActiveSubscription()
         ) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            Auth::guard('agent')->logout();
+            $request->session()->forget(['password_hash_agent', 'impersonator_id']);
 
             return back()
                 ->withErrors([
@@ -190,15 +196,18 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
+        $request->session()->forget('impersonator_id');
+        $request->session()->put('password_hash_agent', $user->getAuthPassword());
+
         $this->availabilityService->startLoginSession($user);
         $this->availabilityService->setAvailability($user, 'offline');
 
-        return redirect()->intended(route('agent.dashboard'));
+        return redirect()->route('agent.dashboard');
     }
 
     public function logout(Request $request): RedirectResponse
     {
-        $agent = $request->user();
+        $agent = $request->user('agent');
 
         if ($agent?->role === 'agent') {
             $agent->forceFill([
@@ -216,10 +225,8 @@ class AuthController extends Controller
             $this->availabilityService->endLoginSession($agent);
         }
 
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        Auth::guard('agent')->logout();
+        $request->session()->forget(['password_hash_agent', 'impersonator_id']);
 
         return redirect()->route('agent.login');
     }

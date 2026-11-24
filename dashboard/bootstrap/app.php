@@ -18,7 +18,16 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
 
     $middleware->append(HandleCors::class);
-    $middleware->web(append: [\App\Http\Middleware\RequireClientPasswordChange::class]);
+    $middleware->web(
+        prepend: [\App\Http\Middleware\SelectPortalGuard::class],
+        append: [\App\Http\Middleware\RequireClientPasswordChange::class],
+    );
+    $middleware->redirectGuestsTo(fn (Request $request) => match (true) {
+        $request->is('admin', 'admin/*') => '/admin/login',
+        $request->is('client', 'client/*') => '/client/login',
+        $request->is('agent', 'agent/*') => '/agent/login',
+        default => '/',
+    });
 
     $middleware->alias([
         'agent' => EnsureAgent::class,

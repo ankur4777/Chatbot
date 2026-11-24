@@ -62,7 +62,8 @@ class ClientPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
+                \App\Http\Middleware\RequireClientPasswordChange::class,
+            ], isPersistent: true)
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): string => view('filament.auth.partials.login-theme')->render(),

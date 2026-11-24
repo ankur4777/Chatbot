@@ -26,7 +26,7 @@
                 <a class="cw-inbox-stat" href="{{ \App\Filament\Client\Pages\ActiveChats::getUrl(['website' => $websiteId], panel: 'client') }}">
                     <span>Active chats</span><strong>{{ $metrics['active'] }}</strong><small>Ongoing support sessions →</small>
                 </a>
-                <div class="cw-inbox-stat"><span>Online agents</span><strong class="cw-inbox-green">{{ $metrics['online'] }}</strong><small>Available for live chat</small></div>
+                <div class="cw-inbox-stat"><span>Online agents</span><strong class="cw-inbox-green">{{ $metrics['online'] }}</strong><small>Marked online for live chat</small></div>
                 <div class="cw-inbox-stat"><span>Offline agents</span><strong>{{ $metrics['offline'] }}</strong><small>{{ $metrics['away'] }} away · {{ $metrics['disabled'] }} disabled</small></div>
                 <div class="cw-inbox-stat"><span>Average waiting time</span><strong>{{ \App\Services\LiveInboxMetrics::duration($metrics['average_wait']) }}</strong><small>Current queue · {{ $metrics['wait_samples'] }} timed chats</small></div>
                 <div class="cw-inbox-stat"><span>Average first response</span><strong>{{ \App\Services\LiveInboxMetrics::duration($metrics['average_response']) }}</strong><small>After acceptance · last 7 days · {{ $metrics['response_samples'] }} replies</small></div>

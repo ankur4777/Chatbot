@@ -58,8 +58,7 @@ class LiveInbox extends Page implements HasTable
             ->query($this->getTableQuery())
             ->columns($this->columns())
             ->defaultSort('latest_activity_message_created_at', 'desc')
-            ->defaultPaginationPageOption(10)
-            ->poll('15s');
+            ->defaultPaginationPageOption(10);
     }
 
     protected function getTableQuery(): Builder

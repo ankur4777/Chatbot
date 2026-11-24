@@ -20,13 +20,17 @@
                 </label>
                 <label>
                     New password
-                    <input type="password" name="password" required autocomplete="new-password">
+                    <input type="password" name="password" minlength="8" required autocomplete="new-password">
                 </label>
                 <label>
                     Confirm new password
-                    <input type="password" name="password_confirmation" required autocomplete="new-password">
+                    <input type="password" name="password_confirmation" minlength="8" required autocomplete="new-password">
                 </label>
                 <button type="submit">Update password</button>
+            </form>
+            <form method="POST" action="{{ route('filament.client.auth.logout') }}" class="first-login-logout">
+                @csrf
+                <button type="submit">Log out</button>
             </form>
         </div>
     </div>

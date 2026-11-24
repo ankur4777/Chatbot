@@ -59,6 +59,11 @@ TextEntry::make('address')
             TextEntry::make('country_code')
                 ->label('Country Code'),
 
+            TextEntry::make('subscription_starts_at')
+                ->label('Subscription Starts At')
+                ->dateTime('d M Y, h:i A')
+                ->placeholder('Immediate'),
+
             TextEntry::make('subscription_expires_at')
                 ->label('Subscription Expires At')
                 ->dateTime('d M Y, h:i A'),

@@ -43,8 +43,15 @@ class CompaniesTable
                     ->searchable()
                     ->toggleable(),
 
+                TextColumn::make('subscription_starts_at')
+                    ->label('Subscription Start')
+                    ->dateTime('d M Y, h:i A')
+                    ->placeholder('Immediate')
+                    ->sortable()
+                    ->toggleable(),
+
                 TextColumn::make('subscription_expires_at')
-                    ->label('Subscription')
+                    ->label('Subscription Expiry')
                     ->dateTime('d M Y, h:i A')
                     ->placeholder('No expiry')
                     ->sortable()

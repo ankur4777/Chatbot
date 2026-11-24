@@ -78,9 +78,19 @@ Textarea::make('address')
     ->label('Company Address')
     ->rows(3),
 
+    TextInput::make('subscription_starts_at')
+        ->label('Subscription Starts At')
+        ->type('datetime-local')
+        ->rules(['nullable', 'date'])
+        ->helperText('Leave empty to start immediately.'),
+
     TextInput::make('subscription_expires_at')
         ->label('Subscription Expires At')
         ->type('datetime-local')
+        ->rules(fn (Get $get): array => filled($get('subscription_starts_at'))
+            ? ['nullable', 'date', 'after_or_equal:' . $get('subscription_starts_at')]
+            : ['nullable', 'date'])
+        ->validationMessages(['after_or_equal' => 'The subscription expiry must be on or after the start date.'])
         ->helperText('Leave empty for no expiry.'),
 
     TextInput::make('conversation_retention_months')

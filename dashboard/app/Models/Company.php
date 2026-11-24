@@ -20,12 +20,14 @@ class Company extends Model
     'slug',
     'logo',
     'status',
+    'subscription_starts_at',
     'subscription_expires_at',
     'conversation_retention_months',
     ];
 
     protected $casts = [
         'status' => 'boolean',
+        'subscription_starts_at' => 'datetime',
         'subscription_expires_at' => 'datetime',
         'conversation_retention_months' => 'integer',
     ];
@@ -44,6 +46,7 @@ class Company extends Model
     public function hasActiveSubscription(): bool
     {
         return $this->status
+            && (! $this->subscription_starts_at || ! $this->subscription_starts_at->isFuture())
             && (! $this->subscription_expires_at || $this->subscription_expires_at->isFuture());
     }
 

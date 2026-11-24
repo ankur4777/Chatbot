@@ -879,7 +879,37 @@
             z-index: 90;
         }
         .agent-live-toast[hidden] { display: none; }
-        .agent-live-toast strong { font-weight: 600; }
+        .agent-live-toast strong { font-weight: 600; overflow-wrap: anywhere; text-align: left; }
+        .agent-live-toast-open {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+        }
+        .agent-live-toast-close {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 50%;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+        .agent-live-toast-close:hover { background: rgba(255,255,255,.15); }
+        .agent-live-toast-open:focus-visible,
+        .agent-live-toast-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
         .agent-live-toast span {
             background: #ef4444;
             border-radius: 999px;
@@ -3139,10 +3169,14 @@
         </div>
     </div>
 
-    <button class="agent-live-toast" type="button" data-agent-live-toast hidden>
-        <span data-agent-live-toast-count>1</span>
-        <strong data-agent-live-toast-text>New visitor message</strong>
-    </button>
+    <div class="agent-live-toast" data-agent-live-toast role="status" aria-live="polite" hidden>
+        <button class="agent-live-toast-open" type="button" data-agent-live-toast-open>
+            <span data-agent-live-toast-count>1</span>
+            <strong data-agent-live-toast-text>New visitor message</strong>
+        </button>
+        <button class="agent-live-toast-close" type="button" data-agent-live-toast-close
+            aria-label="Dismiss notification popup" title="Dismiss notification popup">&times;</button>
+    </div>
 
     <script>
         window.AgentRealtime = {
@@ -3176,6 +3210,8 @@
             const liveToast = document.querySelector('[data-agent-live-toast]');
             const liveToastText = document.querySelector('[data-agent-live-toast-text]');
             const liveToastCount = document.querySelector('[data-agent-live-toast-count]');
+            const liveToastOpen = document.querySelector('[data-agent-live-toast-open]');
+            const liveToastClose = document.querySelector('[data-agent-live-toast-close]');
             const notificationBell = document.querySelector('[data-agent-notification-bell]');
             const notificationCount = document.querySelector('[data-agent-notification-count]');
             const notificationNavCount = document.querySelector('[data-agent-notification-nav-count]');
@@ -3192,7 +3228,8 @@
                 ? `agent_live_unread_${config.agentId}`
                 : null;
             let liveToastUrl = null;
-            let liveToastTimeout = null;
+            const toastStorageKey = config.agentId ? `agent_live_toast_${config.agentId}` : null;
+            let liveToastConversationId = null;
             let unreadVisitorMessages = 0;
             let unreadByConversation = {};
             let persistentUnreadNotifications = Number(config.notificationUnreadCount || 0);
@@ -3718,13 +3755,46 @@
             };
 
             const hideAgentLiveToast = () => {
-                if (!liveToast) {
-                    return;
+                if (liveToast) {
+                    liveToast.hidden = true;
                 }
+                liveToastUrl = null;
+                liveToastConversationId = null;
 
-                liveToast.hidden = true;
-                clearTimeout(liveToastTimeout);
-                liveToastTimeout = null;
+                try {
+                    if (toastStorageKey) sessionStorage.removeItem(toastStorageKey);
+                } catch (error) {
+                    // The popup can still be dismissed when storage is unavailable.
+                }
+            };
+
+            const showAgentLiveToast = ({ title, count, url, conversationId = null }) => {
+                if (!liveToast) return;
+
+                liveToastUrl = url || null;
+                liveToastConversationId = conversationId ? String(conversationId) : null;
+                if (liveToastText) liveToastText.textContent = title || 'New notification';
+                if (liveToastCount) liveToastCount.textContent = count > 9 ? '9+' : String(count || 1);
+                liveToast.hidden = false;
+
+                try {
+                    if (toastStorageKey) {
+                        sessionStorage.setItem(toastStorageKey, JSON.stringify({
+                            title, count, url: liveToastUrl, conversationId: liveToastConversationId,
+                        }));
+                    }
+                } catch (error) {
+                    // The current page popup remains visible without browser storage.
+                }
+            };
+
+            const restoreAgentLiveToast = () => {
+                try {
+                    const saved = toastStorageKey && JSON.parse(sessionStorage.getItem(toastStorageKey) || 'null');
+                    if (saved && typeof saved.title === 'string') showAgentLiveToast(saved);
+                } catch (error) {
+                    // Ignore unavailable storage or invalid saved data.
+                }
             };
 
             const clearAgentLiveNotification = (conversationId = null) => {
@@ -3741,7 +3811,6 @@
                 unreadVisitorMessages = totalUnreadVisitorMessages();
                 persistUnreadNotification();
                 updateTitleBadge();
-                hideAgentLiveToast();
             };
 
             const ensureNotificationAudio = () => {
@@ -3888,21 +3957,15 @@
                 };
 
                 unreadVisitorMessages = totalUnreadVisitorMessages();
-                liveToastUrl = notification.url;
                 persistUnreadNotification();
                 updateConversationUnreadBadge(conversationId, unreadForConversation);
 
-                if (liveToastCount) {
-                    liveToastCount.textContent = unreadForConversation > 9
-                        ? '9+'
-                        : String(unreadForConversation);
-                }
-
-                if (liveToastText) {
-                    liveToastText.textContent = `New message from ${notification.label || 'visitor'}`;
-                }
-
-                liveToast.hidden = false;
+                showAgentLiveToast({
+                    title: `New message from ${notification.label || 'visitor'}`,
+                    count: unreadForConversation,
+                    url: notification.url,
+                    conversationId,
+                });
                 updateTitleBadge();
                 playAgentNotificationSound();
                 showDesktopVisitorNotification({
@@ -3912,8 +3975,6 @@
                     url: notification.url,
                 });
 
-                clearTimeout(liveToastTimeout);
-                liveToastTimeout = setTimeout(hideAgentLiveToast, 4000);
             };
 
             const restoreAgentLiveNotification = () => {
@@ -3958,18 +4019,25 @@
                 clearAgentLiveNotification(currentOpenConversationId());
             }
 
+            restoreAgentLiveToast();
+
             ['pointerdown', 'keydown'].forEach(eventName => {
                 document.addEventListener(eventName, ensureNotificationAudio, { once: true });
                 document.addEventListener(eventName, requestDesktopNotificationPermission, { once: true });
             });
             requestDesktopNotificationPermission();
 
-            liveToast?.addEventListener('click', () => {
+            liveToastClose?.addEventListener('click', hideAgentLiveToast);
+
+            liveToastOpen?.addEventListener('click', () => {
                 const url = liveToastUrl;
-                const conversationId = Object.entries(unreadByConversation)
+                const conversationId = liveToastConversationId || Object.entries(unreadByConversation)
                     .find(([, item]) => item?.url === url)?.[0] || null;
 
-                clearAgentLiveNotification(conversationId);
+                if (conversationId && unreadByConversation[conversationId]) {
+                    clearAgentLiveNotification(conversationId);
+                }
+                hideAgentLiveToast();
 
                 if (url) {
                     window.location.href = url;
@@ -4258,21 +4326,12 @@
                     updateTitleBadge();
                     loadLatestNotifications();
 
-                    liveToastUrl = event.action_url || @json(route('agent.notifications'));
-
-                    if (liveToastCount) {
-                        liveToastCount.textContent = persistentUnreadNotifications > 9 ? '9+' : String(persistentUnreadNotifications);
-                    }
-
-                    if (liveToastText) {
-                        liveToastText.textContent = event.title || 'New notification';
-                    }
-
-                    if (liveToast) {
-                        liveToast.hidden = false;
-                        clearTimeout(liveToastTimeout);
-                        liveToastTimeout = setTimeout(hideAgentLiveToast, 4000);
-                    }
+                    showAgentLiveToast({
+                        title: event.title || 'New notification',
+                        count: persistentUnreadNotifications,
+                        url: event.action_url || @json(route('agent.notifications')),
+                        conversationId: event.conversation_id,
+                    });
 
                     playAgentNotificationSound();
                 };

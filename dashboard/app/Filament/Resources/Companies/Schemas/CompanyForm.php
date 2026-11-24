@@ -65,9 +65,6 @@ class CompanyForm
         ])
         ->disabled(fn (Get $get): bool => self::phoneLengths($get('country_code')) === [])
         ->maxLength(fn (Get $get): int => max(self::phoneLengths($get('country_code')) ?: [15]))
-        ->helperText(fn (Get $get): string => self::phoneLengths($get('country_code'))
-            ? 'Enter ' . implode(' or ', self::phoneLengths($get('country_code'))) . ' digits without the country calling code.'
-            : 'Select a country first.')
         ->regex(fn (Get $get): string => '/\\A(?:' . implode('|', array_map(
             fn (int $length): string => '[0-9]{' . $length . '}',
             self::phoneLengths($get('country_code')) ?: [0]

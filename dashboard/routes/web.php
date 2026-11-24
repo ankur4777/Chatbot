@@ -29,22 +29,9 @@ Route::post('/client/password/first-login', [PasswordController::class, 'updateF
     ->middleware('auth')
     ->name('client.password.first-login');
 
-Route::get('/admin/users/{user}/view-client-dashboard', function (Request $request, User $user) {
-    $admin = Auth::guard('web')->user();
-
-    abort_unless($admin?->role === 'super_admin', 403);
-    abort_unless($user->role === 'owner' && $user->status && $user->company?->status, 403);
-
-    $request->session()->put('impersonator_id', $admin->getKey());
-
-    Auth::guard('web')->login($user);
-    $request->session()->regenerate();
-    $request->session()->put('password_hash_web', $user->getAuthPassword());
-
-    return redirect('/client');
-})
-    ->middleware(['signed:relative'])
-    ->name('admin.users.view-client-dashboard');
+Route::get('/admin/users/{user}/view-client-dashboard', function () {
+    abort(403, 'Direct client dashboard login is disabled.');
+})->name('admin.users.view-client-dashboard');
 
 Route::get('/admin/download/companies', [DashboardExportController::class, 'companies'])
     ->middleware('auth')

@@ -76,6 +76,42 @@ class Company extends Model
         return (int) ceil(max(0, $this->subscription_expires_at->getTimestamp() - now()->getTimestamp()) / 86400);
     }
 
+    public function subscriptionRemainingLabel(): string
+    {
+        $state = $this->subscriptionState();
+
+        if ($state === 'expired') {
+            return '0 days';
+        }
+
+        if ($state !== 'active') {
+            return 'Not active';
+        }
+
+        if (! $this->subscription_expires_at) {
+            return 'Unlimited';
+        }
+
+        $seconds = max(0, $this->subscription_expires_at->getTimestamp() - now()->getTimestamp());
+
+        if ($seconds >= 86400) {
+            $days = (int) ceil($seconds / 86400);
+
+            return $days . ($days === 1 ? ' day' : ' days');
+        }
+
+        if ($seconds < 60) {
+            return 'Less than 1 minute';
+        }
+
+        $hours = intdiv($seconds, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
+
+        return sprintf('%d %s %d %s',
+            $hours, $hours === 1 ? 'hour' : 'hours',
+            $minutes, $minutes === 1 ? 'minute' : 'minutes');
+    }
+
     public function conversationRetentionMonths(): int
     {
         return max(1, min(6, (int) ($this->conversation_retention_months ?: 1)));

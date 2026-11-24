@@ -39,6 +39,7 @@ class ClientDashboard extends Dashboard
             'subscriptionStart' => $company->subscription_starts_at,
             'subscriptionEnd' => $company->subscription_expires_at,
             'subscriptionDays' => $company->subscriptionDaysRemaining(),
+            'subscriptionRemainingLabel' => $company->subscriptionRemainingLabel(),
         ];
 
         if (! $company->hasActiveSubscription()) {

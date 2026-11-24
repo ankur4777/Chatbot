@@ -12,7 +12,7 @@
         <div><span>Subscription starts</span><strong>{{ $subscriptionStart ? \App\Support\BrowserTime::format($subscriptionStart) : 'Immediate' }}</strong></div>
         <div><span>Subscription expires</span><strong>{{ $subscriptionEnd ? \App\Support\BrowserTime::format($subscriptionEnd) : 'No expiry' }}</strong></div>
         <div><span>Time remaining</span>
-            <strong class="cw-subscription-count">{{ $subscriptionState === 'expired' ? '0 days' : ($subscriptionState !== 'active' ? 'Not active' : ($subscriptionDays === null ? 'Unlimited' : ($subscriptionDays . ($subscriptionDays === 1 ? ' day' : ' days')))) }}</strong>
+            <strong class="cw-subscription-count">{{ $subscriptionRemainingLabel }}</strong>
             @if ($subscriptionState === 'active' && $subscriptionDays !== null && $subscriptionDays <= 7)
                 <small>Renew before expiry to avoid interruption.</small>
             @endif

@@ -83,6 +83,39 @@ class ClientSubscriptionTest extends TestCase
         app(KnowledgeController::class)->chunks($website);
     }
 
+    public function test_countdown_switches_to_hours_and_minutes_below_twenty_four_hours(): void
+    {
+        $this->freezeTime(function (): void {
+            $company = $this->owner(now()->addDays(3))->company;
+            $this->assertSame('3 days', $company->subscriptionRemainingLabel());
+
+            $company->subscription_expires_at = now()->addHours(24);
+            $this->assertSame('1 day', $company->subscriptionRemainingLabel());
+
+            $company->subscription_expires_at = now()->addHours(24)->subSecond();
+            $this->assertSame('23 hours 59 minutes', $company->subscriptionRemainingLabel());
+
+            $company->subscription_expires_at = now()->addHours(2)->addMinutes(15);
+            $this->assertSame('2 hours 15 minutes', $company->subscriptionRemainingLabel());
+
+            $company->subscription_expires_at = now()->addMinutes(45);
+            $this->assertSame('0 hours 45 minutes', $company->subscriptionRemainingLabel());
+
+            $company->subscription_expires_at = now()->addSeconds(30);
+            $this->assertSame('Less than 1 minute', $company->subscriptionRemainingLabel());
+
+            $company->subscription_expires_at = now();
+            $this->assertSame('0 days', $company->subscriptionRemainingLabel());
+            $this->assertFalse($company->hasActiveSubscription());
+
+            $company->subscription_expires_at = null;
+            $this->assertSame('Unlimited', $company->subscriptionRemainingLabel());
+
+            $company->subscription_starts_at = now()->addDay();
+            $this->assertSame('Not active', $company->subscriptionRemainingLabel());
+        });
+    }
+
     private function owner($expiry): User
     {
         $company = new Company([

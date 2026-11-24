@@ -38,11 +38,6 @@ class CompaniesTable
                     ->searchable()
                     ->copyable(),
 
-                TextColumn::make('county_name')
-                    ->label('County')
-                    ->searchable()
-                    ->toggleable(),
-
                 TextColumn::make('country_code')
                     ->label('Country Code')
                     ->searchable()

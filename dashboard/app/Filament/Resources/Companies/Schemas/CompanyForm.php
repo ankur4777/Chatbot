@@ -78,10 +78,6 @@ Textarea::make('address')
     ->label('Company Address')
     ->rows(3),
 
-    TextInput::make('county_name')
-        ->label('County Name')
-        ->maxLength(255),
-
     TextInput::make('subscription_expires_at')
         ->label('Subscription Expires At')
         ->type('datetime-local')

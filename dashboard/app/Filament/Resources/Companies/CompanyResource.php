@@ -56,9 +56,6 @@ class CompanyResource extends Resource
 TextEntry::make('address')
     ->label('Company Address'),
 
-            TextEntry::make('county_name')
-                ->label('County Name'),
-
             TextEntry::make('country_code')
                 ->label('Country Code'),
 

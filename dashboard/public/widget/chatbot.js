@@ -1096,6 +1096,8 @@ class Chatbot {
                 await response.json();
 
             if (!data.success) {
+                this.flow = null;
+                this.currentStep = -1;
                 return;
             }
 

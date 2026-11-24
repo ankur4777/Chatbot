@@ -799,6 +799,12 @@ class LiveChatHardeningTest extends TestCase
         ])->assertOk()->assertJsonPath('remaining_steps.0.id', $optional->id);
         $payload['conversation_id'] = $first->json('conversation_id');
         $this->postJson('/api/widget/flow-answer', $payload + [
+            'chatbot_flow_step_id' => $last->id, 'answer' => 'Too early',
+        ])->assertStatus(409);
+        $this->postJson('/api/widget/save-lead', $payload + [
+            'name' => 'Test Visitor', 'email' => 'visitor@example.test', 'phone' => '1234567890',
+        ])->assertStatus(422);
+        $this->postJson('/api/widget/flow-answer', $payload + [
             'chatbot_flow_step_id' => $optional->id, 'skip' => true,
         ])->assertOk()->assertJsonPath('skipped', true)
             ->assertJsonPath('remaining_steps.0.id', $last->id);

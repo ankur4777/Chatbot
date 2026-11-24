@@ -862,6 +862,20 @@ public function saveLeadData(
         return null;
     }
 
+    $completedStepIds = ChatbotFlowAnswer::query()
+        ->where('conversation_id', $conversation->id)
+        ->pluck('chatbot_flow_step_id');
+
+    $hasUnansweredRequiredStep = ChatbotFlowStep::query()
+        ->whereHas('flow', fn ($query) => $query
+            ->where('website_id', $website->id)->where('is_active', true))
+        ->where('is_active', true)
+        ->where('is_required', true)
+        ->whereNotIn('id', $completedStepIds)
+        ->exists();
+
+    abort_if($hasUnansweredRequiredStep, 422, 'Please answer the required chatbot questions first.');
+
     $lead = \App\Models\ChatbotLead::updateOrCreate(
         [
             'conversation_id' => $conversation->id,

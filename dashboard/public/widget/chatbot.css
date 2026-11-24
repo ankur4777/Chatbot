@@ -962,6 +962,21 @@
     opacity: 1;
 }
 
+/* Optional flow questions */
+.chatbot-option.chatbot-skip-option {
+    color: #64748b;
+    border: 1px dashed #a8b3c3;
+    background: #fff;
+}
+.chatbot-option.chatbot-skip-option:hover {
+    color: #334155;
+    background: #f1f5f9;
+}
+.chatbot-option:disabled {
+    cursor: wait;
+    opacity: .6;
+}
+
 /* Lead Form */
 
 .chatbot-lead-form {

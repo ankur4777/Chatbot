@@ -2,7 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\AuthenticatePortal;
+use App\Filament\Auth\PortalLogin;
 use App\Http\Middleware\PortalAuthenticateSession;
 use App\Http\Middleware\SelectPortalGuard;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -32,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('admin')
             ->darkMode(false)
             ->brandName('Admin Workspace')
-            ->login()
+            ->login(PortalLogin::class)
             ->passwordReset()
             ->colors([
                 'primary' => Color::hex('#FA4D55'),
@@ -57,9 +58,9 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class])
+            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class, AuthenticatePortal::class])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticatePortal::class,
             ])
             ->renderHook(
                 PanelsRenderHook::HEAD_END,

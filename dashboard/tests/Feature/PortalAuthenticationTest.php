@@ -70,6 +70,33 @@ class PortalAuthenticationTest extends TestCase
         }
     }
 
+    public function test_wrong_role_in_client_guard_is_rejected_without_admin_logout(): void
+    {
+        $admin = $this->account(1, 'super_admin');
+        Auth::guard('admin')->login($admin);
+        Auth::guard('client')->login($admin);
+
+        Filament::setCurrentPanel(Filament::getPanel('client'));
+        Auth::shouldUse('client');
+
+        $request = Request::create('/client', 'GET');
+        $request->setLaravelSession(session()->driver());
+
+        try {
+            app(\App\Http\Middleware\AuthenticatePortal::class)->handle(
+                $request,
+                fn () => response('unexpected')
+            );
+            $this->fail('A super admin must not be authenticated as a client.');
+        } catch (\Illuminate\Auth\AuthenticationException $exception) {
+            $this->assertSame(['client'], $exception->guards());
+        }
+
+        $this->assertFalse(Auth::guard('client')->check());
+        $this->assertTrue(Auth::guard('admin')->check());
+        $this->assertSame(1, session()->get(Auth::guard('admin')->getName()));
+    }
+
     private function account(int $id, string $role): User
     {
         $user = new User();

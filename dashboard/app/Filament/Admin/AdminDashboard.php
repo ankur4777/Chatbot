@@ -28,10 +28,10 @@ class AdminDashboard extends Dashboard
 
     protected function getViewData(): array
     {
-        abort_unless(auth()->user()?->role === 'super_admin', 403);
+        abort_unless(auth('admin')->user()?->role === 'super_admin', 403);
 
         return [
-            'adminName' => str(auth()->user()->name)->before(' ')->toString(),
+            'adminName' => str(auth('admin')->user()->name)->before(' ')->toString(),
             'companyCount' => Company::query()->count(),
             'activeCompanyCount' => Company::query()->where('status', true)->count(),
             'websiteCount' => Website::query()->count(),

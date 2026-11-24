@@ -28,7 +28,7 @@ class ClientDashboard extends Dashboard
 
     protected function getViewData(): array
     {
-        $user = auth()->user();
+        $user = auth('client')->user();
         abort_unless($user?->role === 'owner' && $user->company_id, 403);
 
         $companyId = (int) $user->company_id;

@@ -2,7 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\AuthenticatePortal;
+use App\Filament\Auth\PortalLogin;
 use App\Http\Middleware\PortalAuthenticateSession;
 use App\Http\Middleware\SelectPortalGuard;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -43,7 +44,7 @@ class ClientPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\Filament\Client\Resources')
             ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\Filament\Client\Pages')
-            ->login()
+            ->login(PortalLogin::class)
             ->passwordReset()
             ->pages([
                 ClientDashboard::class,
@@ -63,9 +64,9 @@ class ClientPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class])
+            ->persistentMiddleware([SelectPortalGuard::class, PortalAuthenticateSession::class, AuthenticatePortal::class])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticatePortal::class,
                 \App\Http\Middleware\RequireClientPasswordChange::class,
             ], isPersistent: true)
             ->renderHook(

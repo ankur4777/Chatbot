@@ -32,6 +32,7 @@ class ClientPanelProvider extends PanelProvider
             ->path('client')
             ->authGuard('client')
             ->darkMode(false)
+            ->globalSearch(\App\Filament\Client\SubscriptionGlobalSearchProvider::class)
             ->brandName('Client Workspace')
             ->colors([
                 'primary' => Color::hex('#E9493E'),
@@ -68,6 +69,7 @@ class ClientPanelProvider extends PanelProvider
             ->authMiddleware([
                 AuthenticatePortal::class,
                 \App\Http\Middleware\RequireClientPasswordChange::class,
+                \App\Http\Middleware\RequireClientSubscription::class,
             ], isPersistent: true)
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
@@ -84,6 +86,10 @@ class ClientPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): string => view('filament.client.partials.theme')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.client.partials.subscription-watch')->render(),
             )
             ->renderHook(
     PanelsRenderHook::BODY_END,

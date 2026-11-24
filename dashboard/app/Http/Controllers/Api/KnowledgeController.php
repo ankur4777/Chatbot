@@ -11,6 +11,7 @@ class KnowledgeController extends Controller
 {
     public function knowledge(Website $website)
     {
+        abort_unless($website->status && $website->company?->hasActiveSubscription(), 403, 'Subscription is not active.');
         $sources = KnowledgeSource::where('website_id', $website->id)
             ->where('status', 'completed')
             ->get();
@@ -31,6 +32,7 @@ class KnowledgeController extends Controller
     }
     public function chunks(Website $website)
 {
+    abort_unless($website->status && $website->company?->hasActiveSubscription(), 403, 'Subscription is not active.');
     $chunks = KnowledgeChunk::where('website_id', $website->id)
         ->orderBy('id')
         ->get([

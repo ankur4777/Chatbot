@@ -31,6 +31,24 @@ class ClientDashboard extends Dashboard
         $user = auth('client')->user();
         abort_unless($user?->role === 'owner' && $user->company_id, 403);
 
+        $company = $user->company;
+        abort_unless($company && $user->status && $company->status, 403);
+
+        $subscription = [
+            'subscriptionState' => $company->subscriptionState(),
+            'subscriptionStart' => $company->subscription_starts_at,
+            'subscriptionEnd' => $company->subscription_expires_at,
+            'subscriptionDays' => $company->subscriptionDaysRemaining(),
+        ];
+
+        if (! $company->hasActiveSubscription()) {
+            // Do not load operational records for an expired or scheduled subscription.
+            return $subscription + [
+                'clientName' => str($user->name)->before(' ')->toString(),
+                'companyName' => $company->name,
+            ];
+        }
+
         $companyId = (int) $user->company_id;
         $conversations = ChatConversation::query()->whereHas(
             'website', fn (Builder $query) => $query->where('company_id', $companyId)
@@ -42,7 +60,7 @@ class ClientDashboard extends Dashboard
 
         $hasLiveChat = $user->hasLiveChatAccess();
 
-        return [
+        return $subscription + [
             'clientName' => str($user->name)->before(' ')->toString(),
             'companyName' => $user->company?->name ?? 'Your company',
             'websiteCount' => Website::query()->where('company_id', $companyId)->count(),

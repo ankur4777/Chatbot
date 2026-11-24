@@ -14,7 +14,7 @@ class PasswordController extends Controller
     public function showFirstLogin(Request $request): View|RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user?->role === 'owner' && $user->status && $user->company?->hasActiveSubscription(), 403);
+        abort_unless($user?->role === 'owner' && $user->status && $user->company?->status, 403);
 
         if (! $user->must_change_password) {
             return redirect('/client');
@@ -27,7 +27,7 @@ class PasswordController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($user?->role === 'owner' && $user->status && $user->company?->hasActiveSubscription() && $user->must_change_password, 403);
+        abort_unless($user?->role === 'owner' && $user->status && $user->company?->status && $user->must_change_password, 403);
 
         $data = $request->validate([
             'current_password' => ['required', 'current_password'],

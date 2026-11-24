@@ -172,4 +172,28 @@ html, body, .fi-body, .fi-layout, .fi-main-ctn, .fi-main {
 @media (max-width: 640px) {
     .fi-main-sidebar .fi-sidebar-nav .cw-powered-footer { padding: 14px 12px 18px; }
 }
+
+.cw-subscription { background:#fff; border:1px solid var(--cw-line); border-radius:15px; padding:22px; margin-bottom:20px; }
+.cw-subscription-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; }
+.cw-subscription-head h2,.cw-subscription-warning h2 { font-size:1.12rem; font-weight:770; color:var(--cw-ink); }
+.cw-subscription-head p { color:var(--cw-muted); font-size:.8rem; margin-top:4px; }
+.cw-subscription-badge { border-radius:99px; padding:6px 12px; font-weight:700; font-size:.76rem; background:#fff0f1; color:#b4232e; }
+.cw-subscription-active { background:#e9f7ef; color:#167044; }
+.cw-subscription-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.cw-subscription-grid > div { padding:14px; background:#f8f9fc; border-radius:10px; min-width:0; }
+.cw-subscription-grid span,.cw-subscription-grid small { display:block; color:var(--cw-muted); font-size:.78rem; }
+.cw-subscription-grid strong { display:block; font-size:1rem; font-weight:740; margin-top:7px; overflow-wrap:anywhere; }
+.cw-subscription-grid .cw-subscription-count { color:var(--cw-red-dark); font-size:1.4rem; }
+.cw-subscription-grid small { margin-top:5px; }
+.cw-subscription-warning { background:#fff; border:1px solid #f3c9cc; border-radius:15px; padding:24px; }
+.cw-subscription-warning p,.cw-subscription-dialog p { color:var(--cw-muted); line-height:1.6; margin:10px 0 18px; font-size:.9rem; }
+.cw-subscription-dialog { border:1px solid var(--cw-line); border-radius:18px; padding:0; max-width:min(440px,calc(100% - 32px)); width:100%; margin:auto; background:#fff; color:var(--cw-ink); box-shadow:0 18px 70px #11182735; }
+.cw-subscription-dialog::backdrop { background:#171a28a0; }
+.cw-subscription-dialog-content { padding:30px; text-align:center; }
+.cw-subscription-dialog h2 { font-size:1.35rem; font-weight:800; }
+.cw-subscription-symbol { display:grid; place-items:center; width:52px; height:52px; background:#fff0f1; color:#cf3541; border-radius:50%; margin:0 auto 18px; font-size:1.6rem; font-weight:800; }
+.cw-subscription-dialog button { width:100%; }
+body:has(.cw-subscription-locked) .fi-sidebar-nav .fi-sidebar-group { display:none !important; }
+body:has(.cw-subscription-locked) .fi-global-search { display:none !important; }
+@media (max-width:760px) { .cw-subscription-grid { grid-template-columns:1fr; } .cw-subscription { padding:17px; } }
 </style>

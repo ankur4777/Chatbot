@@ -9,7 +9,7 @@ Broadcast::channel('live-chat.{conversationId}', function (User $user, int $conv
         $user->role !== 'agent'
         || ! $user->status
         || ! $user->company_id
-        || ! $user->company?->status
+        || ! $user->company?->hasActiveSubscription()
     ) {
         return false;
     }
@@ -42,12 +42,12 @@ Broadcast::channel('company-live-chat.{companyId}', function (User $user, int $c
     return $user->role === 'agent'
         && $user->status
         && $user->company_id === $companyId
-        && (bool) $user->company?->status;
+        && (bool) $user->company?->hasActiveSubscription();
 });
 
 Broadcast::channel('agent-notifications.{agentId}', function (User $user, int $agentId): bool {
     return $user->role === 'agent'
         && $user->status
         && $user->id === $agentId
-        && (bool) $user->company?->status;
+        && (bool) $user->company?->hasActiveSubscription();
 });

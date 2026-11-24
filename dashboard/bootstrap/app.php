@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->append(HandleCors::class);
     $middleware->web(
         prepend: [\App\Http\Middleware\SelectPortalGuard::class],
-        append: [\App\Http\Middleware\PortalAuthenticateSession::class, \App\Http\Middleware\RequireClientPasswordChange::class],
+        append: [\App\Http\Middleware\PortalAuthenticateSession::class, \App\Http\Middleware\RequireClientPasswordChange::class, \App\Http\Middleware\RequireClientSubscription::class],
     );
     $middleware->redirectGuestsTo(fn (Request $request) => match (true) {
         $request->is('admin', 'admin/*') => '/admin/login',

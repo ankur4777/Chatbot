@@ -1,17 +1,22 @@
 <x-filament-panels::page>
-    <div class="cw-page">
+    <div class="cw-page {{ $subscriptionState !== 'active' ? 'cw-subscription-locked' : '' }}" wire:poll.30s>
         <section class="cw-header" aria-labelledby="cw-dashboard-title">
             <div>
                 <div class="cw-eyebrow">CLIENT WORKSPACE / OVERVIEW</div>
                 <h1 id="cw-dashboard-title">Welcome back, {{ $clientName }}</h1>
-                <p>Keep track of your websites, chatbot conversations and leads from one place.</p>
+                <p>{{ $subscriptionState === 'active' ? 'Keep track of your websites, chatbot conversations and leads from one place.' : 'Review your subscription details below.' }}</p>
             </div>
+            @if ($subscriptionState === 'active')
             <div class="cw-header-actions">
                 <a class="cw-button cw-button-primary" href="{{ $links['conversations'] }}">View conversations</a>
                 <a class="cw-button cw-button-secondary" href="{{ $links['websites'] }}">Manage websites</a>
             </div>
+            @endif
         </section>
 
+        @include('filament.client.partials.subscription-summary')
+
+        @if ($subscriptionState === 'active')
         <section class="cw-stats" aria-label="Workspace statistics">
             <a class="cw-stat" href="{{ $links['websites'] }}">
                 <div class="cw-stat-top"><span class="cw-stat-label">Connected websites</span><span class="cw-stat-icon" aria-hidden="true">◎</span></div>
@@ -104,5 +109,6 @@
             </div>
         </div>
         <p class="cw-note">Statistics include only data from your company.</p>
+        @endif
     </div>
 </x-filament-panels::page>

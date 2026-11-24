@@ -50,6 +50,32 @@ class Company extends Model
             && (! $this->subscription_expires_at || $this->subscription_expires_at->isFuture());
     }
 
+    public function subscriptionState(): string
+    {
+        if (! $this->status) {
+            return 'inactive';
+        }
+
+        if ($this->subscription_expires_at && ! $this->subscription_expires_at->isFuture()) {
+            return 'expired';
+        }
+
+        if ($this->subscription_starts_at?->isFuture()) {
+            return 'scheduled';
+        }
+
+        return 'active';
+    }
+
+    public function subscriptionDaysRemaining(): ?int
+    {
+        if (! $this->subscription_expires_at) {
+            return null;
+        }
+
+        return (int) ceil(max(0, $this->subscription_expires_at->getTimestamp() - now()->getTimestamp()) / 86400);
+    }
+
     public function conversationRetentionMonths(): int
     {
         return max(1, min(6, (int) ($this->conversation_retention_months ?: 1)));

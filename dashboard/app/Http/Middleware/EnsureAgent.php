@@ -21,7 +21,7 @@ class EnsureAgent
             $user->role !== 'agent'
             || ! $user->status
             || ! $user->company_id
-            || ! $user->company?->hasActiveSubscription()
+            || (! $request->routeIs('agent.logout') && ! $user->company?->hasActiveSubscription())
         ) {
             abort(403);
         }

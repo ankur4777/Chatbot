@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Companies\Schemas;
 
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Support\Facades\FilamentTimezone;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -78,15 +80,17 @@ Textarea::make('address')
     ->label('Company Address')
     ->rows(3),
 
-    TextInput::make('subscription_starts_at')
+    DateTimePicker::make('subscription_starts_at')
         ->label('Subscription Starts At')
-        ->type('datetime-local')
+        ->seconds(false)
+        ->timezone(fn (): string => FilamentTimezone::get() ?? config('app.display_timezone', 'Asia/Kolkata'))
         ->rules(['nullable', 'date'])
         ->helperText('Leave empty to start immediately.'),
 
-    TextInput::make('subscription_expires_at')
+    DateTimePicker::make('subscription_expires_at')
         ->label('Subscription Expires At')
-        ->type('datetime-local')
+        ->seconds(false)
+        ->timezone(fn (): string => FilamentTimezone::get() ?? config('app.display_timezone', 'Asia/Kolkata'))
         ->rules(fn (Get $get): array => filled($get('subscription_starts_at'))
             ? ['nullable', 'date', 'after_or_equal:' . $get('subscription_starts_at')]
             : ['nullable', 'date'])

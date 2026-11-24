@@ -103,11 +103,14 @@ public function canAccessPanel(Panel $panel): bool
         return false;
     }
 
-    // Company users must belong to an active company.
-    if (in_array($this->role, ['owner', 'agent'], true)) {
-        if (! $this->company || ! $this->company->hasActiveSubscription()) {
-            return false;
-        }
+    // Owners may sign in to the locked overview to see subscription details.
+    // Subscription middleware, not the login form, controls feature access.
+    if ($this->role === 'owner' && ! $this->company?->status) {
+        return false;
+    }
+
+    if ($this->role === 'agent' && ! $this->company?->hasActiveSubscription()) {
+        return false;
     }
 
     if ($panel->getId() === 'admin') {

@@ -133,6 +133,10 @@ class WebsiteFeatureService
             ->whereKey($companyId)
             ->where('status', true)
             ->where(function ($query): void {
+                $query->whereNull('subscription_starts_at')
+                    ->orWhere('subscription_starts_at', '<=', now());
+            })
+            ->where(function ($query): void {
                 $query->whereNull('subscription_expires_at')
                     ->orWhere('subscription_expires_at', '>', now());
             })

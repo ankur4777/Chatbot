@@ -54,7 +54,13 @@ class ChatbotFlowStepForm
 
                 Toggle::make('is_required')
                     ->label('Required')
-                    ->default(true),
+                    ->default(true)
+                    ->helperText('When off, visitors can choose Skip.'),
+
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true)
+                    ->helperText('When off, this question is temporarily hidden from the chatbot.'),
 
                 Repeater::make('options')
     ->label('Button Options')

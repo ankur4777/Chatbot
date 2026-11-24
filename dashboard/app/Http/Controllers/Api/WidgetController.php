@@ -672,7 +672,7 @@ protected function conversationTranscriptPayload(
                 'flow_answer_id' => $answer->id,
                 'sender_type' => 'visitor',
                 'sender_id' => null,
-                'message' => $answer->answer,
+                'message' => $answer->answer ?? 'Skipped',
                 'attachment' => null,
                 'created_at' => $createdAt,
                 'sort_time' => $sortTime,
@@ -764,9 +764,11 @@ protected function pendingFlowStepForPreservedLiveChat(
     return \App\Models\ChatbotFlowStep::query()
         ->with('options')
         ->where('chatbot_flow_id', $lastAnsweredStep->chatbot_flow_id)
+        ->where('is_active', true)
+        ->whereHas('flow', fn ($query) => $query->where('is_active', true))
         ->whereNotIn('id', $answeredStepIds)
-        ->where('step_order', '>', $lastAnsweredStep->step_order)
         ->orderBy('step_order')
+        ->orderBy('id')
         ->first();
 }
 
@@ -1072,7 +1074,8 @@ public function saveFlowAnswer(Request $request)
         'widget_key' => 'required',
         'session_id' => 'required',
         'chatbot_flow_step_id' => 'required|integer',
-        'answer' => 'required|string',
+        'skip' => ['sometimes', 'boolean'],
+        'answer' => ['required_unless:skip,true', 'nullable', 'string'],
     ]);
 
     $website = $this->widgetService->verifyWebsite($request);
@@ -1098,6 +1101,8 @@ public function saveFlowAnswer(Request $request)
         'success' => true,
         'conversation_id' => $result['conversation']->id,
         'answer_id' => $result['answer']->id,
+        'skipped' => $result['skipped'],
+        'remaining_steps' => $result['remaining_steps'],
         'flow_completed' => $result['flow_completed'] ?? false,
     ]);
 }

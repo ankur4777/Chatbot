@@ -16,10 +16,12 @@ class ChatbotFlowStep extends Model
         'input_type',
         'placeholder',
         'is_required',
+        'is_active',
     ];
 
     protected $casts = [
         'is_required' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     protected static function booted(): void

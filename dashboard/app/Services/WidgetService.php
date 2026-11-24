@@ -222,6 +222,7 @@ public function getFlow(Request $request)
     }
 
     $flow = ChatbotFlow::with([
+        'steps' => fn ($query) => $query->where('is_active', true)->orderBy('step_order')->orderBy('id'),
         'steps.options' => function ($query) {
             $query->orderBy('sort_order');
         }

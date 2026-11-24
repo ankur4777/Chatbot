@@ -1102,6 +1102,8 @@ class Chatbot {
             this.flow =
                 data.flow;
 
+            this.completedFlowStepIds = new Set(answeredStepIds.map(id => String(id)));
+
             const answered =
                 new Set(
                     answeredStepIds.map(id => String(id))
@@ -1114,6 +1116,10 @@ class Chatbot {
                 : 0;
 
             if (this.currentStep < 0) {
+                if (this.conversationId && answered.size > 0) {
+                    this.currentStep = this.flow.steps.length;
+                    this.showCurrentStep();
+                }
                 return;
             }
 
@@ -3137,6 +3143,7 @@ class Chatbot {
         this.addBotMessage(
             step.question
         );
+        this.currentFlowQuestion = this.messages.lastElementChild;
 
         this.addOptionButtons(
             step.options
@@ -3789,12 +3796,7 @@ class Chatbot {
 
     async addOptionButtons(options) {
 
-        if (
-            !options ||
-            options.length === 0
-        ) {
-            return;
-        }
+        options = Array.isArray(options) ? options : [];
 
         const container =
             document.createElement("div");
@@ -3847,6 +3849,18 @@ class Chatbot {
             );
         });
 
+        if (currentStep.is_required === false) {
+            const skipButton = document.createElement("button");
+            skipButton.type = "button";
+            skipButton.className = "chatbot-option chatbot-skip-option";
+            skipButton.textContent = "Skip";
+            skipButton.setAttribute("aria-label", "Skip this optional question");
+            skipButton.addEventListener("click", () =>
+                this.submitFlowAnswer(null, currentStep, container, true)
+            );
+            container.appendChild(skipButton);
+        }
+
         this.messages.appendChild(
             container
         );
@@ -3885,113 +3899,76 @@ class Chatbot {
         await this.submitFlowAnswer(
             matchedOption.value ?? matchedOption.label,
             currentStep,
-            document.querySelector(".chatbot-options")
+            this.messages.querySelector(".chatbot-options:not(.chatbot-options-history)")
         );
 
         return true;
     }
 
-    async submitFlowAnswer(answer, currentStep, optionsContainer = null) {
-
-        this.ensureSessionId();
-
-        this.addUserMessage(
-            answer
-        );
-
-        if (optionsContainer) {
-            optionsContainer.remove();
+    async submitFlowAnswer(answer, currentStep, optionsContainer = null, skip = false) {
+        if (this.flowAnswerSubmitting || this.flow?.steps?.[this.currentStep]?.id !== currentStep.id) {
+            return;
+        }
+        if (skip && currentStep.is_required !== false) {
+            return;
         }
 
+        this.flowAnswerSubmitting = true;
+        this.ensureSessionId();
+        const buttons = optionsContainer?.querySelectorAll("button") || [];
+        buttons.forEach(button => button.disabled = true);
+
         try {
+            const response = await fetch(`${this.apiUrl}/flow-answer`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify({
+                    widget_key: this.widgetKey,
+                    domain: this.domain,
+                    session_id: this.sessionId,
+                    visitor_uuid: this.visitorId,
+                    conversation_id: this.conversationId,
+                    chatbot_flow_step_id: currentStep.id,
+                    answer: answer,
+                    skip: skip,
+                }),
+            });
+            const data = await response.json();
 
-            const response =
-                await fetch(
-                    `${this.apiUrl}/flow-answer`,
-                    {
-                        method:
-                            "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Accept":
-                                "application/json",
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                widget_key:
-                                    this.widgetKey,
-
-                                domain:
-                                    this.domain,
-
-                                session_id:
-                                    this.sessionId,
-
-                                visitor_uuid:
-                                    this.visitorId,
-
-                                conversation_id:
-                                    this.conversationId,
-
-                                chatbot_flow_step_id:
-                                    currentStep.id,
-
-                                answer:
-                                    answer,
-                            }),
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (!data.success) {
-
-                console.error(
-                    "Flow answer failed:",
-                    data
-                );
-
+            if (!response.ok || !data.success) {
+                this.addStatusMessage(data.message || "Unable to save your answer. Please try again.");
+                if (response.status === 409 || (response.status === 422 && skip)) {
+                    optionsContainer?.remove();
+                    this.currentFlowQuestion?.remove();
+                    await this.loadFlow(Array.from(this.completedFlowStepIds || []));
+                }
                 return;
             }
 
-            this.conversationId =
-                data.conversation_id;
+            this.addUserMessage(data.skipped ? "Skipped" : answer);
+            optionsContainer?.remove();
+            this.currentFlowQuestion = null;
+            this.conversationId = data.conversation_id;
+            this.conversationEnded = false;
+            this.storeConversationId(this.conversationId);
+            this.completedFlowStepIds ??= new Set();
+            this.completedFlowStepIds.add(String(currentStep.id));
 
-            this.conversationEnded =
-                false;
-
-            this.storeConversationId(
-                this.conversationId
-            );
-
-            if (data.flow_completed) {
-                this.currentStep =
-                    Array.isArray(this.flow?.steps)
-                        ? this.flow.steps.length
-                        : this.currentStep + 1;
-
-                this.showCurrentStep();
-
-                return;
+            if (Array.isArray(data.remaining_steps)) {
+                this.flow.steps = data.remaining_steps;
+                this.currentStep = 0;
+            } else if (data.flow_completed) {
+                this.currentStep = this.flow.steps.length;
+            } else {
+                this.currentStep++;
             }
-
-            this.currentStep++;
-
             this.showCurrentStep();
-
         } catch (error) {
-
-            console.error(
-                "Flow answer error:",
-                error
-            );
+            console.error("Flow answer error:", error);
+            this.addStatusMessage("Unable to save your answer. Please try again.");
+        } finally {
+            this.flowAnswerSubmitting = false;
+            buttons.forEach(button => button.disabled = false);
         }
     }
 

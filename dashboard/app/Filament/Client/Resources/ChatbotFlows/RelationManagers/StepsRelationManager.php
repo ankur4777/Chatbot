@@ -46,7 +46,13 @@ class StepsRelationManager extends RelationManager
 
                 Toggle::make('is_required')
                     ->label('Required')
-                    ->default(true),
+                    ->default(true)
+                    ->helperText('When off, visitors can choose Skip.'),
+
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true)
+                    ->helperText('When off, this question is temporarily hidden from the chatbot.'),
 
                 Repeater::make('options')
                     ->label('Button Options')
@@ -100,6 +106,9 @@ class StepsRelationManager extends RelationManager
                 IconColumn::make('is_required')
                     ->label('Required')
                     ->boolean(),
+
+                \Filament\Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Active'),
             ])
             ->filters([
                 //

@@ -613,11 +613,13 @@ protected function currentPendingFlowStep(
             'options' => fn ($query) => $query->orderBy('sort_order'),
         ])
         ->where('chatbot_flow_id', $flow->id)
+        ->where('is_active', true)
         ->when(
             $answeredStepIds->isNotEmpty(),
             fn ($query) => $query->whereNotIn('id', $answeredStepIds)
         )
         ->orderBy('step_order')
+        ->orderBy('id')
         ->first();
 }
 
@@ -747,99 +749,94 @@ public function saveFlowAnswer(
     Request $request,
     Website $website
 ) {
-    $visitor = $this->getOrCreateVisitor(
-    $request,
-    $website
-);
+    $skip = $request->boolean('skip');
+    $step = ChatbotFlowStep::query()
+        ->whereKey($request->integer('chatbot_flow_step_id'))
+        ->where('is_active', true)
+        ->whereHas('flow', fn ($query) => $query
+            ->where('website_id', $website->id)->where('is_active', true))
+        ->first();
 
-    $conversation = null;
+    abort_unless($step, 409, 'This question is no longer available.');
+    abort_if($skip && $step->is_required, 422, 'This question is required and cannot be skipped.');
 
-    if ($request->conversation_id) {
-        $conversation = ChatConversation::where('id', $request->conversation_id)
-            ->where('visitor_id', $visitor->id)
-            ->where('website_id', $website->id)
-            ->where('status', 'active')
-            ->first();
-    }
+    $visitor = $this->getOrCreateVisitor($request, $website);
 
-    if (! $conversation) {
-        $this->endActiveVisitorConversations($website, $visitor);
+    return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $website, $visitor, $step, $skip) {
+        $conversation = null;
+        if ($request->filled('conversation_id')) {
+            $conversation = ChatConversation::query()
+                ->whereKey($request->integer('conversation_id'))
+                ->where('visitor_id', $visitor->id)
+                ->where('website_id', $website->id)
+                ->where('status', 'active')
+                ->lockForUpdate()->first();
+            abort_unless($conversation, 409, 'This conversation is no longer available.');
+        }
 
-        $conversation = ChatConversation::create([
-            'website_id' => $website->id,
-            'visitor_id' => $visitor->id,
-            'status' => 'active',
-            'mode' => 'ai',
-            'started_at' => now(),
-        ]);
-    }
+        if (! $conversation) {
+            $firstStep = ChatbotFlowStep::query()
+                ->where('chatbot_flow_id', $step->chatbot_flow_id)
+                ->where('is_active', true)->orderBy('step_order')->orderBy('id')->first();
+            abort_unless($firstStep?->id === $step->id, 409, 'Please answer the current question first.');
 
-    // Get the flow step
-    $step = ChatbotFlowStep::find($request->chatbot_flow_step_id);
+            $this->endActiveVisitorConversations($website, $visitor);
+            $conversation = ChatConversation::create([
+                'website_id' => $website->id,
+                'visitor_id' => $visitor->id,
+                'status' => 'active',
+                'mode' => 'ai',
+                'started_at' => now(),
+            ]);
+        }
 
-    if (! $step) {
-        return [
-            'conversation' => $conversation,
-            'answer' => null,
-            'flow_completed' => false,
-        ];
-    }
+        $flowAnswer = ChatbotFlowAnswer::query()
+            ->where('conversation_id', $conversation->id)
+            ->where('chatbot_flow_step_id', $step->id)->first();
 
-    // Check if this step already has an answer
-    $flowAnswer = ChatbotFlowAnswer::firstOrNew([
-        'conversation_id' => $conversation->id,
-        'chatbot_flow_step_id' => $request->chatbot_flow_step_id,
-    ]);
+        if (! $flowAnswer) {
+            $pending = $this->currentPendingFlowStep($conversation, $website);
+            abort_unless($pending?->id === $step->id, 409, 'Please answer the current question first.');
 
-    $isNewAnswer = ! $flowAnswer->exists;
+            $flowAnswer = ChatbotFlowAnswer::create([
+                'conversation_id' => $conversation->id,
+                'chatbot_flow_step_id' => $step->id,
+                'answer' => $skip ? null : $request->input('answer'),
+            ]);
 
-    $flowAnswer->answer = $request->answer;
-    $flowAnswer->save();
-
-    // Save question + answer only when this step is answered first time
-    if ($isNewAnswer) {
-        $flowMetadata = [
-            'flow' => [
+            $metadata = [
                 'flow_answer_id' => $flowAnswer->id,
                 'flow_step_id' => $step->id,
                 'source' => 'chatbot_flow',
-            ],
+                'skipped' => $skip,
+            ];
+
+            $this->saveBotMessage($conversation, $step->question, [
+                'flow' => $metadata + ['part' => 'question'],
+            ]);
+            $this->saveUserMessage($conversation, $skip ? 'Skipped' : $flowAnswer->answer, null, [
+                'flow' => $metadata + ['part' => 'answer'],
+            ]);
+        }
+
+        $answeredIds = ChatbotFlowAnswer::query()
+            ->where('conversation_id', $conversation->id)->pluck('chatbot_flow_step_id');
+
+        $remaining = ChatbotFlowStep::query()
+            ->with('options')
+            ->where('chatbot_flow_id', $step->chatbot_flow_id)
+            ->where('is_active', true)
+            ->whereNotIn('id', $answeredIds)
+            ->orderBy('step_order')->orderBy('id')->get();
+
+        return [
+            'conversation' => $conversation,
+            'answer' => $flowAnswer,
+            'skipped' => $flowAnswer->answer === null,
+            'remaining_steps' => $remaining,
+            'flow_completed' => $remaining->isEmpty(),
         ];
-
-        // Bot question
-        $this->saveBotMessage(
-            $conversation,
-            $step->question,
-            array_merge($flowMetadata, [
-                'flow' => array_merge($flowMetadata['flow'], [
-                    'part' => 'question',
-                ]),
-            ])
-        );
-
-        // Visitor answer
-        $this->saveUserMessage(
-            $conversation,
-            $request->answer,
-            null,
-            array_merge($flowMetadata, [
-                'flow' => array_merge($flowMetadata['flow'], [
-                    'part' => 'answer',
-                ]),
-            ])
-        );
-    }
-
-    $hasNextStep = ChatbotFlowStep::query()
-        ->where('chatbot_flow_id', $step->chatbot_flow_id)
-        ->where('step_order', '>', $step->step_order)
-        ->exists();
-
-    return [
-        'conversation' => $conversation,
-        'answer' => $flowAnswer,
-        'flow_completed' => ! $hasNextStep,
-    ];
+    });
 }
 
 public function saveLeadData(

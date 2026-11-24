@@ -766,6 +766,59 @@ class LiveChatHardeningTest extends TestCase
         });
     }
 
+    public function test_optional_questions_can_be_skipped_and_inactive_steps_are_hidden(): void
+    {
+        [, $website] = $this->websiteFixture('Flow Controls', 'flow-controls.test');
+        $flow = \App\Models\ChatbotFlow::create([
+            'website_id' => $website->id, 'name' => 'Test', 'is_active' => true,
+        ]);
+        $make = fn ($order, $required, $active) => $flow->steps()->create([
+            'step_order' => $order, 'question' => 'Question ' . $order,
+            'is_required' => $required, 'is_active' => $active,
+        ]);
+        $required = $make(1, true, true);
+        $hidden = $make(2, true, false);
+        $optional = $make(3, false, true);
+        $last = $make(4, true, true);
+        $payload = [
+            'widget_key' => $website->widget_key, 'domain' => $website->domain,
+            'visitor_uuid' => 'flow-controls-visitor', 'session_id' => 'flow-controls-session',
+        ];
+
+        $this->getJson('/api/widget/flow?' . http_build_query($payload))
+            ->assertOk()->assertJsonCount(3, 'flow.steps')
+            ->assertJsonPath('flow.steps.1.id', $optional->id);
+        $this->postJson('/api/widget/flow-answer', $payload + [
+            'chatbot_flow_step_id' => $required->id, 'skip' => true,
+        ])->assertStatus(422);
+        $this->postJson('/api/widget/flow-answer', $payload + [
+            'chatbot_flow_step_id' => $hidden->id, 'answer' => 'Hidden',
+        ])->assertStatus(409);
+        $first = $this->postJson('/api/widget/flow-answer', $payload + [
+            'chatbot_flow_step_id' => $required->id, 'answer' => 'Yes',
+        ])->assertOk()->assertJsonPath('remaining_steps.0.id', $optional->id);
+        $payload['conversation_id'] = $first->json('conversation_id');
+        $this->postJson('/api/widget/flow-answer', $payload + [
+            'chatbot_flow_step_id' => $optional->id, 'skip' => true,
+        ])->assertOk()->assertJsonPath('skipped', true)
+            ->assertJsonPath('remaining_steps.0.id', $last->id);
+        $this->assertDatabaseHas('chatbot_flow_answers', [
+            'conversation_id' => $payload['conversation_id'],
+            'chatbot_flow_step_id' => $optional->id, 'answer' => null,
+        ]);
+        $this->assertDatabaseMissing('chatbot_flow_answers', [
+            'conversation_id' => $payload['conversation_id'],
+            'chatbot_flow_step_id' => $hidden->id,
+        ]);
+        $this->postJson('/api/widget/flow-answer', $payload + [
+            'chatbot_flow_step_id' => $last->id, 'answer' => 'Done',
+        ])->assertOk()->assertJsonPath('flow_completed', true);
+
+        $hidden->update(['is_active' => true]);
+        $this->getJson('/api/widget/flow?' . http_build_query($payload))
+            ->assertOk()->assertJsonCount(4, 'flow.steps');
+    }
+
     protected function websiteFixture(
         string $companyName = 'Acme',
         string $domain = 'example.test'

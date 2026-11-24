@@ -43,6 +43,9 @@ class ChatbotFlowStepsTable
                     ->label('Required')
                     ->boolean(),
 
+                \Filament\Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Active'),
+
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->formatStateUsing(fn ($state) => $state ? BrowserTime::format($state, 'd M Y') : 'N/A')

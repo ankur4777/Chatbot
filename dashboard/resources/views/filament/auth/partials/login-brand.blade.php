@@ -1,6 +1,6 @@
-@if (request()->routeIs('filament.*.auth.login'))
+@if (($loginPortal ?? null) === 'agent' || request()->routeIs('filament.*.auth.login'))
     @php
-        $portal = filament()->getId();
+        $portal = $loginPortal ?? filament()->getId();
 
         $portalDetails = match ($portal) {
             'admin' => [

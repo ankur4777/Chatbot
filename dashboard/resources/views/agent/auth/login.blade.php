@@ -14,7 +14,7 @@
                 linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
             color: #0f172a;
             display: flex;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: var(--shabdd-font-sans);
             justify-content: center;
             margin: 0;
             min-height: 100vh;
@@ -153,8 +153,9 @@
             }
         }
     </style>
+    @include('shared.typography')
 </head>
-<body>
+<body class="shabdd-auth-page">
     <form class="card" method="POST" action="{{ route('agent.login.store') }}">
         @csrf
 

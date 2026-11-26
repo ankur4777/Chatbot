@@ -6,7 +6,7 @@
     <title>Reset Agent Password</title>
     <style>
         * { box-sizing: border-box; }
-        body { align-items: center; background: #f6f7fb; display: flex; font-family: Arial, Helvetica, sans-serif; justify-content: center; margin: 0; min-height: 100vh; }
+        body { align-items: center; background: #f6f7fb; display: flex; font-family: var(--shabdd-font-sans); justify-content: center; margin: 0; min-height: 100vh; }
         .card { background: #fff; border: 1px solid #dde3ea; border-radius: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, .08); padding: 28px; width: min(420px, calc(100vw - 32px)); }
         h1 { margin: 0 0 6px; }
         p { color: #657282; margin: 0 0 22px; }
@@ -20,8 +20,9 @@
             .card { padding: 22px; width: 100%; }
         }
     </style>
+    @include('shared.typography')
 </head>
-<body>
+<body class="shabdd-auth-page">
     <form class="card" method="POST" action="{{ route('agent.password.update') }}">
         @csrf
 

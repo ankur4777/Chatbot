@@ -1,0 +1,80 @@
+/* Shared Shabdd typography. No color, layout, icon or application changes. */
+:root {
+    --shabdd-font-sans: "Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --shabdd-type-page: clamp(1.5rem, 1.7vw, 1.875rem);
+    --shabdd-type-section: 1.125rem;
+    --shabdd-type-body: .875rem;
+    --shabdd-type-caption: .75rem;
+    --shabdd-type-metric: clamp(1.5rem, 2vw, 2rem);
+}
+body.fi-body, .fi-body .fi-layout, .fi-body .fi-simple-layout,
+body.shabdd-agent-page, body.shabdd-auth-page {
+    font-family: var(--shabdd-font-sans);
+    font-size: var(--shabdd-type-body);
+    font-weight: 400;
+    line-height: 1.5;
+    font-optical-sizing: auto;
+}
+body.fi-body :where(input, select, textarea, button),
+.shabdd-agent-page :where(input, select, textarea, button),
+.shabdd-auth-page :where(input, select, textarea, button) { font-family: inherit; }
+.fi-body .fi-header-heading, .fi-body .fi-page-header-heading {
+    font-size: var(--shabdd-type-page); font-weight: 700; line-height: 1.25; letter-spacing: -.025em;
+}
+.fi-body .fi-header-subheading, .fi-body .fi-page-header-subheading { font-size: var(--shabdd-type-body); font-weight: 400; line-height: 1.5; }
+.fi-body .fi-simple-header-heading { font-size: clamp(1.625rem, 2vw, 2rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.25; }
+.fi-body .fi-section-header-heading, .fi-body .fi-ta-header-heading, .fi-body .fi-modal-heading, .fi-body .fi-modal-window-heading { font-size: var(--shabdd-type-section); font-weight: 600; line-height: 1.4; letter-spacing: -.015em; }
+.fi-body .fi-sidebar .fi-sidebar-item-label { font-size: var(--shabdd-type-body); font-weight: 500; line-height: 1.45; }
+.fi-body .fi-sidebar .fi-sidebar-item.fi-active .fi-sidebar-item-label { font-weight: 600; }
+.fi-body .fi-sidebar .fi-sidebar-group-label { font-size: var(--shabdd-type-caption); font-weight: 600; letter-spacing: .035em; }
+.fi-body .fi-ta-header-cell-label { font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.fi-body .fi-ta-text, .fi-body .fi-ta-cell, .fi-body .fi-in-text { font-size: var(--shabdd-type-body); line-height: 1.5; }
+.fi-body .fi-fo-field-wrp-label, .fi-body .fi-fo-field-wrp-label > span,
+.fi-body .fi-sc-field-label, .fi-body .fi-sc-field-label-content { font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.fi-body .fi-input, .fi-body .fi-select-input, .fi-body .fi-fo-textarea textarea { font-size: var(--shabdd-type-body); font-weight: 400; line-height: 1.5; }
+.fi-body .fi-btn, .fi-body .fi-link, .fi-body .fi-tabs-item-label { font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.fi-body .fi-badge { font-size: var(--shabdd-type-caption); font-weight: 600; }
+.fi-body .fi-fo-field-wrp-hint, .fi-body .fi-fo-field-wrp-error-message,
+.fi-body .fi-sc-field-description, .fi-body .fi-sc-field-error-message,
+.fi-body .fi-ta-empty-state-description, .fi-body .fi-simple-header-subheading { font-size: .8125rem; font-weight: 400; line-height: 1.5; }
+.fi-body .fi-wi-stats-overview-stat-value { font-size: var(--shabdd-type-metric); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+.fi-body .fi-wi-stats-overview-stat-label { font-size: .8125rem; font-weight: 500; }
+.fi-body .aw-header h1, .fi-body .cw-header h1 { font-size: var(--shabdd-type-page); font-weight: 700; line-height: 1.25; letter-spacing: -.025em; }
+.fi-body .aw-panel-heading h2, .fi-body .cw-panel-title h2, .fi-body .cw-subscription-head h2,
+.fi-body .cw-inbox-header h2, .fi-body .cw-inbox-panel-head h2 { font-size: var(--shabdd-type-section); font-weight: 600; line-height: 1.4; }
+.fi-body .aw-stat strong, .fi-body .cw-stat-value, .fi-body .cw-inbox-stat strong { font-size: var(--shabdd-type-metric); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+.fi-body .cw-subscription-count, .fi-body .cw-inbox-table { font-variant-numeric: tabular-nums; }
+.fi-body .aw-btn, .fi-body .cw-button { font-size: .8125rem; font-weight: 600; }
+.fi-body .aw-stat-top > span:first-child, .fi-body .cw-stat-label,
+.fi-body .cw-inbox-stat > span, .fi-body .cw-subscription-grid span { font-size: .8125rem; font-weight: 500; }
+.fi-body .aw-row-main strong, .fi-body .cw-activity-copy strong, .fi-body .cw-lead-copy strong { font-size: var(--shabdd-type-body); font-weight: 600; }
+.fi-body .cw-inbox-table td, .fi-body .cw-inbox-table th { font-size: .8125rem; }
+.fi-body .cw-inbox-table td { font-weight: 400; }
+.fi-body .cw-inbox-table th { font-weight: 600; }
+.shabdd-agent-page .nav a, .shabdd-agent-page .nav button { font-size: .875rem; font-weight: 500; line-height: 1.45; }
+.shabdd-agent-page .brand-title { font-size: 1.0625rem; font-weight: 700; }
+.shabdd-agent-page h1, .shabdd-agent-page .dashboard-hero h1 { font-size: var(--shabdd-type-page); font-weight: 700; line-height: 1.25; letter-spacing: -.025em; }
+.shabdd-agent-page h2, .shabdd-agent-page .dashboard-panel-title, .shabdd-agent-page .panel-header > strong { font-size: var(--shabdd-type-section); font-weight: 600; line-height: 1.4; }
+.shabdd-agent-page .dashboard-stat-value, .shabdd-agent-page .dashboard-performance-card strong,
+.shabdd-agent-page .card .value, .shabdd-agent-page .profile-activity-value { font-size: var(--shabdd-type-metric); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+.shabdd-agent-page .dashboard-stat-label, .shabdd-agent-page .dashboard-performance-card span,
+.shabdd-agent-page label { font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.shabdd-agent-page .btn { font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.shabdd-agent-page .bubble, .shabdd-agent-page .closed-conversation-message { font-size: var(--shabdd-type-body); line-height: 1.6; font-weight: 400; }
+.shabdd-agent-page .bubble-meta, .shabdd-agent-page .voice-time, .shabdd-agent-page .item-last-message time { font-size: var(--shabdd-type-caption); font-weight: 400; }
+.shabdd-agent-page .item-title, .shabdd-agent-page .agent-user-name { font-weight: 600; }
+.shabdd-agent-page .notification-title { font-size: .9375rem; font-weight: 600; line-height: 1.4; }
+.shabdd-agent-page .notification-message { font-size: var(--shabdd-type-body); font-weight: 400; line-height: 1.5; }
+.shabdd-agent-page .notification-meta { font-size: var(--shabdd-type-caption); font-weight: 400; }
+.shabdd-agent-page .notification-filter, .shabdd-agent-page .notification-action-link { font-size: .8125rem; font-weight: 600; }
+.shabdd-auth-page h1 { font-size: clamp(1.625rem, 2.25vw, 2rem); font-weight: 700; line-height: 1.25; letter-spacing: -.025em; }
+.shabdd-auth-page p { font-size: var(--shabdd-type-body); font-weight: 400; line-height: 1.55; }
+.shabdd-auth-page label { font-size: .8125rem; font-weight: 600; }
+.shabdd-auth-page input, .shabdd-auth-page textarea { font-size: var(--shabdd-type-body); font-weight: 400; }
+.shabdd-auth-page button, .shabdd-auth-page .links a, .shabdd-auth-page .back { font-size: .875rem; font-weight: 600; }
+.client-first-password-modal h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.025em; }
+.client-first-password-form input { font-family: inherit; font-size: var(--shabdd-type-body); font-weight: 400; }
+@media (max-width: 640px) {
+    :root { --shabdd-type-page: 1.5rem; --shabdd-type-metric: 1.625rem; }
+    .shabdd-agent-page textarea, .shabdd-auth-page input { font-size: 1rem; }
+}

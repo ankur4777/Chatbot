@@ -39,7 +39,7 @@
         .client-first-password-backdrop { align-items: center; background: rgba(9, 13, 27, .62); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 9999; }
         .client-first-password-modal { background: #fff; border-radius: 20px; box-shadow: 0 24px 70px rgba(9, 13, 27, .28); max-width: 440px; padding: 30px; width: 100%; }
         .client-first-password-icon { align-items: center; background: #fff0f1; border-radius: 14px; display: flex; font-size: 24px; height: 48px; justify-content: center; width: 48px; }
-        .client-first-password-kicker { color: #e33d46; font-size: 11px; font-weight: 800; letter-spacing: .12em; margin: 18px 0 6px; }
+        .client-first-password-kicker { color: #e33d46; font-size: 11px; font-weight: 700; letter-spacing: .12em; margin: 18px 0 6px; }
         .client-first-password-modal h2 { color: #20283b; font-size: 25px; margin: 0; }
         .client-first-password-copy { color: #687386; font-size: 14px; line-height: 1.55; margin: 8px 0 20px; }
         .client-first-password-form { display: grid; gap: 14px; }

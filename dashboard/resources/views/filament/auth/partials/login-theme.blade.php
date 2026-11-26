@@ -1,3 +1,4 @@
+@include('shared.typography')
 <style>
 /*
  * Scoped to the Filament sign-in layout only. Password reset screens,
@@ -11,7 +12,7 @@
     min-height: 100vh;
     min-height: 100dvh;
     background: #f8f9fc;
-    font-family: Inter, 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--shabdd-font-sans);
 }
 
 .fi-simple-layout > .shabdd-login-aside {
@@ -84,7 +85,7 @@
 
 .shabdd-login-brand-caption {
     font-size: .76rem;
-    font-weight: 690;
+    font-weight: 600;
     color: #d3d9e5;
     letter-spacing: .02em;
 }
@@ -98,7 +99,7 @@
     margin: 0 0 20px;
     color: #ff8b90;
     font-size: .76rem;
-    font-weight: 790;
+    font-weight: 700;
     letter-spacing: .13em;
 }
 
@@ -106,9 +107,9 @@
     margin: 0;
     max-width: 510px;
     color: #fff;
-    font-weight: 790;
+    font-weight: 700;
     font-size: clamp(2rem, 3.35vw, 3.3rem);
-    letter-spacing: -.048em;
+    letter-spacing: -.025em;
     line-height: 1.12;
 }
 
@@ -145,7 +146,7 @@
     background: rgba(249,79,89,.15);
     color: #ff737b;
     font-size: .85rem;
-    font-weight: 850;
+    font-weight: 700;
 }
 
 .shabdd-login-aside-bottom {
@@ -153,7 +154,7 @@
     align-items: center;
     gap: 9px;
     color: #9da8ba;
-    font-size: .72rem;
+    font-size: .75rem;
     letter-spacing: .01em;
 }
 
@@ -208,8 +209,8 @@
 
 .fi-simple-layout:has(> .shabdd-login-aside) .fi-simple-header-heading {
     color: #20283b;
-    font-weight: 800;
-    letter-spacing: -.045em;
+    font-weight: 700;
+    letter-spacing: -.025em;
     font-size: clamp(1.65rem, 2.35vw, 2.12rem);
     line-height: 1.15;
 }
@@ -223,7 +224,7 @@
 .fi-simple-layout:has(> .shabdd-login-aside) .fi-fo-field-wrp-label,
 .fi-simple-layout:has(> .shabdd-login-aside) .fi-fo-field-wrp-label > span {
     color: #303a4d;
-    font-weight: 680;
+    font-weight: 600;
     font-size: .85rem;
 }
 
@@ -247,7 +248,7 @@
 .fi-simple-layout:has(> .shabdd-login-aside) .fi-btn {
     min-height: 44px;
     border-radius: 10px !important;
-    font-weight: 740;
+    font-weight: 600;
 }
 
 .fi-simple-layout:has(> .shabdd-login-aside) .fi-btn.fi-color-primary {
@@ -262,7 +263,7 @@
 
 .fi-simple-layout:has(> .shabdd-login-aside) .fi-link {
     color: #de414c;
-    font-weight: 650;
+    font-weight: 600;
 }
 
 
@@ -343,8 +344,8 @@
     color: #293247;
     box-shadow: 0 8px 22px rgba(9,15,36,.22);
     white-space: nowrap;
-    font-size: .7rem;
-    font-weight: 780;
+    font-size: .75rem;
+    font-weight: 700;
     animation: shabdd-bot-speech 4s ease-in-out infinite;
 }
 .shabdd-login-mascot-dot {
@@ -359,8 +360,8 @@
     display: block;
     margin-top: -3px;
     color: #aebbd0;
-    font-size: .69rem;
-    font-weight: 580;
+    font-size: .75rem;
+    font-weight: 600;
     text-align: center;
     white-space: nowrap;
 }
@@ -413,7 +414,7 @@
     }
     .shabdd-login-kicker {
         margin-bottom: 4px;
-        font-size: .65rem;
+        font-size: .75rem;
     }
     .shabdd-login-story h2 {
         font-size: clamp(1.15rem, 3vw, 1.5rem);

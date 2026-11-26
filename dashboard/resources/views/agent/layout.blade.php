@@ -29,7 +29,7 @@
             margin: 0;
             background: var(--bg);
             color: var(--text);
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: var(--shabdd-font-sans);
             overflow: hidden;
         }
         img,
@@ -262,7 +262,7 @@
             color: #fff;
             display: inline-flex;
             font-size: 10px;
-            font-weight: 800;
+            font-weight: 700;
             height: 18px;
             justify-content: center;
             line-height: 1;
@@ -465,7 +465,7 @@
         .visitor-modal-body label span {
             color: #0f172a;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 700;
         }
         .visitor-modal-body label strong {
             color: #ef4444;
@@ -516,7 +516,7 @@
             color: #db2777;
             display: inline-flex;
             font-size: 16px;
-            font-weight: 800;
+            font-weight: 700;
             height: 42px;
             justify-content: center;
             width: 42px;
@@ -524,7 +524,7 @@
         .agent-user-name {
             color: #0f172a;
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 700;
             line-height: 1.1;
         }
         .agent-user-status {
@@ -597,7 +597,7 @@
             display: inline-flex;
             flex: 0 0 auto;
             font-size: 16px;
-            font-weight: 800;
+            font-weight: 700;
             height: 42px;
             justify-content: center;
             width: 42px;
@@ -682,7 +682,7 @@
             color: #64748b;
             display: inline-flex;
             font-size: 13px;
-            font-weight: 650;
+            font-weight: 600;
             padding: 0 12px;
         }
         .agent-chat-status-menu-wrap { position: relative; }
@@ -826,7 +826,7 @@
             border-radius: 999px;
             display: inline-flex;
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 700;
             gap: 5px;
             line-height: 1;
             padding: 7px 11px;
@@ -869,7 +869,7 @@
             cursor: pointer;
             display: flex;
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 700;
             gap: 10px;
             line-height: 1.25;
             max-width: min(320px, calc(100vw - 32px));
@@ -969,7 +969,7 @@
             color: #DF2F25;
             display: inline-flex;
             font-size: 16px;
-            font-weight: 800;
+            font-weight: 700;
             height: 38px;
             justify-content: center;
             width: 38px;
@@ -1325,7 +1325,7 @@
             color: #DF2F25;
             display: inline-flex;
             font-size: 17px;
-            font-weight: 800;
+            font-weight: 700;
             height: 44px;
             justify-content: center;
             width: 44px;
@@ -1459,7 +1459,7 @@
             color: #fff;
             display: inline-flex;
             font-size: 11px;
-            font-weight: 800;
+            font-weight: 700;
             height: 20px;
             justify-content: center;
             min-width: 20px;
@@ -1538,7 +1538,7 @@
             cursor: pointer;
             display: inline-flex;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             height: 30px;
             justify-content: center;
             padding: 0;
@@ -1781,7 +1781,7 @@
             color: #DF2F25;
             display: inline-flex;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 700;
             height: 44px;
             justify-content: center;
             min-width: 44px;
@@ -1811,7 +1811,7 @@
             color: #9a3412;
             display: inline-flex;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             margin-top: 8px;
             padding: 5px 10px;
         }
@@ -1821,7 +1821,7 @@
             border-radius: 999px;
             display: inline-flex;
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 700;
             gap: 8px;
             margin-top: 14px;
             padding: 9px 16px;
@@ -2001,7 +2001,7 @@
             border-radius: 999px;
             color: #9f1f19;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             padding: 6px 9px;
         }
         .profile-calendar-layout {
@@ -2018,7 +2018,7 @@
         .profile-calendar-weekday {
             color: var(--muted);
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             text-align: center;
         }
         .profile-calendar-empty,
@@ -2944,8 +2944,9 @@
             }
         }
     </style>
+    @include('shared.typography')
 </head>
-<body>
+<body class="shabdd-agent-page">
     <button class="agent-sidebar-toggle" type="button" data-agent-sidebar-toggle aria-label="Open navigation" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>

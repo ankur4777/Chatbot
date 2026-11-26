@@ -15,7 +15,7 @@
         .note-page-title h2 {
             color: #0f172a;
             font-size: clamp(22px, 1.7vw, 28px);
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1.08;
             margin: 0;
         }
@@ -49,7 +49,7 @@
             display: inline-flex;
             flex: 0 0 auto;
             font-size: 18px;
-            font-weight: 650;
+            font-weight: 600;
             height: 56px;
             justify-content: center;
             width: 56px;
@@ -57,7 +57,7 @@
         .note-visitor-name {
             color: #0f172a;
             font-size: 18px;
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1.2;
         }
         .note-visitor-meta {
@@ -77,7 +77,7 @@
             display: inline-flex;
             flex: 0 0 auto;
             font-size: 14px;
-            font-weight: 650;
+            font-weight: 600;
             gap: 9px;
             min-height: 40px;
             padding: 0 14px;
@@ -106,7 +106,7 @@
             color: #0f172a;
             display: inline-flex;
             font-size: 17px;
-            font-weight: 650;
+            font-weight: 600;
             gap: 10px;
             line-height: 1.2;
         }

@@ -6,7 +6,7 @@
         .my-chats-title h2 {
             color: #0f172a;
             font-size: clamp(24px, 2vw, 32px);
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1.1;
             margin: 0;
         }
@@ -45,7 +45,7 @@
         .my-chats-panel-title strong {
             color: #0f172a;
             font-size: 18px;
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1.2;
         }
         .my-chats-count {
@@ -149,14 +149,14 @@
         .my-chat-name {
             color: #0f172a;
             font-size: 18px;
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1.2;
         }
         .my-chat-status {
             border-radius: 999px;
             display: inline-flex;
             font-size: 12px;
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1;
             padding: 6px 9px;
         }
@@ -185,7 +185,7 @@
             color: #15803d;
             display: inline-flex;
             font-size: 13px;
-            font-weight: 650;
+            font-weight: 600;
             gap: 7px;
             padding: 8px 12px;
             white-space: nowrap;
@@ -209,7 +209,7 @@
             color: #fff;
             display: inline-flex;
             font-size: 15px;
-            font-weight: 650;
+            font-weight: 600;
             gap: 8px;
             justify-content: center;
             min-height: 46px;

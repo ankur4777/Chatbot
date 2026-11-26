@@ -4,7 +4,7 @@
     <style>
         .notifications-page { display: grid; gap: 18px; padding-top: 22px; }
         .notifications-header { padding-right: 260px; }
-        .notifications-header h2 { color: #07142f; font-size: clamp(24px, 2vw, 31px); font-weight: 680; margin: 0; }
+        .notifications-header h2 { color: #07142f; font-size: clamp(24px, 2vw, 31px); font-weight: 600; margin: 0; }
         .notifications-header p { color: #526381; font-size: 15px; font-weight: 500; margin: 7px 0 0; }
         .notification-toolbar {
             align-items: center;
@@ -22,7 +22,7 @@
             border-radius: 999px;
             color: #334155;
             font-size: 13px;
-            font-weight: 650;
+            font-weight: 600;
             padding: 8px 12px;
             text-decoration: none;
         }

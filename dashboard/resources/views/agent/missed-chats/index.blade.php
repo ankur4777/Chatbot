@@ -314,7 +314,7 @@
                 color: #64748b;
                 content: attr(data-label);
                 font-size: 12px;
-                font-weight: 800;
+                font-weight: 700;
                 letter-spacing: .02em;
                 text-transform: uppercase;
             }

@@ -10,7 +10,7 @@
         .dashboard-hero h1 {
             color: #07142f;
             font-size: clamp(22px, 1.7vw, 29px);
-            font-weight: 720;
+            font-weight: 600;
             letter-spacing: 0;
             line-height: 1.12;
             margin: 0 0 8px;
@@ -60,13 +60,13 @@
         .dashboard-stat-label {
             color: #243654;
             font-size: 13px;
-            font-weight: 650;
+            font-weight: 600;
             line-height: 1.2;
         }
         .dashboard-stat-value {
             color: #07142f;
             font-size: 26px;
-            font-weight: 760;
+            font-weight: 700;
             line-height: 1;
             margin-top: 10px;
         }
@@ -143,7 +143,7 @@
             color: #FF3B30;
             display: inline-flex;
             font-size: 14px;
-            font-weight: 650;
+            font-weight: 600;
             gap: 7px;
             text-decoration: none;
             white-space: nowrap;
@@ -173,7 +173,7 @@
             color: #07142f;
             display: block;
             font-size: 17px;
-            font-weight: 720;
+            font-weight: 600;
             margin-bottom: 9px;
         }
         .dashboard-empty-state p {
@@ -205,7 +205,7 @@
             color: #DF2F25;
             display: inline-flex;
             font-size: 16px;
-            font-weight: 800;
+            font-weight: 700;
             height: 48px;
             justify-content: center;
             width: 48px;
@@ -217,7 +217,7 @@
             display: flex;
             flex-wrap: wrap;
             font-size: 15px;
-            font-weight: 720;
+            font-weight: 600;
             gap: 8px;
             line-height: 1.25;
         }
@@ -345,8 +345,8 @@
         .dashboard-performance-heading p,.dashboard-performance-note { color:#526381; font-size:12px; margin:0 0 12px; }
         .dashboard-performance-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
         .dashboard-performance-card { background:#fff; border:1px solid #dce6f3; border-radius:8px; padding:18px; min-width:0; box-shadow:0 10px 28px rgba(15,23,42,.05); }
-        .dashboard-performance-card span { display:block; color:#243654; font-weight:650; font-size:13px; }
-        .dashboard-performance-card strong { display:block; color:#df2f25; font-size:26px; font-weight:760; margin:10px 0; }
+        .dashboard-performance-card span { display:block; color:#243654; font-weight: 600; font-size:13px; }
+        .dashboard-performance-card strong { display:block; color:#df2f25; font-size:26px; font-weight: 700; margin:10px 0; }
         .dashboard-performance-card small { display:block; font-size:12px; color:#526381; margin-top:5px; }
         .dashboard-performance-note { margin:10px 0 0; }
         @media(max-width:640px) { .dashboard-performance-grid { grid-template-columns:1fr; } }

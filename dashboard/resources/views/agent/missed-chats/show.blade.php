@@ -50,7 +50,7 @@
         .missed-top-field label {
             color: #0f172a;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 700;
         }
         .missed-select-shell {
             position: relative;

@@ -1,3 +1,5 @@
+@import url("../fonts/filament/filament/inter/index.css");
+
 :root {
     --primary-color: #FF3B30;
     --background: #ffffff;
@@ -14,7 +16,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Inter", sans-serif;
 }
 
 /* Floating Button */
@@ -373,7 +374,7 @@
     font-weight: 700;
 
     margin: 0 0 8px;
-    font-family: "Merriweather", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--chatbot-font-sans);
 }
 
 #chatbot-hero-message {
@@ -1006,7 +1007,7 @@
     margin-bottom: 10px;
     font-size: 12px;
     outline: none;
-    font-family: "Inter", sans-serif;
+    font-family: var(--chatbot-font-sans, inherit);
     transition: 0.2s;
 }
 
@@ -1029,7 +1030,7 @@
     margin-bottom: 10px;
     font-size: 12px;
     outline: none;
-    font-family: "Inter", sans-serif;
+    font-family: var(--chatbot-font-sans, inherit);
     resize: vertical;
     transition: 0.2s;
 }
@@ -1245,7 +1246,7 @@
 .chatbot-rating-feedback {
     border: 1px solid #ddd;
     border-radius: 9px;
-    font-family: "Inter", sans-serif;
+    font-family: var(--chatbot-font-sans, inherit);
     font-size: 12px;
     min-height: 62px;
     outline: none;
@@ -2529,4 +2530,34 @@
         bottom: 18px;
         font-size: 18px;
     }
+}
+
+/* Shared widget typography — scoped to the chatbot, not the host site. */
+#chatbot-box, #chatbot-toggle, #chatbot-live-toast {
+    --chatbot-font-sans: "Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-family: var(--chatbot-font-sans);
+    font-weight: 400;
+}
+#chatbot-box :where(button, input, textarea, select) { font-family: var(--chatbot-font-sans); }
+#chatbot-box #chatbot-title { font-size: 15px; font-weight: 600; line-height: 1.35; letter-spacing: -.01em; }
+#chatbot-box #chatbot-status { font-size: 12px; font-weight: 400; line-height: 1.4; }
+#chatbot-box #chatbot-hero-title { font-size: 18px; font-weight: 700; line-height: 1.3; letter-spacing: -.02em; }
+#chatbot-box #chatbot-hero-message, #chatbot-box .user-message, #chatbot-box .bot-message { font-size: 14px; font-weight: 400; line-height: 1.55; }
+#chatbot-box .user-message strong, #chatbot-box .bot-message strong { font-weight: 600; }
+#chatbot-box .chatbot-option, #chatbot-box #chatbot-new-chat, #chatbot-box .end-chat-option,
+#chatbot-box #lead-submit, #chatbot-box #offline-submit, #chatbot-box .chatbot-rating-submit, #chatbot-box .chatbot-rating-skip { font-size: 13px; font-weight: 600; line-height: 1.4; }
+#chatbot-box .lead-form-title, #chatbot-box .chatbot-rating-title, #chatbot-box .chatbot-talk-agent-heading, #chatbot-box .chatbot-gallery-title { font-size: 14px; font-weight: 600; line-height: 1.4; }
+#chatbot-box #chatbot-input, #chatbot-box .chatbot-lead-form input,
+#chatbot-box .chatbot-lead-form textarea, #chatbot-box .chatbot-rating-feedback { font-size: 14px; font-weight: 400; line-height: 1.5; }
+#chatbot-box .chatbot-status-message, #chatbot-box .conversation-divider,
+#chatbot-box .lead-detail, #chatbot-box .chatbot-gallery-description,
+#chatbot-box #lead-error, #chatbot-box #offline-error { font-size: 12px; font-weight: 400; line-height: 1.5; }
+#chatbot-box .chatbot-talk-agent-cta { font-size: 12px; font-weight: 600; line-height: 1.4; }
+#chatbot-box .chatbot-message-receipt, #chatbot-box .chatbot-voice-time { font-size: 11px; font-weight: 500; }
+#chatbot-live-toast { font-size: 13px; font-weight: 600; line-height: 1.4; }
+@media (max-width: 480px) {
+    #chatbot-box #chatbot-title { font-size: 14px; }
+    #chatbot-box #chatbot-new-chat { font-size: 12px; }
+    #chatbot-box #chatbot-hero-title { font-size: 17px; }
+    #chatbot-box #chatbot-input, #chatbot-box .chatbot-lead-form input, #chatbot-box .chatbot-lead-form textarea, #chatbot-box .chatbot-rating-feedback { font-size: 16px; }
 }

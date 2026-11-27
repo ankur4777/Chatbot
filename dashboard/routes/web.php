@@ -9,6 +9,7 @@ use App\Http\Controllers\Agent\MissedChatController as AgentMissedChatController
 use App\Http\Controllers\Agent\NotificationController as AgentNotificationController;
 use App\Http\Controllers\Agent\ProfileController as AgentProfileController;
 use App\Http\Controllers\Client\AgentExportController;
+use App\Http\Controllers\Client\AgentDashboardLogoController;
 use App\Http\Controllers\Client\ChatbotConversationExportController;
 use App\Http\Controllers\Client\ChatbotLeadExportController;
 use App\Http\Controllers\Client\ClosedChatExportController;
@@ -99,6 +100,10 @@ Route::get('/client/closed-chats/download', [ClosedChatExportController::class, 
 Route::get('/client/closed-chats/{session}/download', [ClosedChatExportController::class, 'download'])
     ->middleware('auth:client')
     ->name('client.closed-chats.download');
+
+Route::get('/client/agent-dashboard-logo/{setting}', [AgentDashboardLogoController::class, 'show'])
+    ->middleware('auth:client')
+    ->name('client.agent-dashboard-logo.show');
 
 Route::get('/client/agents/download', [AgentExportController::class, 'download'])
     ->middleware('auth:client')

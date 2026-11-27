@@ -4,6 +4,7 @@ namespace App\Filament\Client\Resources\LiveChatSettings\Schemas;
 
 use App\Models\WebsiteSetting;
 use Filament\Forms\Components\FileUpload;
+use App\Http\Controllers\Client\AgentDashboardLogoController;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -70,7 +71,7 @@ class LiveChatSettingForm
 
                 FileUpload::make('agent_dashboard_logo')
                     ->label('Agent Dashboard Logo')
-                    ->helperText('Optional. Shown above Support Agent in the agent sidebar.')
+                    ->helperText('Optional. Choose or drag an image here (up to 2 MB), then Save Changes. Shown above Support Agent in the agent sidebar.')
                     ->disk('public')
                     ->directory('live-chat/logos')
                     ->visibility('public')
@@ -83,7 +84,28 @@ class LiveChatSettingForm
                     ])
                     ->maxSize(2048)
                     ->imagePreviewHeight('120')
-                    ->panelLayout('integrated')
+                    ->placeholder('Drag and drop your logo or browse files')
+                    ->preventFilePathTampering()
+                    ->getUploadedFileUsing(function (FileUpload $component, string $file, string | array | null $storedFileNames, ?WebsiteSetting $record): ?array {
+                        if (! $record || $record->agent_dashboard_logo !== $file
+                            || ! AgentDashboardLogoController::isLogoPath($file)) {
+                            return null;
+                        }
+
+                        $metadata = $component->getUploadedFile($file, $storedFileNames);
+
+                        if ($metadata === null) {
+                            return null;
+                        }
+
+                        // Use the authenticated, same-origin preview instead of an APP_URL-based public storage URL.
+                        $metadata['url'] = route('client.agent-dashboard-logo.show', [
+                            'setting' => $record->getKey(),
+                            'v' => hash('sha256', $file),
+                        ], false);
+
+                        return $metadata;
+                    })
                     ->disabled(
                         fn (?WebsiteSetting $record): bool =>
                             ! (bool) $record?->enable_live_chat

@@ -45,6 +45,34 @@ class LiveChatHardeningTest extends TestCase
         }
     }
 
+    public function test_client_logo_preview_is_same_origin_and_company_scoped(): void
+    {
+        [$company, $website] = $this->websiteFixture('Logo company', 'logo-company.test');
+        [$otherCompany] = $this->websiteFixture('Other logo company', 'other-logo-company.test');
+        $owner = User::factory()->create([
+            'company_id' => $company->id, 'role' => 'owner', 'status' => true, 'must_change_password' => false,
+        ]);
+        $otherOwner = User::factory()->create([
+            'company_id' => $otherCompany->id, 'role' => 'owner', 'status' => true, 'must_change_password' => false,
+        ]);
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $path = 'live-chat/logos/test-logo.png';
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jR1sAAAAASUVORK5CYII='));
+        $setting = $website->settings()->firstOrFail();
+        $setting->update(['enable_live_chat' => true, 'agent_dashboard_logo' => $path]);
+        $url = route('client.agent-dashboard-logo.show', ['setting' => $setting->id], false);
+
+        $this->actingAs($owner, 'client')->get($url)->assertOk()
+            ->assertHeader('Content-Type', 'image/png')
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->actingAs($otherOwner, 'client')->get($url)->assertNotFound();
+        $this->actingAs($owner, 'client');
+        $setting->update(['enable_live_chat' => false]);
+        $this->get($url)->assertForbidden();
+        $setting->update(['enable_live_chat' => true, 'agent_dashboard_logo' => 'live-chat/logos/missing.png']);
+        $this->get($url)->assertNotFound();
+    }
+
     public function test_normal_ai_conversation_remains_active_ai(): void
     {
         [$company, $website] = $this->websiteFixture();

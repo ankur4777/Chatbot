@@ -3,7 +3,7 @@
 namespace App\Filament\Client\Resources\GalleryImages\Pages;
 
 use App\Filament\Client\Resources\GalleryImages\GalleryImageResource;
-use App\Models\Website;
+use App\Services\WebsiteFeatureService;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -20,9 +20,9 @@ class EditGalleryImage extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $website = Website::query()
-            ->whereKey($data['website_id'])
-            ->where('company_id', auth()->user()?->company_id)
+        abort_unless(auth()->user()?->can('update', $this->getRecord()), 403);
+        $website = app(WebsiteFeatureService::class)->galleryWebsitesForUser(auth()->user())
+                        ->whereKey($data['website_id'])
             ->firstOrFail();
 
         $data['company_id'] = $website->company_id;

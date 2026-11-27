@@ -34,6 +34,28 @@ class WebsiteFeatureService
             && $website->settings?->enable_image_gallery !== false;
     }
 
+    public function galleryWebsitesForUser(?User $user): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = Website::query();
+
+        if (! $user || $user->role !== 'owner' || ! $user->status
+            || ! $user->company_id || ! $this->companyHasActiveSubscription($user->company_id)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where('company_id', $user->company_id)
+            ->where('status', true)
+            ->whereDoesntHave('settings', fn ($settings) => $settings
+                ->where(fn ($flags) => $flags
+                    ->where('enable_chatbot', false)
+                    ->orWhere('enable_image_gallery', false)));
+    }
+
+    public function isImageGalleryEnabledForAuthenticatedUserCompany(?User $user = null): bool
+    {
+        return $this->galleryWebsitesForUser($user ?? auth()->user())->exists();
+    }
+
     public function isAiResponsesEnabledForCompany(Company|int $company): bool
     {
         $companyId = $company instanceof Company

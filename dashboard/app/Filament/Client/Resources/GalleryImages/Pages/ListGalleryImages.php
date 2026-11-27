@@ -3,7 +3,7 @@
 namespace App\Filament\Client\Resources\GalleryImages\Pages;
 
 use App\Filament\Client\Resources\GalleryImages\GalleryImageResource;
-use App\Models\Website;
+use App\Services\WebsiteFeatureService;
 use App\Models\WebsiteGalleryImage;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -30,8 +30,7 @@ class ListGalleryImages extends ListRecords
                 ->form([
                     Select::make('website_id')
                         ->label('Website')
-                        ->options(fn (): array => Website::query()
-                            ->where('company_id', auth()->user()?->company_id)
+                        ->options(fn (): array => app(WebsiteFeatureService::class)->galleryWebsitesForUser(auth()->user())
                             ->orderBy('name')
                             ->pluck('name', 'id')
                             ->all())
@@ -73,9 +72,9 @@ class ListGalleryImages extends ListRecords
                         ->required(),
                 ])
                 ->action(function (array $data): void {
-                    $website = Website::query()
+                    abort_unless(GalleryImageResource::canCreate(), 403);
+                    $website = app(WebsiteFeatureService::class)->galleryWebsitesForUser(auth()->user())
                         ->whereKey($data['website_id'])
-                        ->where('company_id', auth()->user()?->company_id)
                         ->firstOrFail();
 
                     foreach ((array) ($data['images'] ?? []) as $index => $path) {

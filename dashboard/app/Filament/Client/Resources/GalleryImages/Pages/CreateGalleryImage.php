@@ -3,7 +3,7 @@
 namespace App\Filament\Client\Resources\GalleryImages\Pages;
 
 use App\Filament\Client\Resources\GalleryImages\GalleryImageResource;
-use App\Models\Website;
+use App\Services\WebsiteFeatureService;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateGalleryImage extends CreateRecord
@@ -12,9 +12,8 @@ class CreateGalleryImage extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $website = Website::query()
-            ->whereKey($data['website_id'])
-            ->where('company_id', auth()->user()?->company_id)
+        $website = app(WebsiteFeatureService::class)->galleryWebsitesForUser(auth()->user())
+                        ->whereKey($data['website_id'])
             ->firstOrFail();
 
         $data['company_id'] = $website->company_id;

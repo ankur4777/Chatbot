@@ -2,7 +2,7 @@
 
 namespace App\Filament\Client\Resources\GalleryImages\Tables;
 
-use App\Models\Website;
+use App\Services\WebsiteFeatureService;
 use App\Models\WebsiteGalleryImage;
 use App\Support\BrowserTime;
 use Filament\Actions\DeleteAction;
@@ -61,6 +61,7 @@ class GalleryImagesTable
                     ->sortable(),
 
                 ToggleColumn::make('is_active')
+                    ->disabled(fn (WebsiteGalleryImage $record): bool => ! auth()->user()?->can('update', $record))
                     ->label('Active')
                     ->sortable(),
 
@@ -73,8 +74,7 @@ class GalleryImagesTable
             ->filters([
                 SelectFilter::make('website_id')
                     ->label('Website')
-                    ->options(fn (): array => Website::query()
-                        ->where('company_id', auth()->user()?->company_id)
+                    ->options(fn (): array => app(WebsiteFeatureService::class)->galleryWebsitesForUser(auth()->user())
                         ->orderBy('name')
                         ->pluck('name', 'id')
                         ->all()),

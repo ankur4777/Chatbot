@@ -2,7 +2,7 @@
 
 namespace App\Filament\Client\Resources\GalleryImages\Schemas;
 
-use App\Models\Website;
+use App\Services\WebsiteFeatureService;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -18,8 +18,7 @@ class GalleryImageForm
         return $schema->components([
             Select::make('website_id')
                 ->label('Website')
-                ->options(fn (): array => Website::query()
-                    ->where('company_id', auth()->user()?->company_id)
+                ->options(fn (): array => app(WebsiteFeatureService::class)->galleryWebsitesForUser(auth()->user())
                     ->orderBy('name')
                     ->pluck('name', 'id')
                     ->all())

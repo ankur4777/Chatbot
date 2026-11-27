@@ -29,16 +29,19 @@ class GalleryImageResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Image Gallery';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery()->with('website');
         $user = auth()->user();
 
-        if ($user?->role === 'owner' && $user->company_id) {
-            return $query->where('company_id', $user->company_id);
-        }
-
-        return $query->whereRaw('1 = 0');
+        return parent::getEloquentQuery()->with('website')
+            ->where('company_id', $user?->company_id)
+            ->whereIn('website_id', app(\App\Services\WebsiteFeatureService::class)
+                ->galleryWebsitesForUser($user)->select('id'));
     }
 
     public static function form(Schema $schema): Schema

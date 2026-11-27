@@ -3,7 +3,6 @@
 namespace App\Filament\Client\Resources\WebsiteSettings\Pages;
 
 use App\Filament\Client\Resources\WebsiteSettings\WebsiteSettingResource;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
@@ -13,9 +12,7 @@ class EditWebsiteSetting extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            DeleteAction::make(),
-        ];
+        return [];
     }
     protected function getSaveFormAction(): Action
 {
@@ -59,6 +56,8 @@ class EditWebsiteSetting extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        // The administrator owns feature flags and the website association.
+        unset($data['enable_image_gallery'], $data['website_id']);
         $data['position'] = [
             'horizontal' => $data['position_horizontal'] ?? 'right',
             'horizontal_value' => (int) ($data['position_horizontal_value'] ?? 25),

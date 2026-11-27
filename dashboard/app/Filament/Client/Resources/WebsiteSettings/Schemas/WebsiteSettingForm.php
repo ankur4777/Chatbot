@@ -31,6 +31,7 @@ class WebsiteSettingForm
     ->searchable()
     ->preload()
     ->unique(ignoreRecord: true)
+    ->disabledOn('edit')
     ->required(),
                 TextInput::make('chatbot_name')
                     ->label('Chatbot Name')
@@ -64,7 +65,9 @@ class WebsiteSettingForm
 
                 Toggle::make('enable_image_gallery')
                     ->label('Enable Image Gallery')
-                    ->helperText('Allow this website chatbot to search and show matching gallery images.')
+                    ->helperText('Managed by your administrator.')
+                    ->disabled()
+                    ->dehydrated(false)
                     ->default(true),
 
                 Textarea::make('system_prompt')

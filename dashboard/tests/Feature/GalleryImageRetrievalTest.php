@@ -162,6 +162,41 @@ class GalleryImageRetrievalTest extends TestCase
             ->assertJsonPath('response', 'I could not find any matching images in this website gallery.');
     }
 
+    public function test_gallery_permissions_follow_admin_settings_per_website(): void
+    {
+        [$company, $enabled] = $this->websiteFixture('Gallery access', 'gallery-access.test');
+        $owner = new \App\Models\User();
+        $owner->forceFill(['role' => 'owner', 'company_id' => $company->id, 'status' => true]);
+        $disabled = Website::create([
+            'company_id' => $company->id, 'name' => 'Disabled site',
+            'domain' => 'gallery-disabled.test', 'status' => true,
+        ]);
+        $disabled->settings()->create(['enable_chatbot' => true, 'enable_image_gallery' => false]);
+        $enabled->settings()->update(['enable_image_gallery' => true]);
+        $allowedImage = $this->galleryImage($enabled);
+        $blockedImage = $this->galleryImage($disabled);
+        $policy = app(\App\Policies\WebsiteGalleryImagePolicy::class);
+        $this->actingAs($owner, 'client');
+        $resource = \App\Filament\Client\Resources\GalleryImages\GalleryImageResource::class;
+
+        $this->assertTrue($policy->viewAny($owner));
+        $this->assertTrue($policy->create($owner));
+        $this->assertTrue($policy->update($owner, $allowedImage));
+        $this->assertFalse($policy->view($owner, $blockedImage));
+        $this->assertFalse($policy->update($owner, $blockedImage));
+        $this->assertFalse($policy->delete($owner, $blockedImage));
+        $this->assertSame([$allowedImage->id], $resource::getEloquentQuery()->pluck('id')->all());
+        $enabled->settings()->update(['enable_image_gallery' => false]);
+        $this->assertFalse($policy->viewAny($owner));
+        $this->assertFalse($policy->create($owner));
+        $this->assertFalse($policy->update($owner, $allowedImage));
+        $this->assertFalse($resource::shouldRegisterNavigation());
+        $this->assertSame(0, $resource::getEloquentQuery()->count());
+        $enabled->settings()->update(['enable_image_gallery' => true]);
+        $this->assertTrue($resource::shouldRegisterNavigation());
+        $this->assertSame([$allowedImage->id], $resource::getEloquentQuery()->pluck('id')->all());
+    }
+
     protected function websiteFixture(string $companyName = 'Acme', string $domain = 'example.test'): array
     {
         $company = Company::create([

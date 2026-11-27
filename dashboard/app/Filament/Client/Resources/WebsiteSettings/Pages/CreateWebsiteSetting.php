@@ -27,7 +27,9 @@ class CreateWebsiteSetting extends CreateRecord
                 ->where('company_id', $user->company_id)
                 ->firstOrFail();
 
+            abort_if($website->settings()->exists(), 409, 'Settings already exist for this website.');
             $data['website_id'] = $website->id;
+            unset($data['enable_image_gallery']);
         }
 
         $data['position'] = [

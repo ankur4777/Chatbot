@@ -4,6 +4,7 @@ namespace App\Filament\Resources\WebsiteSettings;
 
 use App\Filament\Resources\WebsiteSettings\Pages\CreateWebsiteSetting;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\WebsiteSettings\Pages\EditWebsiteSetting;
 use App\Filament\Resources\WebsiteSettings\Pages\ListWebsiteSettings;
 use App\Filament\Resources\WebsiteSettings\Schemas\WebsiteSettingForm;
@@ -28,7 +29,17 @@ class WebsiteSettingResource extends Resource
     protected static string|BackedEnum|null $navigationIcon =
         Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'website_id';
+    protected static ?string $recordTitleAttribute = null;
+
+    public static function getRecordTitle(?Model $record): ?string
+    {
+        return $record?->website?->name ?? static::getModelLabel();
+    }
+
+    public static function hasRecordTitle(): bool
+    {
+        return true;
+    }
 
     public static function form(Schema $schema): Schema
     {
